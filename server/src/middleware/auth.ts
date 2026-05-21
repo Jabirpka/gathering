@@ -4,12 +4,7 @@ import { prisma } from '../index';
 import { config } from '../config';
 
 export interface AuthRequest extends Request {
-  user?: {
-    id: string;
-    email: string;
-    name: string;
-    avatar?: string | null;
-  };
+  user?: Express.User;
 }
 
 export function generateToken(userId: string): string {
