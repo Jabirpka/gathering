@@ -1,17 +1,19 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { authMiddleware } from '../middleware/auth';
 import { prisma } from '../index';
 
 const router = Router();
 router.use(authMiddleware);
 
-router.get('/group/:groupId', async (req: AuthRequest, res: Response) => {
+router.get('/group/:groupId', async (req: Request, res: Response) => {
   const member = await prisma.groupMember.findUnique({
     where: { userId_groupId: { userId: req.user!.id, groupId: req.params.groupId } },
   });
-  if (!member || member.status !== 'APPROVED') return res.status(403).json({ error: 'Forbidden' });
-
+  if (!member || member.status !== 'APPROVED') {
+    res.status(403).json({ error: 'Forbidden' });
+    return;
+  }
   const events = await prisma.scheduledEvent.findMany({
     where: { groupId: req.params.groupId },
     orderBy: { scheduledAt: 'asc' },
@@ -26,15 +28,19 @@ router.post(
     body('scheduledAt').isISO8601(),
     body('description').optional().trim(),
   ],
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-
+    if (!errors.isEmpty()) {
+      res.status(400).json({ errors: errors.array() });
+      return;
+    }
     const member = await prisma.groupMember.findUnique({
       where: { userId_groupId: { userId: req.user!.id, groupId: req.params.groupId } },
     });
-    if (!member || member.status !== 'APPROVED') return res.status(403).json({ error: 'Forbidden' });
-
+    if (!member || member.status !== 'APPROVED') {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
     const event = await prisma.scheduledEvent.create({
       data: {
         title: req.body.title,
@@ -48,17 +54,19 @@ router.post(
   }
 );
 
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', async (req: Request, res: Response) => {
   const event = await prisma.scheduledEvent.findUnique({ where: { id: req.params.id } });
-  if (!event) return res.status(404).json({ error: 'Not found' });
-
+  if (!event) {
+    res.status(404).json({ error: 'Not found' });
+    return;
+  }
   const member = await prisma.groupMember.findUnique({
     where: { userId_groupId: { userId: req.user!.id, groupId: event.groupId } },
   });
   if (!member || !['OWNER', 'ADMIN'].includes(member.role)) {
-    return res.status(403).json({ error: 'Forbidden' });
+    res.status(403).json({ error: 'Forbidden' });
+    return;
   }
-
   await prisma.scheduledEvent.delete({ where: { id: req.params.id } });
   res.json({ message: 'Deleted' });
 });

@@ -1,15 +1,15 @@
-import { Router, Response } from 'express';
-import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { Router, Request, Response } from 'express';
+import { authMiddleware } from '../middleware/auth';
 import { prisma } from '../index';
 
 const router = Router();
 router.use(authMiddleware);
 
-router.get('/me', (req: AuthRequest, res: Response) => {
+router.get('/me', (req: Request, res: Response) => {
   res.json(req.user);
 });
 
-router.patch('/me', async (req: AuthRequest, res: Response) => {
+router.patch('/me', async (req: Request, res: Response) => {
   const { name } = req.body;
   const user = await prisma.user.update({
     where: { id: req.user!.id },
