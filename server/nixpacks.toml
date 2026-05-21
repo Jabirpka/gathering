@@ -2,7 +2,7 @@
 cmds = ["npm install"]
 
 [phases.build]
-cmds = ["npm run build", "npx prisma generate"]
+cmds = ["npm run build --workspace=gathering-server"]
 
 [start]
-cmd = "npx prisma migrate deploy && node dist/index.js"
+cmd = "cd server && npx prisma migrate deploy && node dist/index.js"
