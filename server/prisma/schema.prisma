@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  googleId      String         @unique
+  email         String         @unique
+  name          String
+  avatar        String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  groups        GroupMember[]
+  createdGroups Group[]        @relation("GroupCreator")
+  messages      Message[]
+  videoComments VideoComment[]
+}
+
+model Group {
+  id              String           @id @default(cuid())
+  name            String
+  code            String           @unique
+  description     String?
+  isPublic        Boolean          @default(false)
+  requireApproval Boolean          @default(true)
+  creatorId       String
+  creator         User             @relation("GroupCreator", fields: [creatorId], references: [id])
+  members         GroupMember[]
+  messages        Message[]
+  videoSessions   VideoSession[]
+  rooms           Room[]
+  scheduledEvents ScheduledEvent[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model GroupMember {
+  id       String       @id @default(cuid())
+  userId   String
+  groupId  String
+  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group    Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  role     Role         @default(MEMBER)
+  status   MemberStatus @default(PENDING)
+  joinedAt DateTime     @default(now())
+
+  @@unique([userId, groupId])
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum MemberStatus {
+  PENDING
+  APPROVED
+  BANNED
+}
+
+model Room {
+  id            String         @id @default(cuid())
+  name          String
+  type          RoomType       @default(VIDEO_CALL)
+  groupId       String
+  group         Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  isActive      Boolean        @default(true)
+  messages      Message[]
+  videoSessions VideoSession[]
+  createdAt     DateTime       @default(now())
+}
+
+enum RoomType {
+  VIDEO_CALL
+  VIDEO_WATCH
+  AUDIO_CALL
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  userId    String
+  groupId   String?
+  roomId    String?
+  user      User     @relation(fields: [userId], references: [id])
+  group     Group?   @relation(fields: [groupId], references: [id])
+  room      Room?    @relation(fields: [roomId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model VideoSession {
+  id          String         @id @default(cuid())
+  groupId     String
+  roomId      String?
+  videoUrl    String
+  title       String
+  isActive    Boolean        @default(true)
+  currentTime Float          @default(0)
+  isPlaying   Boolean        @default(false)
+  hostId      String
+  group       Group          @relation(fields: [groupId], references: [id])
+  room        Room?          @relation(fields: [roomId], references: [id])
+  comments    VideoComment[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model VideoComment {
+  id        String       @id @default(cuid())
+  content   String
+  timestamp Float
+  userId    String
+  sessionId String
+  user      User         @relation(fields: [userId], references: [id])
+  session   VideoSession @relation(fields: [sessionId], references: [id])
+  createdAt DateTime     @default(now())
+}
+
+model ScheduledEvent {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  groupId     String
+  group       Group    @relation(fields: [groupId], references: [id])
+  scheduledAt DateTime
+  meetupData  Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
