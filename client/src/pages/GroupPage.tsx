@@ -3,10 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useGroupStore } from '../store/groupStore';
 import { useAuthStore } from '../store/authStore';
 import { getSocket } from '../hooks/useSocket';
-import { Users, Video, Copy, Check, Settings, UserCheck, Hash, Headphones, LogOut, Calendar } from 'lucide-react';
+import { Users, Video, Copy, Check, Settings, UserCheck, Hash, Headphones, LogOut, Calendar, Zap } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { GroupMember, Room } from '../types';
 import MemberApproval from '../components/groups/MemberApproval';
+import { usersApi } from '../services/api';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
 
@@ -33,12 +34,27 @@ function RoomCard({ room, groupId }: { room: Room; groupId: string }) {
   );
 }
 
-function MemberRow({ member, isOwner, groupId }: { member: GroupMember; isOwner: boolean; groupId: string }) {
+function MemberRow({ member, isOwner, groupId, currentUserId }: { member: GroupMember; isOwner: boolean; groupId: string; currentUserId?: string }) {
+  const [poking, setPoking] = useState(false);
   const roleColors: Record<string, string> = {
     OWNER: 'bg-amber-500/15 text-amber-400',
     ADMIN: 'bg-blue-500/15 text-blue-400',
     MEMBER: 'bg-slate-500/15 text-slate-400',
   };
+
+  const handlePoke = async () => {
+    setPoking(true);
+    try {
+      await usersApi.poke(member.userId);
+      toast.success(`Poked ${member.user.name}! 👉`, { icon: '⚡' });
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to poke');
+    } finally {
+      setPoking(false);
+    }
+  };
+
+  const isSelf = member.userId === currentUserId;
 
   return (
     <div className="flex items-center gap-3 py-2">
@@ -53,6 +69,16 @@ function MemberRow({ member, isOwner, groupId }: { member: GroupMember; isOwner:
         <p className="text-sm font-medium text-white truncate">{member.user.name}</p>
       </div>
       <span className={`badge ${roleColors[member.role]}`}>{member.role}</span>
+      {!isSelf && (
+        <button
+          onClick={handlePoke}
+          disabled={poking}
+          title="Poke"
+          className="ml-1 p-1.5 rounded-lg hover:bg-amber-500/15 text-slate-600 hover:text-amber-400 transition-colors disabled:opacity-50"
+        >
+          <Zap size={14} />
+        </button>
+      )}
     </div>
   );
 }
@@ -171,7 +197,7 @@ export default function GroupPage() {
         <div className="card divide-y divide-white/5">
           {approvedMembers.map((member) => (
             <div key={member.id} className="px-4">
-              <MemberRow member={member} isOwner={myMember?.role === 'OWNER'} groupId={activeGroup.id} />
+              <MemberRow member={member} isOwner={myMember?.role === 'OWNER'} groupId={activeGroup.id} currentUserId={user?.id} />
             </div>
           ))}
         </div>

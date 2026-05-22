@@ -12,6 +12,7 @@ model User {
   googleId      String         @unique
   email         String         @unique
   name          String
+  nickname      String?
   avatar        String?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -19,6 +20,17 @@ model User {
   createdGroups Group[]        @relation("GroupCreator")
   messages      Message[]
   videoComments VideoComment[]
+  pokesReceived Poke[]         @relation("PokeReceiver")
+  pokesSent     Poke[]         @relation("PokeSender")
+}
+
+model Poke {
+  id         String   @id @default(cuid())
+  senderId   String
+  receiverId String
+  sender     User     @relation("PokeSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("PokeReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
 }
 
 model Group {

@@ -17,7 +17,15 @@ declare module 'socket.io' {
   }
 }
 
+let _io: Server;
+
+export function getIO(): Server {
+  if (!_io) throw new Error('Socket.io not initialized');
+  return _io;
+}
+
 export function setupSocketHandlers(io: Server) {
+  _io = io;
   // JWT auth middleware for sockets
   io.use(async (socket, next) => {
     const token = socket.handshake.auth?.token;

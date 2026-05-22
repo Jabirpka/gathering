@@ -6,7 +6,9 @@
       "PowerShell(Get-ChildItem -Path \"D:\\\\gathering\" -Recurse -File | Where-Object { $_.FullName -notmatch \"node_modules\" } | Select-Object -ExpandProperty FullName | Sort-Object)",
       "PowerShell(node --version)",
       "PowerShell(npm --version)",
-      "Bash(Start-Process \"C:\\\\Program Files\\\\Android\\\\Android Studio\\\\bin\\\\studio64.exe\" \"D:\\\\gathering\\\\client\\\\android\")"
+      "Bash(Start-Process \"C:\\\\Program Files\\\\Android\\\\Android Studio\\\\bin\\\\studio64.exe\" \"D:\\\\gathering\\\\client\\\\android\")",
+      "Bash(./node_modules/.bin/prisma generate *)",
+      "Bash(npm run *)"
     ]
   }
 }

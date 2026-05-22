@@ -29,6 +29,15 @@ export const authApi = {
   logout: () => api.post('/auth/logout'),
 };
 
+export const usersApi = {
+  me: () => api.get('/users/me'),
+  myStrikes: () => api.get('/users/me/strikes'),
+  updateMe: (data: { name?: string; nickname?: string; avatar?: string }) =>
+    api.patch('/users/me', data),
+  getUser: (id: string) => api.get(`/users/${id}`),
+  poke: (id: string) => api.post(`/users/${id}/poke`),
+};
+
 export const groupsApi = {
   list: () => api.get('/groups'),
   get: (id: string) => api.get(`/groups/${id}`),

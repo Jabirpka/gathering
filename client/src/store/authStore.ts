@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { User } from '../types';
-import { authApi } from '../services/api';
+import { authApi, usersApi } from '../services/api';
 
 interface AuthState {
   user: User | null;
@@ -8,6 +8,7 @@ interface AuthState {
   loading: boolean;
   setToken: (token: string) => void;
   fetchUser: () => Promise<void>;
+  updateUser: (data: Partial<User>) => void;
   logout: () => void;
 }
 
@@ -29,11 +30,21 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
     try {
       const res = await authApi.me();
-      set({ user: res.data.user || res.data, loading: false });
+      const userData = res.data.user || res.data;
+      // Fetch strike points
+      try {
+        const strikeRes = await usersApi.myStrikes();
+        userData.strikePoints = strikeRes.data.strikePoints ?? 0;
+      } catch {}
+      set({ user: userData, loading: false });
     } catch {
       localStorage.removeItem('token');
       set({ user: null, token: null, loading: false });
     }
+  },
+
+  updateUser: (data: Partial<User>) => {
+    set((state) => ({ user: state.user ? { ...state.user, ...data } : null }));
   },
 
   logout: () => {

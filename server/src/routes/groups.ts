@@ -3,6 +3,7 @@ import { body, validationResult } from 'express-validator';
 import { authMiddleware } from '../middleware/auth';
 import { prisma } from '../index';
 import { customAlphabet } from 'nanoid';
+import { getIO } from '../socket/index';
 
 const router = Router();
 const nanoid = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 8);
@@ -149,10 +150,25 @@ router.patch('/:id/members/:userId', async (req: Request, res: Response) => {
     res.status(403).json({ error: 'Forbidden' });
     return;
   }
+  const group = await prisma.group.findUnique({ where: { id: req.params.id }, select: { name: true } });
   const updated = await prisma.groupMember.update({
     where: { userId_groupId: { userId: req.params.userId, groupId: req.params.id } },
     data: { status: action === 'approve' ? 'APPROVED' : 'BANNED' },
   });
+
+  // Notify the user
+  try {
+    const io = getIO();
+    if (action === 'approve') {
+      io.to(`user:${req.params.userId}`).emit('notification', {
+        type: 'approved',
+        message: `You were approved to join "${group?.name}" 🎉`,
+        groupId: req.params.id,
+        createdAt: new Date().toISOString(),
+      });
+    }
+  } catch {}
+
   res.json(updated);
 });
 

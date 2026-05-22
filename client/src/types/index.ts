@@ -3,8 +3,21 @@ export interface User {
   googleId?: string;
   email: string;
   name: string;
+  nickname?: string | null;
   avatar?: string | null;
+  strikePoints?: number;
   createdAt?: string;
+}
+
+export interface AppNotification {
+  id: string;
+  type: 'poke' | 'approved' | 'pending';
+  message: string;
+  from?: Pick<User, 'id' | 'name' | 'nickname' | 'avatar'>;
+  groupId?: string;
+  strikePoints?: number;
+  createdAt: string;
+  read: boolean;
 }
 
 export type RoomType = 'VIDEO_CALL' | 'VIDEO_WATCH' | 'AUDIO_CALL';
