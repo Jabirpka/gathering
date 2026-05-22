@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Gathering</string>
+    <string name="title_activity_main">Gathering</string>
+    <string name="package_name">com.jabirpka.gathering</string>
+    <string name="custom_url_scheme">com.jabirpka.gathering</string>
+</resources>
