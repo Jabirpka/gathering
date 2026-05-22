@@ -5,12 +5,8 @@ const config: CapacitorConfig = {
   appName: 'Gathering',
   webDir: 'dist',
   server: {
-    // Allow mixed content (HTTP/HTTPS) for API calls
-    allowNavigation: ['gathering-server-production.up.railway.app'],
+    url: 'https://gathering-client-six.vercel.app',
     cleartext: false,
-  },
-  android: {
-    allowMixedContent: false,
   },
 };
 
