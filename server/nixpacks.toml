@@ -5,4 +5,4 @@ cmds = ["npm install"]
 cmds = ["npm run build --workspace=gathering-server"]
 
 [start]
-cmd = "cd server && npx prisma migrate deploy && node dist/index.js"
+cmd = "cd server && npm run prisma:deploy && node dist/index.js"
