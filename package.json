@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "concurrently \"npm run dev --workspace=server\" \"npm run dev --workspace=client\"",
     "build": "npm run build --workspace=server && npm run build --workspace=client",
-    "setup": "npm install && cd server && npm install && cd ../client && npm install",
-    "postinstall": "node -e \"if(!process.env.VERCEL){require('child_process').execSync('cd server && npx prisma@5 generate',{stdio:'inherit'})}\""
+    "setup": "npm install && cd server && npm install && cd ../client && npm install"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
