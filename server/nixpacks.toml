@@ -2,7 +2,10 @@
 cmds = ["npm install"]
 
 [phases.build]
-cmds = ["npm run build --workspace=gathering-server", "cd server && ./node_modules/.bin/prisma generate"]
+cmds = [
+  "npm run build --workspace=gathering-server",
+  "cd server && ./node_modules/.bin/prisma generate"
+]
 
 [start]
-cmd = "cd server && ./node_modules/.bin/prisma migrate deploy && node dist/index.js"
+cmd = "cd server && ./node_modules/.bin/prisma db push --accept-data-loss && node dist/index.js"
