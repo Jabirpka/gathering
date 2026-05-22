@@ -69,8 +69,8 @@ export default function DashboardPage() {
   return (
     <div className="p-6 max-w-7xl mx-auto animate-fade-in">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-1">
+      <div className="mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-white mb-1">
           Welcome back, {user?.name?.split(' ')[0]} 👋
         </h1>
         <p className="text-slate-400 text-sm">Hang out with your people, wherever they are.</p>

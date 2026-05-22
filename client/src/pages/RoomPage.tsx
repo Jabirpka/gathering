@@ -8,17 +8,18 @@ import VideoPlayer from '../components/video/VideoPlayer';
 import VideoComments from '../components/video/VideoComments';
 import VideoCall from '../components/call/VideoCall';
 import StartVideoModal from '../components/video/StartVideoModal';
-import { ArrowLeft, Film, Users, MessageSquare, Play } from 'lucide-react';
+import { ArrowLeft, Film, MessageSquare, Play, ChevronDown, ChevronUp } from 'lucide-react';
 import clsx from 'clsx';
 
 type Panel = 'chat' | 'comments';
 
 export default function RoomPage() {
   const { groupId, roomId } = useParams<{ groupId: string; roomId: string }>();
-  const { activeGroup, fetchGroup, videoSession, messages } = useGroupStore();
+  const { activeGroup, fetchGroup, videoSession } = useGroupStore();
   const user = useAuthStore((s) => s.user);
   const [panel, setPanel] = useState<Panel>('chat');
   const [showStartVideo, setShowStartVideo] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const socket = getSocket();
 
   useEffect(() => {
@@ -34,8 +35,6 @@ export default function RoomPage() {
   const room = activeGroup?.rooms?.find((r) => r.id === roomId);
   const isWatchParty = room?.type === 'VIDEO_WATCH';
   const isVideoCall = room?.type === 'VIDEO_CALL' || room?.type === 'AUDIO_CALL';
-  const myMember = activeGroup?.members?.find((m) => m.userId === user?.id);
-  const isHost = videoSession?.hostId === user?.id;
 
   if (!room || !groupId || !roomId) {
     return (
@@ -48,27 +47,29 @@ export default function RoomPage() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* Room header */}
-      <div className="h-12 shrink-0 border-b border-white/5 bg-surface-1 flex items-center px-4 gap-3">
+      <div className="h-12 shrink-0 border-b border-white/5 bg-surface-1 flex items-center px-3 gap-2">
         <Link to={`/groups/${groupId}`} className="btn-ghost p-1.5">
           <ArrowLeft size={15} />
         </Link>
         <span className="text-sm font-medium text-slate-300 truncate">{room.name}</span>
-        <span className="badge bg-surface-3 text-slate-500 text-[10px]">{activeGroup?.name}</span>
-
+        <span className="badge bg-surface-3 text-slate-500 text-[10px] hidden sm:inline-flex">
+          {activeGroup?.name}
+        </span>
         <div className="flex-1" />
 
-        {isWatchParty && myMember?.status === 'APPROVED' && (
+        {isWatchParty && (
           <button
             onClick={() => setShowStartVideo(true)}
-            className="btn-secondary text-xs gap-1.5 py-1.5"
+            className="btn-secondary text-xs gap-1.5 py-1.5 px-3"
           >
             <Film size={13} />
-            {videoSession ? 'Change Video' : 'Start Video'}
+            <span className="hidden sm:inline">{videoSession ? 'Change' : 'Start Video'}</span>
+            <span className="sm:hidden">▶</span>
           </button>
         )}
 
-        {/* Panel toggles */}
-        <div className="flex gap-1 bg-surface-2 p-0.5 rounded-lg">
+        {/* Panel toggles — desktop */}
+        <div className="hidden sm:flex gap-1 bg-surface-2 p-0.5 rounded-lg">
           <button
             onClick={() => setPanel('chat')}
             className={clsx('p-1.5 rounded-md transition-colors', panel === 'chat' ? 'bg-brand/30 text-brand-light' : 'text-slate-500 hover:text-slate-300')}
@@ -87,29 +88,30 @@ export default function RoomPage() {
       </div>
 
       {/* Room body */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-col sm:flex-row flex-1 overflow-hidden">
         {/* Main content */}
-        <div className="flex-1 overflow-hidden bg-black relative">
+        <div className={clsx(
+          'overflow-hidden bg-black relative',
+          chatOpen ? 'h-[55vw] sm:h-auto sm:flex-1' : 'flex-1'
+        )}>
           {isWatchParty && (
-            <>
-              {videoSession ? (
-                <VideoPlayer session={videoSession} roomId={roomId} groupId={groupId} />
-              ) : (
-                <div className="h-full flex flex-col items-center justify-center gap-4 text-center px-6">
-                  <div className="w-20 h-20 rounded-2xl bg-brand/10 flex items-center justify-center mb-2">
-                    <Play size={36} className="text-brand-light" />
-                  </div>
-                  <h2 className="text-xl font-bold text-white">Watch Party</h2>
-                  <p className="text-slate-400 text-sm max-w-xs">
-                    Start a synchronized watch session. Everyone in the room will watch in perfect sync.
-                  </p>
-                  <button onClick={() => setShowStartVideo(true)} className="btn-primary">
-                    <Film size={16} />
-                    Start a Video
-                  </button>
+            videoSession ? (
+              <VideoPlayer session={videoSession} roomId={roomId} groupId={groupId} />
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center gap-4 text-center px-6">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-brand/10 flex items-center justify-center">
+                  <Play size={28} className="text-brand-light" />
                 </div>
-              )}
-            </>
+                <h2 className="text-lg sm:text-xl font-bold text-white">Watch Party</h2>
+                <p className="text-slate-400 text-sm max-w-xs">
+                  Start a synchronized watch session. Everyone watches in perfect sync.
+                </p>
+                <button onClick={() => setShowStartVideo(true)} className="btn-primary">
+                  <Film size={16} />
+                  Start a Video
+                </button>
+              </div>
+            )
           )}
 
           {isVideoCall && groupId && (
@@ -121,15 +123,26 @@ export default function RoomPage() {
           )}
         </div>
 
-        {/* Side panel */}
-        <div className="w-72 shrink-0 overflow-hidden flex flex-col">
+        {/* Mobile chat toggle button */}
+        <button
+          onClick={() => setChatOpen((v) => !v)}
+          className="sm:hidden flex items-center justify-between px-4 py-2.5 bg-surface-1 border-t border-white/5 text-sm text-slate-400"
+        >
+          <span className="flex items-center gap-2">
+            <MessageSquare size={14} />
+            Chat
+          </span>
+          {chatOpen ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+        </button>
+
+        {/* Side panel — full on desktop, collapsible on mobile */}
+        <div className={clsx(
+          'sm:w-72 sm:flex shrink-0 overflow-hidden flex-col border-t sm:border-t-0 sm:border-l border-white/5',
+          chatOpen ? 'flex h-64' : 'hidden sm:flex'
+        )}>
           {panel === 'chat' && <ChatPanel groupId={groupId} roomId={roomId} />}
           {panel === 'comments' && videoSession && (
-            <VideoComments
-              session={videoSession}
-              roomId={roomId}
-              currentTime={0}
-            />
+            <VideoComments session={videoSession} roomId={roomId} currentTime={0} />
           )}
         </div>
       </div>

@@ -45,7 +45,7 @@ export default function CreateGroupModal({ open, onClose }: Props) {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
           <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95 }} className="relative card w-full max-w-md p-6 shadow-2xl">
+            exit={{ opacity: 0, scale: 0.95 }} className="relative card w-full max-w-md p-5 sm:p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-semibold text-white text-lg">Create a group</h2>
               <button onClick={onClose} className="btn-ghost p-1.5"><X size={16} /></button>

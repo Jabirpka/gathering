@@ -1,26 +1,36 @@
-import { Video, Bell, Settings } from 'lucide-react';
+import { Video, Bell, Menu } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
-export default function Navbar() {
+interface Props {
+  onMenuClick?: () => void;
+}
+
+export default function Navbar({ onMenuClick }: Props) {
   const { user, logout } = useAuth();
 
   return (
-    <header className="h-14 border-b border-white/5 bg-surface-1 flex items-center px-4 gap-4 shrink-0 z-20">
-      <Link to="/dashboard" className="flex items-center gap-2 mr-2">
+    <header className="h-14 border-b border-white/5 bg-surface-1 flex items-center px-4 gap-3 shrink-0 z-20">
+      {/* Mobile menu button */}
+      <button
+        onClick={onMenuClick}
+        className="lg:hidden btn-ghost p-2 -ml-1"
+        aria-label="Open menu"
+      >
+        <Menu size={18} />
+      </button>
+
+      <Link to="/dashboard" className="flex items-center gap-2">
         <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand to-accent flex items-center justify-center">
           <Video size={14} className="text-white" />
         </div>
-        <span className="font-semibold text-white text-sm">Gathering</span>
+        <span className="font-semibold text-white text-sm hidden sm:block">Gathering</span>
       </Link>
 
       <div className="flex-1" />
 
       <button className="btn-ghost p-2">
         <Bell size={17} />
-      </button>
-      <button className="btn-ghost p-2">
-        <Settings size={17} />
       </button>
 
       {user && (
@@ -36,7 +46,7 @@ export default function Navbar() {
               {user.name[0]}
             </div>
           )}
-          <span className="text-sm text-slate-300 hidden sm:block">{user.name}</span>
+          <span className="text-sm text-slate-300 hidden sm:block max-w-[120px] truncate">{user.name}</span>
         </button>
       )}
     </header>
