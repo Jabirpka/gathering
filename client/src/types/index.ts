@@ -43,11 +43,21 @@ export interface GroupMember {
   user: Pick<User, 'id' | 'name' | 'avatar'>;
 }
 
+export interface CallRing {
+  roomId: string;
+  groupId: string;
+  roomName: string;
+  groupName: string;
+  caller: Pick<User, 'id' | 'name' | 'avatar'>;
+  type: 'VIDEO_CALL' | 'AUDIO_CALL';
+}
+
 export interface Group {
   id: string;
   name: string;
   code: string;
   description?: string | null;
+  avatar?: string | null;
   isPublic: boolean;
   requireApproval: boolean;
   creatorId: string;

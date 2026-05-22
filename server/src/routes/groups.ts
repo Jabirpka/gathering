@@ -180,11 +180,14 @@ router.patch('/:id', async (req: Request, res: Response) => {
     res.status(403).json({ error: 'Forbidden' });
     return;
   }
-  const { name, description, isPublic, requireApproval } = req.body;
-  const group = await prisma.group.update({
-    where: { id: req.params.id },
-    data: { name, description, isPublic, requireApproval },
-  });
+  const { name, description, isPublic, requireApproval, avatar } = req.body;
+  const data: any = {};
+  if (name !== undefined) data.name = name;
+  if (description !== undefined) data.description = description;
+  if (isPublic !== undefined) data.isPublic = isPublic;
+  if (requireApproval !== undefined) data.requireApproval = requireApproval;
+  if (avatar !== undefined) data.avatar = avatar;
+  const group = await prisma.group.update({ where: { id: req.params.id }, data });
   res.json(group);
 });
 

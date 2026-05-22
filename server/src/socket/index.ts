@@ -76,20 +76,66 @@ export function setupSocketHandlers(io: Server) {
     });
 
     // Room presence (video call / watch party rooms)
-    socket.on('room:join', ({ roomId }: { roomId: string }) => {
+    socket.on('room:join', async ({ roomId, groupId }: { roomId: string; groupId?: string }) => {
       socket.join(`room:${roomId}`);
       socket.to(`room:${roomId}`).emit('room:user-joined', {
         userId: socket.user.id,
         name: socket.user.name,
         avatar: socket.user.avatar,
       });
+
+      // Ring notification for call rooms
+      if (groupId) {
+        try {
+          const room = await prisma.room.findUnique({ where: { id: roomId }, include: { group: { select: { name: true } } } });
+          if (room && (room.type === 'VIDEO_CALL' || room.type === 'AUDIO_CALL')) {
+            io.to(`group:${groupId}`).emit('call:ring', {
+              roomId,
+              groupId,
+              roomName: room.name,
+              groupName: room.group.name,
+              caller: { id: socket.user.id, name: socket.user.name, avatar: socket.user.avatar },
+              type: room.type,
+            });
+          }
+        } catch {}
+      }
     });
 
     socket.on('room:leave', ({ roomId }: { roomId: string }) => {
       socket.leave(`room:${roomId}`);
-      socket.to(`room:${roomId}`).emit('room:user-left', {
+      socket.to(`room:${roomId}`).emit('room:user-left', { userId: socket.user.id });
+    });
+
+    // Emoji reactions
+    socket.on('room:emoji', ({ roomId, emoji }: { roomId: string; emoji: string }) => {
+      io.to(`room:${roomId}`).emit('room:emoji', {
         userId: socket.user.id,
+        name: socket.user.name,
+        avatar: socket.user.avatar,
+        emoji,
       });
+    });
+
+    // PTT (Push to Talk / Walky-Talky)
+    socket.on('room:ptt:chunk', ({ roomId, chunk }: { roomId: string; chunk: ArrayBuffer }) => {
+      socket.to(`room:${roomId}`).emit('room:ptt:chunk', {
+        userId: socket.user.id,
+        name: socket.user.name,
+        chunk,
+      });
+    });
+
+    socket.on('room:ptt:start', ({ roomId }: { roomId: string }) => {
+      socket.to(`room:${roomId}`).emit('room:ptt:start', {
+        userId: socket.user.id,
+        name: socket.user.name,
+        avatar: socket.user.avatar,
+      });
+    });
+
+    socket.on('room:ptt:end', ({ roomId }: { roomId: string }) => {
+      socket.to(`room:${roomId}`).emit('room:ptt:end', { userId: socket.user.id });
     });
 
     socket.on('disconnect', () => {

@@ -33,8 +33,14 @@ function GroupItem({ group, onNavigate }: { group: Group; onNavigate: () => void
             : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
         )}
       >
-        <div className="w-7 h-7 rounded-lg bg-brand/20 flex items-center justify-center text-[11px] font-bold text-brand-light shrink-0">
-          {group.name[0].toUpperCase()}
+        <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0">
+          {group.avatar ? (
+            <img src={group.avatar} className="w-full h-full object-cover" alt={group.name} />
+          ) : (
+            <div className="w-full h-full bg-brand/20 flex items-center justify-center text-[11px] font-bold text-brand-light">
+              {group.name[0].toUpperCase()}
+            </div>
+          )}
         </div>
         <span className="flex-1 truncate font-medium">{group.name}</span>
         {open ? <ChevronDown size={13} /> : <ChevronRight size={13} />}

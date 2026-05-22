@@ -43,7 +43,7 @@ export const groupsApi = {
   get: (id: string) => api.get(`/groups/${id}`),
   create: (data: { name: string; description?: string; isPublic?: boolean; requireApproval?: boolean }) =>
     api.post('/groups', data),
-  update: (id: string, data: Partial<{ name: string; description: string; isPublic: boolean; requireApproval: boolean }>) =>
+  update: (id: string, data: Partial<{ name: string; description: string; isPublic: boolean; requireApproval: boolean; avatar: string }>) =>
     api.patch(`/groups/${id}`, data),
   join: (code: string) => api.post('/groups/join', { code }),
   leave: (id: string) => api.delete(`/groups/${id}/leave`),
