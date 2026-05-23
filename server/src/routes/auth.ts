@@ -34,18 +34,22 @@ router.get(
   (req: Request, res: Response) => {
     const token = generateToken(req.user!.id);
 
-    // If pollId was passed in state, save token for native app polling
+    // Check if this was a mobile (native app) request via pollId in state
+    let isMobile = false;
     try {
       const rawState = (req.query.state as string) || '';
       if (rawState) {
-        const { pollId } = JSON.parse(Buffer.from(rawState, 'base64').toString());
-        if (pollId) {
-          pollStore.set(pollId, { token, expires: Date.now() + 5 * 60_000 });
-        }
+        const parsed = JSON.parse(Buffer.from(rawState, 'base64').toString());
+        if (parsed.pollId) isMobile = true;
       }
     } catch {}
 
-    res.redirect(`${config.clientUrl}/auth/callback?token=${token}`);
+    if (isMobile) {
+      // Deep link back to the native app — Android intercepts gathering:// scheme
+      res.redirect(`gathering://auth?token=${token}`);
+    } else {
+      res.redirect(`${config.clientUrl}/auth/callback?token=${token}`);
+    }
   }
 );
 

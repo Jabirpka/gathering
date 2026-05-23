@@ -8,7 +8,8 @@
       "PowerShell(npm --version)",
       "Bash(Start-Process \"C:\\\\Program Files\\\\Android\\\\Android Studio\\\\bin\\\\studio64.exe\" \"D:\\\\gathering\\\\client\\\\android\")",
       "Bash(./node_modules/.bin/prisma generate *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(findstr capacitor *)"
     ]
   }
 }

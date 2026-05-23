@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Video, Users, MessageSquare, Zap, Calendar, Loader2 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
-import { useAuthStore } from '../store/authStore';
 import toast from 'react-hot-toast';
 
 const BASE = import.meta.env.VITE_API_URL ?? '';
@@ -19,49 +17,22 @@ const FEATURES = [
 ];
 
 export default function LandingPage() {
-  const navigate = useNavigate();
-  const { setToken, fetchUser } = useAuthStore();
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     if (Capacitor.isNativePlatform()) {
-      // Native app: use poll-based OAuth via Chrome Custom Tab
+      // Native app: open Google OAuth in Chrome Custom Tab.
+      // Server will redirect to gathering://auth?token=xxx on success,
+      // which Android intercepts and App.tsx handles via appUrlOpen.
       setLoading(true);
-      const pollId = Math.random().toString(36).slice(2) + Date.now().toString(36);
-
+      // Embed a marker so the server knows to use the deep link redirect
+      const pollId = 'native_' + Date.now().toString(36);
       try {
-        // Open OAuth in Chrome Custom Tab (not WebView — Google allows this)
         await Browser.open({
           url: `${BASE}/api/auth/google?pollId=${pollId}`,
           windowName: '_self',
         });
-
-        // Poll every 1.5s for up to 3 minutes
-        let attempts = 0;
-        const maxAttempts = 120;
-        const poll = async (): Promise<void> => {
-          if (attempts++ > maxAttempts) {
-            setLoading(false);
-            toast.error('Sign-in timed out. Please try again.');
-            return;
-          }
-          try {
-            const res = await fetch(`${BASE}/api/auth/token-poll?pollId=${pollId}`);
-            const data = await res.json();
-            if (data.ready && data.token) {
-              await Browser.close();
-              await setToken(data.token);
-              await fetchUser();
-              navigate('/dashboard', { replace: true });
-              setLoading(false);
-              return;
-            }
-          } catch {}
-          await new Promise((r) => setTimeout(r, 1500));
-          return poll();
-        };
-
-        poll();
+        // Loading stays true — appUrlOpen in App.tsx will navigate us away
       } catch {
         setLoading(false);
         toast.error('Failed to open sign-in. Please try again.');

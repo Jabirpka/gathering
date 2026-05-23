@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Capacitor } from '@capacitor/core';
+import { App as CapApp } from '@capacitor/app';
 import { useAuth } from './hooks/useAuth';
+import { useAuthStore } from './store/authStore';
 import { useSocket } from './hooks/useSocket';
 import { getSocket } from './hooks/useSocket';
 import { useNotificationStore } from './store/notificationStore';
@@ -19,8 +22,31 @@ import toast from 'react-hot-toast';
 function AppRoutes() {
   useSocket();
   const { user, loading } = useAuth();
+  const { setToken, fetchUser } = useAuthStore();
+  const navigate = useNavigate();
   const addNotification = useNotificationStore((s) => s.addNotification);
   const [incomingCall, setIncomingCall] = useState<CallRing | null>(null);
+
+  // Handle deep link OAuth callback: gathering://auth?token=xxx
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    const listener = CapApp.addListener('appUrlOpen', async (event) => {
+      try {
+        const url = new URL(event.url);
+        if (url.hostname === 'auth') {
+          const token = url.searchParams.get('token');
+          if (token) {
+            await setToken(token);
+            await fetchUser();
+            navigate('/dashboard', { replace: true });
+          }
+        }
+      } catch (err) {
+        console.error('Deep link parse error', err);
+      }
+    });
+    return () => { listener.then((l) => l.remove()); };
+  }, []);
 
   // Wire up global socket listeners
   useEffect(() => {
