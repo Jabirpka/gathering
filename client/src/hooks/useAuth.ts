@@ -5,12 +5,13 @@ export function useAuth() {
   const { user, token, loading, fetchUser, logout, setToken } = useAuthStore();
 
   useEffect(() => {
-    if (token && !user) {
+    // Always try fetchUser on mount — reads from native Preferences too
+    if (!user) {
       fetchUser();
-    } else if (!token) {
+    } else {
       useAuthStore.setState({ loading: false });
     }
-  }, [token]);
+  }, []);
 
   return { user, token, loading, logout, setToken };
 }

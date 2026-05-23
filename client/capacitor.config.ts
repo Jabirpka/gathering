@@ -4,9 +4,10 @@ const config: CapacitorConfig = {
   appId: 'com.jabirpka.gathering',
   appName: 'Gathering',
   webDir: 'dist',
-  server: {
-    url: 'https://gathering-client-six.vercel.app',
-    cleartext: false,
+  plugins: {
+    Browser: {
+      presentationStyle: 'popover',
+    },
   },
 };
 
