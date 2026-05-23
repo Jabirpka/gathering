@@ -19,7 +19,7 @@ public class MainActivity extends BridgeActivity {
     // ── Runtime permissions ───────────────────────────────────────────────────
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
         requestMediaPermissionsIfNeeded();
     }
