@@ -81,8 +81,28 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 }));
 
-// Initialize: read token from native storage on startup
+/**
+ * Read the iOS PWA bridge cookie (set by AuthCallback after OAuth in Safari).
+ * Consumes it immediately so it cannot be replayed.
+ */
+function consumeAuthCookie(): string | null {
+  const match = document.cookie.match(/(?:^|; )gathering_auth=([^;]*)/);
+  if (!match) return null;
+  // Clear the cookie right away
+  document.cookie = 'gathering_auth=; path=/; max-age=0; SameSite=Lax';
+  try { return decodeURIComponent(match[1]); } catch { return null; }
+}
+
+// Initialize: prefer cookie bridge (iOS PWA) → native Preferences → localStorage
 (async () => {
+  const cookieToken = consumeAuthCookie();
+  if (cookieToken) {
+    // Token just arrived from Safari via cookie — persist it properly
+    await writeToken(cookieToken);
+    localStorage.setItem('token', cookieToken);
+    useAuthStore.setState({ token: cookieToken });
+    return;
+  }
   const token = await readToken();
   if (token) {
     localStorage.setItem('token', token);
