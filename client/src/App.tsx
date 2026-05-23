@@ -37,7 +37,7 @@ function AppRoutes() {
           const token = url.searchParams.get('token');
           if (token) {
             await setToken(token);
-            await fetchUser();
+            try { await fetchUser(); } catch {}
             navigate('/dashboard', { replace: true });
           }
         }

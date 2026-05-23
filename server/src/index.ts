@@ -23,9 +23,23 @@ export const prisma = new PrismaClient();
 const app = express();
 const httpServer = createServer(app);
 
+// Allow web client + Capacitor Android/iOS WebView origins
+const allowedOrigins = [
+  config.clientUrl,
+  'capacitor://localhost', // Capacitor Android/iOS
+  'http://localhost',
+  'https://localhost',
+  'http://localhost:5173', // Vite dev server
+];
+
 app.use(
   cors({
-    origin: config.clientUrl,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (native apps, curl, etc.)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      callback(null, false);
+    },
     credentials: true,
   })
 );
@@ -60,7 +74,7 @@ app.use(errorHandler);
 
 export const io = new SocketServer(httpServer, {
   cors: {
-    origin: config.clientUrl,
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true,
   },
