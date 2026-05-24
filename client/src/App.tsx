@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
 import { App as CapApp } from '@capacitor/app';
 import { useAuth } from './hooks/useAuth';
@@ -24,8 +24,25 @@ function AppRoutes() {
   const { user, loading } = useAuth();
   const { setToken, fetchUser } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const addNotification = useNotificationStore((s) => s.addNotification);
   const [incomingCall, setIncomingCall] = useState<CallRing | null>(null);
+
+  // Handle Android hardware/gesture back button
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    const ROOT_PATHS = ['/', '/dashboard'];
+    const listener = CapApp.addListener('backButton', () => {
+      if (ROOT_PATHS.includes(location.pathname)) {
+        // At the root screen — move app to background (standard Android UX)
+        CapApp.exitApp();
+      } else {
+        // Inside the app — go back like the browser back button
+        navigate(-1);
+      }
+    });
+    return () => { listener.then((l) => l.remove()); };
+  }, [location.pathname, navigate]);
 
   // Handle deep link OAuth callback: gathering://auth?token=xxx
   useEffect(() => {

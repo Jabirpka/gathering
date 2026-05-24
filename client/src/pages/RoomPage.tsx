@@ -179,7 +179,14 @@ export default function RoomPage() {
               )
           )}
           {isVideoCall && groupId && (
-            <VideoCall roomName={`${groupId}-${roomId}`} groupId={groupId} displayName={user?.name ?? 'Participant'} />
+            // key forces a full remount (fresh token + clean WebRTC state)
+            // every time the user enters this specific room
+            <VideoCall
+              key={`call-${groupId}-${roomId}`}
+              roomName={`${groupId}-${roomId}`}
+              groupId={groupId}
+              displayName={user?.name ?? 'Participant'}
+            />
           )}
 
           {/* Desktop emoji + PTT bar */}
