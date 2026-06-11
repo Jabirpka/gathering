@@ -25,6 +25,7 @@ export default function RoomPage() {
   const [panel, setPanel] = useState<Panel>('chat');
   const [showStartVideo, setShowStartVideo] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [videoCurrentTime, setVideoCurrentTime] = useState(0);
   const [floatingEmojis, setFloatingEmojis] = useState<FloatingEmoji[]>([]);
   const [pttActive, setPttActive] = useState(false);
   const [pttUsers, setPttUsers] = useState<PTTUser[]>([]);
@@ -35,6 +36,11 @@ export default function RoomPage() {
   useEffect(() => {
     if (groupId) fetchGroup(groupId);
   }, [groupId]);
+
+  // Reset the tracked playback position whenever the active video session changes
+  useEffect(() => {
+    setVideoCurrentTime(0);
+  }, [videoSession?.id]);
 
   useEffect(() => {
     if (!roomId || !groupId) return;
@@ -166,7 +172,15 @@ export default function RoomPage() {
         <div className={clsx('overflow-hidden bg-black relative', chatOpen ? 'h-[55vw] sm:h-auto sm:flex-1' : 'flex-1')}>
           {isWatchParty && (
             videoSession
-              ? <VideoPlayer session={videoSession} roomId={roomId} groupId={groupId} />
+              ? (
+                <VideoPlayer
+                  key={videoSession.id}
+                  session={videoSession}
+                  roomId={roomId}
+                  groupId={groupId}
+                  onTimeUpdate={setVideoCurrentTime}
+                />
+              )
               : (
                 <div className="h-full flex flex-col items-center justify-center gap-4 text-center px-6">
                   <div className="w-16 h-16 rounded-2xl bg-brand/10 flex items-center justify-center">
@@ -189,8 +203,9 @@ export default function RoomPage() {
             />
           )}
 
-          {/* Desktop emoji + PTT bar */}
-          <div className="hidden sm:flex absolute bottom-16 left-3 gap-1.5 z-10">
+          {/* Desktop emoji + PTT bar — placed top-left so it never overlaps the
+              video controls / LiveKit control bar at the bottom */}
+          <div className="hidden sm:flex absolute top-3 left-3 gap-1.5 z-10">
             {EMOJIS.map((emoji) => (
               <button key={emoji} onClick={() => sendEmoji(emoji)}
                 className="text-xl w-9 h-9 rounded-xl bg-black/60 backdrop-blur hover:bg-black/80 flex items-center justify-center transition-all active:scale-90">
@@ -241,7 +256,7 @@ export default function RoomPage() {
           chatOpen ? 'flex h-64' : 'hidden sm:flex'
         )}>
           {panel === 'chat' && <ChatPanel groupId={groupId} roomId={roomId} />}
-          {panel === 'comments' && videoSession && <VideoComments session={videoSession} roomId={roomId} currentTime={0} />}
+          {panel === 'comments' && videoSession && <VideoComments session={videoSession} roomId={roomId} currentTime={videoCurrentTime} />}
         </div>
       </div>
 

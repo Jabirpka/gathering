@@ -1,5 +1,5 @@
 import { Play, Pause, MessageSquare, Volume2, VolumeX } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 import { VideoSession } from '../../types';
 
 interface Props {
@@ -7,9 +7,11 @@ interface Props {
   currentTime: number;
   duration: number;
   isHost: boolean;
+  muted: boolean;
   showComments: boolean;
   onTogglePlay: () => void;
   onSeek: (t: number) => void;
+  onToggleMute: () => void;
   onToggleComments: () => void;
   session: VideoSession;
   roomId: string;
@@ -23,10 +25,9 @@ function formatTime(s: number) {
 }
 
 export default function VideoControls({
-  isPlaying, currentTime, duration, isHost, showComments,
-  onTogglePlay, onSeek, onToggleComments,
+  isPlaying, currentTime, duration, isHost, muted, showComments,
+  onTogglePlay, onSeek, onToggleMute, onToggleComments,
 }: Props) {
-  const [muted, setMuted] = useState(false);
   const barRef = useRef<HTMLDivElement>(null);
 
   const handleBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -65,7 +66,7 @@ export default function VideoControls({
         </button>
 
         <button
-          onClick={() => setMuted((v) => !v)}
+          onClick={onToggleMute}
           className="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
         >
           {muted ? <VolumeX size={14} className="text-white" /> : <Volume2 size={14} className="text-white" />}
