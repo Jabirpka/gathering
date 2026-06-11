@@ -2,11 +2,11 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useGroupStore } from '../store/groupStore';
 import { useAuthStore } from '../store/authStore';
+import { useCallStore } from '../store/callStore';
 import { getSocket } from '../hooks/useSocket';
 import ChatPanel from '../components/chat/ChatPanel';
 import VideoPlayer from '../components/video/VideoPlayer';
 import VideoComments from '../components/video/VideoComments';
-import VideoCall from '../components/call/VideoCall';
 import StartVideoModal from '../components/video/StartVideoModal';
 import { ArrowLeft, Film, MessageSquare, Play, Mic, MicOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,6 +22,7 @@ export default function RoomPage() {
   const { groupId, roomId } = useParams<{ groupId: string; roomId: string }>();
   const { activeGroup, fetchGroup, videoSession } = useGroupStore();
   const user = useAuthStore((s) => s.user);
+  const { joinCall, setMountNode } = useCallStore();
   const [panel, setPanel] = useState<Panel>('chat');
   const [showStartVideo, setShowStartVideo] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
@@ -32,6 +33,11 @@ export default function RoomPage() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const socket = getSocket();
+
+  // Compute room/type info early (no hooks involved) so the hooks below can use it
+  const room = activeGroup?.rooms?.find((r) => r.id === roomId);
+  const isWatchParty = room?.type === 'VIDEO_WATCH';
+  const isVideoCall = room?.type === 'VIDEO_CALL' || room?.type === 'AUDIO_CALL';
 
   useEffect(() => {
     if (groupId) fetchGroup(groupId);
@@ -105,9 +111,23 @@ export default function RoomPage() {
     socket?.emit('room:ptt:end', { roomId });
   }, [roomId]);
 
-  const room = activeGroup?.rooms?.find((r) => r.id === roomId);
-  const isWatchParty = room?.type === 'VIDEO_WATCH';
-  const isVideoCall = room?.type === 'VIDEO_CALL' || room?.type === 'AUDIO_CALL';
+  // Join the persistent call when entering a call room. CallManager keeps the
+  // LiveKit connection alive across navigation (see joinCall/setMountNode).
+  useEffect(() => {
+    if (!isVideoCall || !groupId || !roomId) return;
+    joinCall({
+      roomName: `${groupId}-${roomId}`,
+      groupId,
+      roomId,
+      roomLabel: room?.name ?? 'Call',
+      displayName: user?.name ?? 'Participant',
+    });
+  }, [isVideoCall, groupId, roomId]);
+
+  // Hand the mount point to CallManager so it can portal the full call UI here
+  const setCallMount = useCallback((node: HTMLDivElement | null) => {
+    if (isVideoCall) setMountNode(node);
+  }, [isVideoCall, setMountNode]);
 
   if (!room || !groupId || !roomId) {
     return <div className="flex items-center justify-center h-full"><p className="text-slate-500">Room not found</p></div>;
@@ -192,15 +212,11 @@ export default function RoomPage() {
                 </div>
               )
           )}
-          {isVideoCall && groupId && (
-            // key forces a full remount (fresh token + clean WebRTC state)
-            // every time the user enters this specific room
-            <VideoCall
-              key={`call-${groupId}-${roomId}`}
-              roomName={`${groupId}-${roomId}`}
-              groupId={groupId}
-              displayName={user?.name ?? 'Participant'}
-            />
+          {isVideoCall && (
+            // CallManager (mounted once near the app root) portals the live
+            // call UI into this div, keeping the connection alive even when
+            // the user navigates away (see store/callStore.ts)
+            <div ref={setCallMount} className="w-full h-full" />
           )}
 
           {/* Desktop emoji + PTT bar — placed top-left so it never overlaps the

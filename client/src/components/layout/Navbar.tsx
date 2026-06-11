@@ -16,7 +16,10 @@ export default function Navbar({ onMenuClick }: Props) {
   const [showNotifs, setShowNotifs] = useState(false);
 
   return (
-    <header className="h-14 border-b border-white/5 bg-surface-1 flex items-center px-4 gap-3 shrink-0 z-20">
+    <header
+      className="h-14 border-b border-white/5 bg-surface-1 flex items-center px-4 gap-3 shrink-0 z-20"
+      style={{ paddingTop: 'env(safe-area-inset-top)', height: 'calc(3.5rem + env(safe-area-inset-top))' }}
+    >
       {/* Mobile menu button */}
       <button
         onClick={onMenuClick}

@@ -4,6 +4,7 @@ import { Capacitor } from '@capacitor/core';
 import { App as CapApp } from '@capacitor/app';
 import { useAuth } from './hooks/useAuth';
 import { useAuthStore } from './store/authStore';
+import { useCallStore } from './store/callStore';
 import { useSocket } from './hooks/useSocket';
 import { getSocket } from './hooks/useSocket';
 import { useNotificationStore } from './store/notificationStore';
@@ -17,6 +18,7 @@ import ProfilePage from './pages/ProfilePage';
 import AuthCallback from './pages/AuthCallback';
 import Layout from './components/layout/Layout';
 import CallRingNotification from './components/call/CallRingNotification';
+import CallManager from './components/call/CallManager';
 import toast from 'react-hot-toast';
 
 function AppRoutes() {
@@ -27,6 +29,12 @@ function AppRoutes() {
   const location = useLocation();
   const addNotification = useNotificationStore((s) => s.addNotification);
   const [incomingCall, setIncomingCall] = useState<CallRing | null>(null);
+  const leaveCall = useCallStore((s) => s.leaveCall);
+
+  // Clear any active call when the user logs out
+  useEffect(() => {
+    if (!user) leaveCall();
+  }, [user, leaveCall]);
 
   // Handle Android hardware/gesture back button
   useEffect(() => {
@@ -103,6 +111,7 @@ function AppRoutes() {
   return (
     <>
       <CallRingNotification ring={incomingCall} onDismiss={() => setIncomingCall(null)} />
+      {user && <CallManager />}
       <Routes>
         <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
         <Route path="/auth/callback" element={<AuthCallback />} />

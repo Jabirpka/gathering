@@ -56,7 +56,8 @@ export default function CallRingNotification({ ring, onDismiss }: Props) {
           initial={{ opacity: 0, y: -80 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -80 }}
-          className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] w-[90vw] max-w-sm"
+          className="fixed left-1/2 -translate-x-1/2 z-[100] w-[90vw] max-w-sm"
+          style={{ top: 'max(env(safe-area-inset-top), 1rem)' }}
         >
           <div className="card p-4 border border-brand/30 shadow-2xl bg-surface-1/95 backdrop-blur-md">
             <div className="flex items-center gap-3">
