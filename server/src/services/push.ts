@@ -13,9 +13,10 @@ interface CallPushPayload {
 
 /**
  * Sends a high-priority "incoming call" push notification to every member of
- * the group except the caller. Uses a dedicated "calls" Android notification
- * channel (created natively in MainActivity) so the notification rings/heads-up
- * even when the app is closed. Tapping it deep-links straight into the call room.
+ * the group except the caller. The message is data-only so the Android app's
+ * CallMessagingService can build a custom "calls"-channel notification with
+ * Answer/Decline actions (and so it fires even while the app is backgrounded,
+ * not just when it's fully closed). Answer deep-links straight into the call room.
  */
 export async function sendCallPush(userIds: string[], payload: CallPushPayload) {
   const fbApp = getFirebaseApp();
@@ -35,9 +36,10 @@ export async function sendCallPush(userIds: string[], payload: CallPushPayload) 
 
   const message: MulticastMessage = {
     tokens: tokens.map((t) => t.token),
-    notification: { title, body },
     data: {
       type: 'call_ring',
+      title,
+      body,
       groupId: payload.groupId,
       roomId: payload.roomId,
       roomName: payload.roomName,
@@ -47,13 +49,6 @@ export async function sendCallPush(userIds: string[], payload: CallPushPayload) 
     },
     android: {
       priority: 'high',
-      notification: {
-        channelId: 'calls',
-        priority: 'max',
-        visibility: 'public',
-        sound: 'default',
-        tag: `call-${payload.roomId}`,
-      },
     },
     apns: {
       payload: {

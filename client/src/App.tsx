@@ -54,7 +54,8 @@ function AppRoutes() {
     return () => { listener.then((l) => l.remove()); };
   }, [location.pathname, navigate]);
 
-  // Handle deep link OAuth callback: gathering://auth?token=xxx
+  // Handle deep links: gathering://auth?token=xxx (OAuth callback) and
+  // gathering://call?groupId=x&roomId=y (Answer action on a call notification)
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     const listener = CapApp.addListener('appUrlOpen', async (event) => {
@@ -66,6 +67,12 @@ function AppRoutes() {
             await setToken(token);
             try { await fetchUser(); } catch {}
             navigate('/dashboard', { replace: true });
+          }
+        } else if (url.hostname === 'call') {
+          const groupId = url.searchParams.get('groupId');
+          const roomId = url.searchParams.get('roomId');
+          if (groupId && roomId) {
+            navigate(`/groups/${groupId}/rooms/${roomId}`);
           }
         }
       } catch (err) {

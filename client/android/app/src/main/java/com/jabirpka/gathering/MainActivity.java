@@ -1,12 +1,7 @@
 package com.jabirpka.gathering;
 
 import android.Manifest;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.pm.PackageManager;
-import android.media.AudioAttributes;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -26,7 +21,6 @@ import java.util.List;
 public class MainActivity extends BridgeActivity {
 
     private static final int PERM_REQUEST_CODE = 200;
-    private static final String CALLS_CHANNEL_ID = "calls";
 
     /**
      * Apps targeting Android 15+ (SDK 35+) draw edge-to-edge by default,
@@ -47,38 +41,9 @@ public class MainActivity extends BridgeActivity {
             return insets;
         });
 
-        createCallsNotificationChannel();
-    }
-
-    /**
-     * High-importance channel for incoming call pushes so they show as a
-     * heads-up notification with a ringtone sound even when the app is
-     * closed. Must exist before the first FCM message arrives for the
-     * channelId on that message to take effect.
-     */
-    private void createCallsNotificationChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
-
-        NotificationChannel channel = new NotificationChannel(
-                CALLS_CHANNEL_ID,
-                "Calls",
-                NotificationManager.IMPORTANCE_HIGH
-        );
-        channel.setDescription("Incoming call notifications");
-        channel.setShowBadge(true);
-        channel.enableVibration(true);
-
-        AudioAttributes audioAttrs = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build();
-        Uri ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-        channel.setSound(ringtoneUri, audioAttrs);
-
-        NotificationManager manager = getSystemService(NotificationManager.class);
-        if (manager != null) {
-            manager.createNotificationChannel(channel);
-        }
+        // Must exist before the first FCM call_ring message arrives so
+        // CallMessagingService can post to this channel immediately.
+        CallNotificationHelper.createChannel(this);
     }
 
     /**
