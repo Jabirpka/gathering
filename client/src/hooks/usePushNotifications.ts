@@ -37,7 +37,9 @@ export function usePushNotifications(enabled: boolean) {
     setup();
 
     const regListener = PushNotifications.addListener('registration', (token) => {
-      pushApi.register(token.value, Capacitor.getPlatform()).catch(() => {});
+      pushApi.register(token.value, Capacitor.getPlatform()).catch((err) => {
+        console.error('Failed to register push token with server', err);
+      });
     });
 
     const errListener = PushNotifications.addListener('registrationError', (err) => {

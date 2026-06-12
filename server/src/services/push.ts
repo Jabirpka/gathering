@@ -24,7 +24,10 @@ export async function sendCallPush(userIds: string[], payload: CallPushPayload) 
   const tokens = await prisma.pushToken.findMany({
     where: { userId: { in: userIds } },
   });
-  if (tokens.length === 0) return;
+  if (tokens.length === 0) {
+    console.log(`sendCallPush: no push tokens registered for ${userIds.length} member(s)`);
+    return;
+  }
 
   const isVideo = payload.callType === 'VIDEO_CALL';
   const title = `Incoming ${isVideo ? 'video' : 'audio'} call`;
@@ -64,6 +67,7 @@ export async function sendCallPush(userIds: string[], payload: CallPushPayload) 
 
   try {
     const res = await getMessaging(fbApp).sendEachForMulticast(message);
+    console.log(`sendCallPush: sent to ${res.successCount}/${tokens.length} device(s), ${res.failureCount} failed`);
     // Clean up tokens that are no longer valid (app uninstalled, token rotated, etc.)
     const invalid: string[] = [];
     res.responses.forEach((r: SendResponse, i: number) => {

@@ -19,6 +19,7 @@ router.post('/register', async (req: Request, res: Response) => {
     create: { userId: req.user!.id, token, platform: platform || 'android' },
   });
 
+  console.log(`Registered push token for ${req.user!.name} (${platform || 'android'})`);
   res.json({ ok: true });
 });
 
