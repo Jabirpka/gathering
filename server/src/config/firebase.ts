@@ -11,7 +11,9 @@ let initAttempted = false;
  * Required env vars:
  *  - FIREBASE_PROJECT_ID
  *  - FIREBASE_CLIENT_EMAIL
- *  - FIREBASE_PRIVATE_KEY (with literal "\n" sequences for newlines)
+ *  - FIREBASE_PRIVATE_KEY — either the raw PEM with literal "\n" sequences
+ *    for newlines, or (recommended, to avoid env var UIs mangling the
+ *    multi-line value) the whole PEM base64-encoded as a single line.
  */
 export function getFirebaseApp(): App | null {
   if (app) return app;
@@ -20,19 +22,24 @@ export function getFirebaseApp(): App | null {
 
   const projectId = process.env.FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+  let privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
   if (!projectId || !clientEmail || !privateKey) {
     console.warn('Firebase Admin not configured — push notifications disabled (missing FIREBASE_* env vars)');
     return null;
   }
 
+  if (!privateKey.includes('PRIVATE KEY')) {
+    privateKey = Buffer.from(privateKey, 'base64').toString('utf8');
+  }
+  privateKey = privateKey.replace(/\\n/g, '\n');
+
   try {
     app = initializeApp({
       credential: cert({
         projectId,
         clientEmail,
-        privateKey: privateKey.replace(/\\n/g, '\n'),
+        privateKey,
       }),
     });
     console.log('Firebase Admin initialized — push notifications enabled');
