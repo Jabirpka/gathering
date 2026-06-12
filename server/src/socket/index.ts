@@ -4,6 +4,7 @@ import { prisma } from '../index';
 import { config } from '../config';
 import { setupChatHandlers } from './chat';
 import { setupVideoSyncHandlers } from './videoSync';
+import { sendCallPush } from '../services/push';
 
 export interface SocketUser {
   id: string;
@@ -97,6 +98,23 @@ export function setupSocketHandlers(io: Server) {
               caller: { id: socket.user.id, name: socket.user.name, avatar: socket.user.avatar },
               type: room.type,
             });
+
+            // Also push a ring notification to other members' devices so the
+            // call rings even if they don't have the app open.
+            const members = await prisma.groupMember.findMany({
+              where: { groupId, status: 'APPROVED', userId: { not: socket.user.id } },
+              select: { userId: true },
+            });
+            if (members.length > 0) {
+              sendCallPush(members.map((m) => m.userId), {
+                groupId,
+                roomId,
+                roomName: room.name,
+                groupName: room.group.name,
+                callerName: socket.user.name,
+                callType: room.type,
+              }).catch(() => {});
+            }
           }
         } catch {}
       }

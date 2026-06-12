@@ -64,4 +64,11 @@ export const livekitApi = {
     api.post('/livekit/token', { roomName, groupId }),
 };
 
+export const pushApi = {
+  register: (token: string, platform: string) =>
+    api.post('/push/register', { token, platform }),
+  unregister: (token: string) =>
+    api.post('/push/unregister', { token }),
+};
+
 export default api;

@@ -22,6 +22,16 @@ model User {
   videoComments VideoComment[]
   pokesReceived Poke[]         @relation("PokeReceiver")
   pokesSent     Poke[]         @relation("PokeSender")
+  pushTokens    PushToken[]
+}
+
+model PushToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  platform  String   @default("android")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }
 
 model Poke {

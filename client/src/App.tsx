@@ -7,6 +7,7 @@ import { useAuthStore } from './store/authStore';
 import { useCallStore } from './store/callStore';
 import { useSocket } from './hooks/useSocket';
 import { getSocket } from './hooks/useSocket';
+import { usePushNotifications } from './hooks/usePushNotifications';
 import { useNotificationStore } from './store/notificationStore';
 import { CallRing } from './types';
 import LandingPage from './pages/LandingPage';
@@ -24,6 +25,7 @@ import toast from 'react-hot-toast';
 function AppRoutes() {
   useSocket();
   const { user, loading } = useAuth();
+  usePushNotifications(!!user);
   const { setToken, fetchUser } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
