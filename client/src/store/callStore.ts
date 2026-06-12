@@ -23,7 +23,10 @@ export const useCallStore = create<CallStore>((set, get) => ({
   joinCall: (info) => {
     const current = get().call;
     if (current?.roomId === info.roomId) return;
-    set({ call: info, mountNode: null });
+    // Don't touch mountNode here — RoomPage's ref callback runs before this
+    // effect and has already set it to the room's mount point (or left it
+    // null if we're joining from elsewhere, which correctly starts minimized).
+    set({ call: info });
   },
   leaveCall: () => set({ call: null, mountNode: null }),
   setMountNode: (node) => set({ mountNode: node }),
