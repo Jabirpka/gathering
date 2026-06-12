@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "729752813492",
+    "project_id": "gathering-ae58c",
+    "storage_bucket": "gathering-ae58c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:729752813492:android:669d5d78540b0eb6207ce1",
+        "android_client_info": {
+          "package_name": "com.jabirpka.gathering"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWC65_SshKnq2LAHsbe7OWjL3TTU0SfDg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
