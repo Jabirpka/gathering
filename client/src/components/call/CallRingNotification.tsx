@@ -63,15 +63,15 @@ export default function CallRingNotification({ ring, onDismiss }: Props) {
             <div className="flex items-center gap-3">
               {/* Animated ring icon */}
               <div className="relative shrink-0">
-                <div className="w-12 h-12 rounded-full bg-brand/20 flex items-center justify-center animate-pulse">
-                  {isVideo ? <Video size={20} className="text-brand-light" /> : <Headphones size={20} className="text-brand-light" />}
+                <div className="w-12 h-12 rounded-full bg-brand-dim flex items-center justify-center animate-pulse">
+                  {isVideo ? <Video size={20} className="text-brand" /> : <Headphones size={20} className="text-brand" />}
                 </div>
                 <span className="absolute inset-0 rounded-full border-2 border-brand/40 animate-ping" />
               </div>
 
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-slate-400">Incoming {isVideo ? 'video' : 'audio'} call</p>
-                <p className="text-sm font-semibold text-white truncate">{ring.roomName}</p>
+                <p className="text-xs text-slate-500">Incoming {isVideo ? 'video' : 'audio'} call</p>
+                <p className="text-sm font-semibold text-slate-900 truncate">{ring.roomName}</p>
                 <p className="text-xs text-slate-500 truncate">{ring.caller.name} · {ring.groupName}</p>
               </div>
             </div>
@@ -79,14 +79,14 @@ export default function CallRingNotification({ ring, onDismiss }: Props) {
             <div className="flex gap-2 mt-3">
               <button
                 onClick={onDismiss}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-400 transition-colors text-sm font-medium"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-100 hover:bg-red-200 text-red-500 transition-colors text-sm font-medium"
               >
                 <PhoneOff size={15} />
                 Decline
               </button>
               <button
                 onClick={handleAccept}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 transition-colors text-sm font-medium"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-700 transition-colors text-sm font-medium"
               >
                 <Phone size={15} />
                 Accept

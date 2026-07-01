@@ -10,6 +10,9 @@ import clsx from 'clsx';
 interface Props {
   groupId: string;
   roomId?: string;
+  /** Show the left divider — on by default for the in-call side panel; turn off
+   *  when the panel stands alone (e.g. the group Chat tab). */
+  bordered?: boolean;
 }
 
 function ChatMessage({ message, isOwn }: { message: Message; isOwn: boolean }) {
@@ -19,7 +22,7 @@ function ChatMessage({ message, isOwn }: { message: Message; isOwn: boolean }) {
         message.user.avatar ? (
           <img src={message.user.avatar} className="w-6 h-6 rounded-full object-cover shrink-0 mb-0.5" alt={message.user.name} />
         ) : (
-          <div className="w-6 h-6 rounded-full bg-brand/20 flex items-center justify-center text-[10px] font-bold text-brand-light shrink-0 mb-0.5">
+          <div className="w-6 h-6 rounded-full bg-brand-dim flex items-center justify-center text-[10px] font-bold text-brand shrink-0 mb-0.5">
             {message.user.name[0]}
           </div>
         )
@@ -29,10 +32,10 @@ function ChatMessage({ message, isOwn }: { message: Message; isOwn: boolean }) {
           <p className="text-[10px] text-slate-500 mb-0.5 ml-1">{message.user.name}</p>
         )}
         <div className={clsx('px-3 py-2 rounded-2xl text-sm leading-relaxed break-words',
-          isOwn ? 'bg-brand text-white rounded-br-sm' : 'bg-surface-2 text-slate-200 rounded-bl-sm')}>
+          isOwn ? 'bg-brand text-white rounded-br-sm' : 'bg-surface-2 text-slate-700 rounded-bl-sm')}>
           {message.content}
         </div>
-        <p className="text-[10px] text-slate-600 mt-0.5 mx-1">
+        <p className="text-[10px] text-slate-400 mt-0.5 mx-1">
           {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
         </p>
       </div>
@@ -40,7 +43,7 @@ function ChatMessage({ message, isOwn }: { message: Message; isOwn: boolean }) {
   );
 }
 
-export default function ChatPanel({ groupId, roomId }: Props) {
+export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
   const { messages, addMessage } = useGroupStore();
   const user = useAuthStore((s) => s.user);
   const [input, setInput] = useState('');
@@ -78,18 +81,18 @@ export default function ChatPanel({ groupId, roomId }: Props) {
     : messages.filter((m) => !m.roomId);
 
   return (
-    <div className="flex flex-col h-full bg-surface-1 border-l border-white/5">
+    <div className={clsx('flex flex-col h-full', bordered ? 'glass-panel border-l border-white/50' : 'bg-transparent')}>
       {/* Header */}
-      <div className="px-4 py-3 border-b border-white/5 flex items-center gap-2 shrink-0">
+      <div className="px-4 py-3 border-b border-black/5 flex items-center gap-2 shrink-0">
         <MessageSquare size={15} className="text-slate-500" />
-        <span className="text-sm font-medium text-slate-300">Chat</span>
+        <span className="text-sm font-medium text-slate-700">Chat</span>
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
         {roomMessages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center pt-8">
-            <MessageSquare size={28} className="text-slate-600 mb-2" />
+            <MessageSquare size={28} className="text-slate-300 mb-2" />
             <p className="text-slate-500 text-sm">No messages yet.<br />Say hello!</p>
           </div>
         )}
@@ -100,7 +103,7 @@ export default function ChatPanel({ groupId, roomId }: Props) {
       </div>
 
       {/* Input */}
-      <div className="p-3 border-t border-white/5 shrink-0">
+      <div className="p-3 border-t border-black/5 shrink-0">
         <div className="flex gap-2 items-end">
           <textarea
             className="input resize-none text-sm min-h-[38px] max-h-24"

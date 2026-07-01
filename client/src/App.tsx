@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
 import { App as CapApp } from '@capacitor/app';
@@ -38,21 +38,29 @@ function AppRoutes() {
     if (!user) leaveCall();
   }, [user, leaveCall]);
 
-  // Handle Android hardware/gesture back button
+  // Track the current path in a ref so the back-button handler below can be
+  // registered exactly once. Re-registering it on every navigation used to
+  // stack duplicate listeners, so a single back press fired navigate(-1)
+  // multiple times and jumped back several screens at once.
+  const pathRef = useRef(location.pathname);
+  useEffect(() => { pathRef.current = location.pathname; }, [location.pathname]);
+
+  // Handle Android hardware/gesture back button (registered once)
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     const ROOT_PATHS = ['/', '/dashboard'];
-    const listener = CapApp.addListener('backButton', () => {
-      if (ROOT_PATHS.includes(location.pathname)) {
+    let handle: { remove: () => void } | undefined;
+    CapApp.addListener('backButton', () => {
+      if (ROOT_PATHS.includes(pathRef.current)) {
         // At the root screen — move app to background (standard Android UX)
         CapApp.exitApp();
       } else {
-        // Inside the app — go back like the browser back button
+        // Inside the app — go back one screen
         navigate(-1);
       }
-    });
-    return () => { listener.then((l) => l.remove()); };
-  }, [location.pathname, navigate]);
+    }).then((l) => { handle = l; });
+    return () => { handle?.remove(); };
+  }, []);
 
   // Handle deep links: gathering://auth?token=xxx (OAuth callback) and
   // gathering://call?groupId=x&roomId=y (Answer action on a call notification)
@@ -98,20 +106,27 @@ function AppRoutes() {
       setIncomingCall(data);
     };
 
+    // Caller hung up / call ended before we answered — stop the in-app ring.
+    const handleCallCancel = (data: { roomId: string }) => {
+      setIncomingCall((cur) => (cur && cur.roomId === data.roomId ? null : cur));
+    };
+
     socket.on('notification', handleNotification);
     socket.on('call:ring', handleCallRing);
+    socket.on('call:cancel', handleCallCancel);
     return () => {
       socket.off('notification', handleNotification);
       socket.off('call:ring', handleCallRing);
+      socket.off('call:cancel', handleCallCancel);
     };
   }, [user]);
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center bg-surface">
+      <div className="h-full flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 rounded-full border-2 border-brand border-t-transparent animate-spin" />
-          <p className="text-slate-400 text-sm">Loading…</p>
+          <p className="text-slate-500 text-sm">Loading…</p>
         </div>
       </div>
     );

@@ -57,16 +57,16 @@ export default function ProfilePage() {
 
   return (
     <div className="p-6 max-w-lg mx-auto animate-fade-in">
-      <h1 className="text-xl font-bold text-white mb-6">Profile</h1>
+      <h1 className="text-xl font-bold text-slate-900 mb-6">Profile</h1>
 
       {/* Avatar */}
       <div className="flex flex-col items-center mb-8">
         <div className="relative group">
-          <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-white/10">
+          <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-black/10">
             {avatar ? (
               <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full bg-brand/30 flex items-center justify-center text-3xl font-bold text-brand-light">
+              <div className="w-full h-full bg-brand-dim flex items-center justify-center text-3xl font-bold text-brand">
                 {displayName[0]?.toUpperCase()}
               </div>
             )}
@@ -90,10 +90,10 @@ export default function ProfilePage() {
         <motion.div
           initial={{ scale: 0.8 }}
           animate={{ scale: 1 }}
-          className="mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/20"
+          className="mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 border border-amber-200"
         >
-          <Zap size={13} className="text-amber-400" />
-          <span className="text-xs font-semibold text-amber-400">
+          <Zap size={13} className="text-amber-600" />
+          <span className="text-xs font-semibold text-amber-600">
             {user?.strikePoints ?? 0} strike point{(user?.strikePoints ?? 0) !== 1 ? 's' : ''}
           </span>
         </motion.div>
@@ -102,7 +102,7 @@ export default function ProfilePage() {
       {/* Form */}
       <div className="card p-5 space-y-4 mb-4">
         <div>
-          <label className="text-xs font-medium text-slate-400 mb-1.5 block">
+          <label className="text-xs font-medium text-slate-500 mb-1.5 block">
             <UserIcon size={12} className="inline mr-1" />
             Display name
           </label>
@@ -116,8 +116,8 @@ export default function ProfilePage() {
         </div>
 
         <div>
-          <label className="text-xs font-medium text-slate-400 mb-1.5 block">
-            Nickname <span className="text-slate-600">(optional)</span>
+          <label className="text-xs font-medium text-slate-500 mb-1.5 block">
+            Nickname <span className="text-slate-400">(optional)</span>
           </label>
           <input
             className="input"
@@ -126,11 +126,11 @@ export default function ProfilePage() {
             maxLength={30}
             placeholder="@nickname"
           />
-          <p className="text-xs text-slate-600 mt-1">Shown instead of your name in chats & pokes</p>
+          <p className="text-xs text-slate-400 mt-1">Shown instead of your name in chats & pokes</p>
         </div>
 
         <div>
-          <label className="text-xs font-medium text-slate-400 mb-1.5 block">Email</label>
+          <label className="text-xs font-medium text-slate-500 mb-1.5 block">Email</label>
           <input className="input opacity-60 cursor-not-allowed" value={user?.email ?? ''} disabled />
         </div>
 
@@ -149,10 +149,10 @@ export default function ProfilePage() {
         onClick={handleLogout}
         className="w-full card p-4 flex items-center gap-3 hover:border-red-500/30 transition-colors group"
       >
-        <div className="w-9 h-9 rounded-xl bg-red-500/10 flex items-center justify-center">
-          <LogOut size={16} className="text-red-400" />
+        <div className="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center">
+          <LogOut size={16} className="text-red-500" />
         </div>
-        <span className="text-sm font-medium text-slate-300 group-hover:text-red-400 transition-colors">
+        <span className="text-sm font-medium text-slate-700 group-hover:text-red-500 transition-colors">
           Sign out
         </span>
       </button>

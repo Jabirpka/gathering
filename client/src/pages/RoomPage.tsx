@@ -5,14 +5,10 @@ import { useAuthStore } from '../store/authStore';
 import { useCallStore } from '../store/callStore';
 import { getSocket } from '../hooks/useSocket';
 import ChatPanel from '../components/chat/ChatPanel';
-import VideoPlayer from '../components/video/VideoPlayer';
-import VideoComments from '../components/video/VideoComments';
-import StartVideoModal from '../components/video/StartVideoModal';
-import { ArrowLeft, Film, MessageSquare, Play, Mic, MicOff } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Mic, MicOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 
-type Panel = 'chat' | 'comments';
 const EMOJIS = ['👏', '🔥', '❤️', '😂', '😮', '🎉'];
 
 interface FloatingEmoji { id: string; emoji: string; x: number; }
@@ -20,13 +16,10 @@ interface PTTUser { userId: string; name: string; }
 
 export default function RoomPage() {
   const { groupId, roomId } = useParams<{ groupId: string; roomId: string }>();
-  const { activeGroup, fetchGroup, videoSession } = useGroupStore();
+  const { activeGroup, fetchGroup } = useGroupStore();
   const user = useAuthStore((s) => s.user);
   const { joinCall, setMountNode } = useCallStore();
-  const [panel, setPanel] = useState<Panel>('chat');
-  const [showStartVideo, setShowStartVideo] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-  const [videoCurrentTime, setVideoCurrentTime] = useState(0);
   const [floatingEmojis, setFloatingEmojis] = useState<FloatingEmoji[]>([]);
   const [pttActive, setPttActive] = useState(false);
   const [pttUsers, setPttUsers] = useState<PTTUser[]>([]);
@@ -34,19 +27,11 @@ export default function RoomPage() {
   const streamRef = useRef<MediaStream | null>(null);
   const socket = getSocket();
 
-  // Compute room/type info early (no hooks involved) so the hooks below can use it
   const room = activeGroup?.rooms?.find((r) => r.id === roomId);
-  const isWatchParty = room?.type === 'VIDEO_WATCH';
-  const isVideoCall = room?.type === 'VIDEO_CALL' || room?.type === 'AUDIO_CALL';
 
   useEffect(() => {
     if (groupId) fetchGroup(groupId);
   }, [groupId]);
-
-  // Reset the tracked playback position whenever the active video session changes
-  useEffect(() => {
-    setVideoCurrentTime(0);
-  }, [videoSession?.id]);
 
   useEffect(() => {
     if (!roomId || !groupId) return;
@@ -111,10 +96,10 @@ export default function RoomPage() {
     socket?.emit('room:ptt:end', { roomId });
   }, [roomId]);
 
-  // Join the persistent call when entering a call room. CallManager keeps the
+  // Join the persistent call when entering the room. CallManager keeps the
   // LiveKit connection alive across navigation (see joinCall/setMountNode).
   useEffect(() => {
-    if (!isVideoCall || !groupId || !roomId) return;
+    if (!groupId || !roomId) return;
     joinCall({
       roomName: `${groupId}-${roomId}`,
       groupId,
@@ -122,12 +107,12 @@ export default function RoomPage() {
       roomLabel: room?.name ?? 'Call',
       displayName: user?.name ?? 'Participant',
     });
-  }, [isVideoCall, groupId, roomId]);
+  }, [groupId, roomId]);
 
   // Hand the mount point to CallManager so it can portal the full call UI here
   const setCallMount = useCallback((node: HTMLDivElement | null) => {
-    if (isVideoCall) setMountNode(node);
-  }, [isVideoCall, setMountNode]);
+    setMountNode(node);
+  }, [setMountNode]);
 
   if (!room || !groupId || !roomId) {
     return <div className="flex items-center justify-center h-full"><p className="text-slate-500">Room not found</p></div>;
@@ -136,25 +121,15 @@ export default function RoomPage() {
   return (
     <div className="h-full flex flex-col overflow-hidden relative">
       {/* Header */}
-      <div className="h-12 shrink-0 border-b border-white/5 bg-surface-1 flex items-center px-3 gap-2">
+      <div className="h-12 shrink-0 border-b border-white/50 glass-panel flex items-center px-3 gap-2">
         <Link to={`/groups/${groupId}`} className="btn-ghost p-1.5"><ArrowLeft size={15} /></Link>
-        <span className="text-sm font-medium text-slate-300 truncate">{room.name}</span>
+        <span className="text-sm font-medium text-slate-700 truncate">{room.name}</span>
         <span className="badge bg-surface-3 text-slate-500 text-[10px] hidden sm:inline-flex">{activeGroup?.name}</span>
         <div className="flex-1" />
-        {isWatchParty && (
-          <button onClick={() => setShowStartVideo(true)} className="btn-secondary text-xs gap-1.5 py-1.5 px-3">
-            <Film size={13} /><span className="hidden sm:inline">{videoSession ? 'Change' : 'Start Video'}</span>
-          </button>
-        )}
         <div className="hidden sm:flex gap-1 bg-surface-2 p-0.5 rounded-lg">
-          <button onClick={() => setPanel('chat')} className={clsx('p-1.5 rounded-md transition-colors', panel === 'chat' ? 'bg-brand/30 text-brand-light' : 'text-slate-500 hover:text-slate-300')}>
+          <button className="p-1.5 rounded-md transition-colors bg-brand-dim text-brand">
             <MessageSquare size={14} />
           </button>
-          {isWatchParty && videoSession && (
-            <button onClick={() => setPanel('comments')} className={clsx('p-1.5 rounded-md transition-colors', panel === 'comments' ? 'bg-brand/30 text-brand-light' : 'text-slate-500 hover:text-slate-300')}>
-              <Film size={14} />
-            </button>
-          )}
         </div>
       </div>
 
@@ -162,10 +137,10 @@ export default function RoomPage() {
       <AnimatePresence>
         {pttUsers.length > 0 && (
           <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }}
-            className="shrink-0 bg-emerald-500/10 border-b border-emerald-500/20 overflow-hidden">
+            className="shrink-0 bg-emerald-100 border-b border-emerald-200 overflow-hidden">
             <div className="px-4 py-1.5 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-xs text-emerald-400">{pttUsers.map((u) => u.name).join(', ')} speaking…</span>
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs text-emerald-700">{pttUsers.map((u) => u.name).join(', ')} speaking…</span>
             </div>
           </motion.div>
         )}
@@ -190,34 +165,10 @@ export default function RoomPage() {
 
         {/* Main content area */}
         <div className={clsx('overflow-hidden bg-black relative', chatOpen ? 'h-[55vw] sm:h-auto sm:flex-1' : 'flex-1')}>
-          {isWatchParty && (
-            videoSession
-              ? (
-                <VideoPlayer
-                  key={videoSession.id}
-                  session={videoSession}
-                  roomId={roomId}
-                  groupId={groupId}
-                  onTimeUpdate={setVideoCurrentTime}
-                />
-              )
-              : (
-                <div className="h-full flex flex-col items-center justify-center gap-4 text-center px-6">
-                  <div className="w-16 h-16 rounded-2xl bg-brand/10 flex items-center justify-center">
-                    <Play size={28} className="text-brand-light" />
-                  </div>
-                  <h2 className="text-lg font-bold text-white">Watch Party</h2>
-                  <p className="text-slate-400 text-sm max-w-xs">Start a synchronized watch session for everyone.</p>
-                  <button onClick={() => setShowStartVideo(true)} className="btn-primary"><Film size={16} />Start a Video</button>
-                </div>
-              )
-          )}
-          {isVideoCall && (
-            // CallManager (mounted once near the app root) portals the live
-            // call UI into this div, keeping the connection alive even when
-            // the user navigates away (see store/callStore.ts)
-            <div ref={setCallMount} className="w-full h-full" />
-          )}
+          {/* CallManager (mounted once near the app root) portals the live
+              call UI into this div, keeping the connection alive even when
+              the user navigates away (see store/callStore.ts) */}
+          <div ref={setCallMount} className="w-full h-full" />
 
           {/* Desktop emoji + PTT bar — placed top-left so it never overlaps the
               video controls / LiveKit control bar at the bottom */}
@@ -241,11 +192,11 @@ export default function RoomPage() {
         </div>
 
         {/* Mobile bottom bar: emoji + PTT + chat toggle */}
-        <div className="sm:hidden shrink-0 bg-surface-1 border-t border-white/5 px-2 py-2 flex items-center gap-1.5">
+        <div className="sm:hidden shrink-0 glass-panel border-t border-white/50 px-2 py-2 flex items-center gap-1.5">
           <div className="flex gap-1 flex-1 overflow-x-auto">
             {EMOJIS.map((emoji) => (
               <button key={emoji} onClick={() => sendEmoji(emoji)}
-                className="text-xl w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center shrink-0 active:scale-90">
+                className="text-xl w-9 h-9 rounded-xl bg-black/5 hover:bg-black/10 flex items-center justify-center shrink-0 active:scale-90">
                 {emoji}
               </button>
             ))}
@@ -261,24 +212,19 @@ export default function RoomPage() {
           </button>
           <button onClick={() => setChatOpen((v) => !v)}
             className={clsx('w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors',
-              chatOpen ? 'bg-brand/30 text-brand-light' : 'bg-surface-3 text-slate-400'
+              chatOpen ? 'bg-brand-dim text-brand' : 'bg-surface-3 text-slate-400'
             )}>
             <MessageSquare size={16} />
           </button>
         </div>
 
         {/* Side panel */}
-        <div className={clsx('sm:w-72 sm:flex shrink-0 overflow-hidden flex-col border-t sm:border-t-0 sm:border-l border-white/5',
+        <div className={clsx('sm:w-72 sm:flex shrink-0 overflow-hidden flex-col border-t sm:border-t-0 sm:border-l border-black/5',
           chatOpen ? 'flex h-64' : 'hidden sm:flex'
         )}>
-          {panel === 'chat' && <ChatPanel groupId={groupId} roomId={roomId} />}
-          {panel === 'comments' && videoSession && <VideoComments session={videoSession} roomId={roomId} currentTime={videoCurrentTime} />}
+          <ChatPanel groupId={groupId} roomId={roomId} />
         </div>
       </div>
-
-      {showStartVideo && groupId && roomId && (
-        <StartVideoModal open={showStartVideo} groupId={groupId} roomId={roomId} onClose={() => setShowStartVideo(false)} />
-      )}
     </div>
   );
 }

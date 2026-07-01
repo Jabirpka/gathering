@@ -47,6 +47,9 @@ export const groupsApi = {
     api.patch(`/groups/${id}`, data),
   join: (code: string) => api.post('/groups/join', { code }),
   leave: (id: string) => api.delete(`/groups/${id}/leave`),
+  remove: (id: string) => api.delete(`/groups/${id}`),
+  transferOwnership: (id: string, userId: string) => api.post(`/groups/${id}/transfer`, { userId }),
+  markRead: (id: string) => api.post(`/groups/${id}/read`, {}),
   pending: (id: string) => api.get(`/groups/${id}/pending`),
   approveMember: (groupId: string, userId: string, action: 'approve' | 'ban') =>
     api.patch(`/groups/${groupId}/members/${userId}`, { action }),

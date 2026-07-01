@@ -47,31 +47,31 @@ export default function CreateGroupModal({ open, onClose }: Props) {
           <motion.div initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 60 }} className="relative card w-full sm:max-w-md p-5 sm:p-6 shadow-2xl max-h-[90vh] overflow-y-auto rounded-b-none sm:rounded-2xl">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="font-semibold text-white text-lg">Create a group</h2>
+              <h2 className="font-semibold text-slate-900 text-lg">Create a group</h2>
               <button onClick={onClose} className="btn-ghost p-1.5"><X size={16} /></button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-xs font-medium text-slate-400 mb-1.5 block">Group name *</label>
-                <input className="input" placeholder="My Watch Party" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} required autoFocus />
+                <label className="text-xs font-medium text-slate-500 mb-1.5 block">Group name *</label>
+                <input className="input" placeholder="My Group" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} required autoFocus />
               </div>
               <div>
-                <label className="text-xs font-medium text-slate-400 mb-1.5 block">Description</label>
+                <label className="text-xs font-medium text-slate-500 mb-1.5 block">Description</label>
                 <textarea className="input resize-none" placeholder="What's this group for?" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} maxLength={300} />
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-medium text-slate-400 block">Access</label>
+                <label className="text-xs font-medium text-slate-500 block">Access</label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
                     { val: false, icon: Lock, label: 'Private', desc: 'Invite only' },
                     { val: true, icon: Globe, label: 'Public', desc: 'Anyone with code' },
                   ].map(({ val, icon: Icon, label, desc }) => (
                     <button key={label} type="button" onClick={() => setIsPublic(val)}
-                      className={`p-3 rounded-xl border text-left transition-all ${isPublic === val ? 'border-brand/60 bg-brand/10' : 'border-white/10 bg-surface-2 hover:border-white/20'}`}>
-                      <Icon size={14} className={isPublic === val ? 'text-brand-light mb-1' : 'text-slate-500 mb-1'} />
-                      <p className="text-sm font-medium text-white">{label}</p>
+                      className={`p-3 rounded-xl border text-left transition-all ${isPublic === val ? 'border-brand/60 bg-brand/10' : 'border-black/10 bg-surface-2 hover:border-black/20'}`}>
+                      <Icon size={14} className={isPublic === val ? 'text-brand mb-1' : 'text-slate-500 mb-1'} />
+                      <p className="text-sm font-medium text-slate-900">{label}</p>
                       <p className="text-xs text-slate-500">{desc}</p>
                     </button>
                   ))}
@@ -84,7 +84,7 @@ export default function CreateGroupModal({ open, onClose }: Props) {
                   <div className={`w-9 h-5 rounded-full transition-colors ${requireApproval ? 'bg-brand' : 'bg-surface-3'}`} />
                   <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${requireApproval ? 'translate-x-4' : ''}`} />
                 </div>
-                <span className="text-sm text-slate-300">Require approval to join</span>
+                <span className="text-sm text-slate-700">Require approval to join</span>
               </label>
 
               <div className="flex gap-2 pt-1">

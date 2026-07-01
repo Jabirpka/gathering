@@ -103,8 +103,8 @@ export default function MidpointMap({ value, onChange, readonly = false }: Props
 
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold text-slate-300 flex items-center gap-2">
-        <Navigation size={14} className="text-brand-light" />
+      <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+        <Navigation size={14} className="text-brand" />
         Meetup Midpoint Calculator
       </h3>
 
@@ -128,13 +128,13 @@ export default function MidpointMap({ value, onChange, readonly = false }: Props
         <div className="space-y-2">
           {locations.map((loc, i) => (
             <div key={i} className="flex items-center gap-3 bg-surface-2 rounded-xl px-3 py-2">
-              <MapPin size={13} className="text-brand-light shrink-0" />
+              <MapPin size={13} className="text-brand shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white">{loc.name}</p>
+                <p className="text-sm font-medium text-slate-900">{loc.name}</p>
                 <p className="text-xs text-slate-500 truncate">{loc.address}</p>
               </div>
               {!readonly && (
-                <button onClick={() => removeLocation(i)} className="text-slate-600 hover:text-red-400 transition-colors">
+                <button onClick={() => removeLocation(i)} className="text-slate-400 hover:text-red-500 transition-colors">
                   <Trash2 size={13} />
                 </button>
               )}
@@ -145,12 +145,12 @@ export default function MidpointMap({ value, onChange, readonly = false }: Props
 
       {/* Midpoint result */}
       {midpoint && (
-        <div className="bg-brand/10 border border-brand/20 rounded-xl p-4">
-          <p className="text-xs font-semibold text-brand-light uppercase tracking-wider mb-1.5">📍 Suggested Midpoint</p>
-          <p className="text-sm text-slate-200 mb-2">{midpointAddress}</p>
+        <div className="bg-brand-dim border border-brand/20 rounded-xl p-4">
+          <p className="text-xs font-semibold text-brand uppercase tracking-wider mb-1.5">📍 Suggested Midpoint</p>
+          <p className="text-sm text-slate-700 mb-2">{midpointAddress}</p>
           {mapsUrl && (
             <a href={mapsUrl} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-brand-light hover:underline">
+              className="inline-flex items-center gap-1.5 text-xs text-brand hover:underline">
               <Navigation size={11} />
               Open in Google Maps
             </a>
@@ -159,7 +159,7 @@ export default function MidpointMap({ value, onChange, readonly = false }: Props
       )}
 
       {locations.length === 0 && (
-        <p className="text-xs text-slate-600 text-center py-4">
+        <p className="text-xs text-slate-400 text-center py-4">
           Add at least 2 locations to calculate the geographic midpoint.
         </p>
       )}

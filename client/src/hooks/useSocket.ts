@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuthStore } from '../store/authStore';
 import { useGroupStore } from '../store/groupStore';
-import { Message, VideoComment, VideoSession, VideoSyncEvent, PresenceEvent } from '../types';
+import { Message, PresenceEvent } from '../types';
 
 let socketInstance: Socket | null = null;
 
@@ -12,7 +12,7 @@ export function getSocket(): Socket | null {
 
 export function useSocket() {
   const token = useAuthStore((s) => s.token);
-  const { addMessage, setMessages, setVideoSession, addVideoComment, handlePresence } = useGroupStore();
+  const { addMessage, setMessages, handlePresence, incrementUnread } = useGroupStore();
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -32,9 +32,9 @@ export function useSocket() {
     socketInstance.on('chat:message', (msg: Message) => addMessage(msg));
     socketInstance.on('chat:history', (msgs: Message[]) => setMessages(msgs));
 
-    socketInstance.on('video:started', ({ session }: { session: VideoSession }) => setVideoSession(session));
-    socketInstance.on('video:stopped', () => setVideoSession(null));
-    socketInstance.on('video:comment', (comment: VideoComment) => addVideoComment(comment));
+    // App-wide unread signal for group chat, delivered to this user's personal
+    // room regardless of which group they're viewing.
+    socketInstance.on('chat:unread', ({ groupId }: { groupId: string }) => incrementUnread(groupId));
 
     socketInstance.on('group:presence', (event: PresenceEvent) => handlePresence(event));
 
@@ -46,22 +46,4 @@ export function useSocket() {
   }, [token]);
 
   return socketInstance;
-}
-
-export function useVideoSync(
-  roomId: string | null,
-  onSync: (event: VideoSyncEvent) => void,
-  onState: (state: { isPlaying: boolean; currentTime: number; timestamp: number }) => void
-) {
-  useEffect(() => {
-    if (!socketInstance || !roomId) return;
-
-    socketInstance.on('video:sync', onSync);
-    socketInstance.on('video:state', onState);
-
-    return () => {
-      socketInstance?.off('video:sync', onSync);
-      socketInstance?.off('video:state', onState);
-    };
-  }, [roomId, onSync, onState]);
 }

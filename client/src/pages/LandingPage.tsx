@@ -44,14 +44,14 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-surface flex flex-col overflow-x-hidden">
+    <div className="min-h-screen flex flex-col overflow-x-hidden">
       {/* Nav */}
       <nav className="px-5 py-4 flex items-center justify-between max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand to-accent flex items-center justify-center">
             <Video size={16} className="text-white" />
           </div>
-          <span className="font-semibold text-lg text-white">Gathering</span>
+          <span className="font-semibold text-lg text-slate-900">Gathering</span>
         </div>
         <button onClick={handleLogin} disabled={loading} className="btn-primary text-sm">
           {loading ? <Loader2 size={14} className="animate-spin" /> : 'Sign in'}
@@ -63,16 +63,16 @@ export default function LandingPage() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-brand/10 blur-[120px] pointer-events-none" />
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="relative">
-          <span className="inline-flex items-center gap-2 text-xs font-medium bg-brand/15 text-brand-light border border-brand/20 rounded-full px-3 py-1 mb-6">
+          <span className="inline-flex items-center gap-2 text-xs font-medium bg-brand-dim text-brand border border-brand/20 rounded-full px-3 py-1 mb-6">
             <Zap size={12} />Up to 1,000 simultaneous participants
           </span>
 
-          <h1 className="text-4xl sm:text-6xl font-bold text-white leading-tight tracking-tight mb-5">
+          <h1 className="text-4xl sm:text-6xl font-bold text-slate-900 leading-tight tracking-tight mb-5">
             Watch together.{' '}
-            <span className="bg-gradient-to-r from-brand-light via-purple-400 to-accent bg-clip-text text-transparent">Anywhere.</span>
+            <span className="bg-gradient-to-r from-brand via-purple-500 to-accent bg-clip-text text-transparent">Anywhere.</span>
           </h1>
 
-          <p className="text-lg text-slate-400 max-w-xl mx-auto mb-8 leading-relaxed">
+          <p className="text-lg text-slate-500 max-w-xl mx-auto mb-8 leading-relaxed">
             Synchronized video watching, group calls, live chat — hang out with your people no matter where they are.
           </p>
 
@@ -81,7 +81,7 @@ export default function LandingPage() {
             whileTap={{ scale: 0.97 }}
             onClick={handleLogin}
             disabled={loading}
-            className="inline-flex items-center gap-3 bg-white text-slate-900 font-semibold px-7 py-4 rounded-2xl text-base shadow-xl hover:shadow-2xl transition-all disabled:opacity-70"
+            className="inline-flex items-center gap-3 bg-white text-slate-900 font-semibold px-7 py-4 rounded-2xl text-base border border-black/5 shadow-xl hover:shadow-2xl transition-all disabled:opacity-70"
           >
             {loading ? (
               <>
@@ -119,17 +119,17 @@ export default function LandingPage() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.07 }}
               className="card p-5 hover:border-brand/30 transition-colors">
-              <div className="w-9 h-9 rounded-xl bg-brand/15 flex items-center justify-center mb-3">
-                <f.icon size={18} className="text-brand-light" />
+              <div className="w-9 h-9 rounded-xl bg-brand-dim flex items-center justify-center mb-3">
+                <f.icon size={18} className="text-brand" />
               </div>
-              <h3 className="font-semibold text-white mb-1 text-sm">{f.title}</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">{f.desc}</p>
+              <h3 className="font-semibold text-slate-900 mb-1 text-sm">{f.title}</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">{f.desc}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      <footer className="border-t border-white/5 py-6 text-center text-slate-500 text-sm">
+      <footer className="border-t border-black/5 py-6 text-center text-slate-500 text-sm">
         <p>© {new Date().getFullYear()} Gathering · Watch together, anywhere</p>
       </footer>
     </div>

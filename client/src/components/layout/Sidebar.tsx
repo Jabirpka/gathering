@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Plus, Hash, Video, Headphones, Calendar, ChevronDown, ChevronRight, LogIn, X } from 'lucide-react';
+import { Plus, Video, Headphones, Calendar, ChevronDown, ChevronRight, LogIn, X } from 'lucide-react';
 import { useGroupStore } from '../../store/groupStore';
 import { Group, Room } from '../../types';
 import CreateGroupModal from '../groups/CreateGroupModal';
@@ -9,7 +9,6 @@ import clsx from 'clsx';
 
 function RoomIcon({ type }: { type: string }) {
   if (type === 'VIDEO_CALL') return <Video size={14} className="shrink-0" />;
-  if (type === 'VIDEO_WATCH') return <Hash size={14} className="shrink-0" />;
   return <Headphones size={14} className="shrink-0" />;
 }
 
@@ -17,6 +16,7 @@ function GroupItem({ group, onNavigate }: { group: Group; onNavigate: () => void
   const { groupId, roomId } = useParams();
   const [open, setOpen] = useState(groupId === group.id);
   const navigate = useNavigate();
+  const unread = useGroupStore((s) => s.unreadByGroup[group.id] ?? 0);
 
   return (
     <div className="mb-1">
@@ -29,25 +29,30 @@ function GroupItem({ group, onNavigate }: { group: Group; onNavigate: () => void
         className={clsx(
           'w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-colors text-left',
           groupId === group.id
-            ? 'bg-brand/10 text-white'
-            : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+            ? 'bg-brand-dim text-brand'
+            : 'text-slate-500 hover:text-slate-900 hover:bg-black/5'
         )}
       >
         <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0">
           {group.avatar ? (
             <img src={group.avatar} className="w-full h-full object-cover" alt={group.name} />
           ) : (
-            <div className="w-full h-full bg-brand/20 flex items-center justify-center text-[11px] font-bold text-brand-light">
+            <div className="w-full h-full bg-brand-dim flex items-center justify-center text-[11px] font-bold text-brand">
               {group.name[0].toUpperCase()}
             </div>
           )}
         </div>
         <span className="flex-1 truncate font-medium">{group.name}</span>
+        {unread > 0 && (
+          <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-brand text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+            {unread > 99 ? '99+' : unread}
+          </span>
+        )}
         {open ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
       </button>
 
       {open && (
-        <div className="mt-0.5 ml-3 pl-3 border-l border-white/5 space-y-0.5">
+        <div className="mt-0.5 ml-3 pl-3 border-l border-black/5 space-y-0.5">
           {group.rooms?.map((room: Room) => (
             <Link
               key={room.id}
@@ -56,8 +61,8 @@ function GroupItem({ group, onNavigate }: { group: Group; onNavigate: () => void
               className={clsx(
                 'flex items-center gap-2 px-2 py-2 rounded-lg text-sm transition-colors',
                 roomId === room.id
-                  ? 'bg-brand/15 text-white'
-                  : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'
+                  ? 'bg-brand-dim text-brand'
+                  : 'text-slate-500 hover:text-slate-900 hover:bg-black/5'
               )}
             >
               <RoomIcon type={room.type} />
@@ -67,7 +72,7 @@ function GroupItem({ group, onNavigate }: { group: Group; onNavigate: () => void
           <Link
             to={`/groups/${group.id}/schedule`}
             onClick={onNavigate}
-            className="flex items-center gap-2 px-2 py-2 rounded-lg text-sm text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-colors"
+            className="flex items-center gap-2 px-2 py-2 rounded-lg text-sm text-slate-500 hover:text-slate-900 hover:bg-black/5 transition-colors"
           >
             <Calendar size={14} className="shrink-0" />
             <span>Schedule</span>
@@ -95,23 +100,23 @@ export default function Sidebar({ onClose }: Props) {
 
   return (
     <>
-      <aside className="w-64 h-full border-r border-white/5 bg-surface-1 flex flex-col overflow-hidden">
+      <aside className="w-64 h-full border-r border-white/50 glass-panel flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="p-3 border-b border-white/5 flex items-center gap-1">
+        <div className="p-3 border-b border-black/5 flex items-center gap-1">
           <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex-1 px-2">
             Groups
           </span>
           <button
             onClick={() => setShowJoin(true)}
             title="Join group"
-            className="p-2 rounded-lg hover:bg-white/5 text-slate-500 hover:text-slate-300 transition-colors"
+            className="p-2 rounded-lg hover:bg-black/5 text-slate-500 hover:text-slate-900 transition-colors"
           >
             <LogIn size={14} />
           </button>
           <button
             onClick={() => setShowCreate(true)}
             title="Create group"
-            className="p-2 rounded-lg hover:bg-white/5 text-slate-500 hover:text-slate-300 transition-colors"
+            className="p-2 rounded-lg hover:bg-black/5 text-slate-500 hover:text-slate-900 transition-colors"
           >
             <Plus size={14} />
           </button>
@@ -119,7 +124,7 @@ export default function Sidebar({ onClose }: Props) {
           {onClose && (
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-white/5 text-slate-500 hover:text-slate-300 transition-colors lg:hidden"
+              className="p-2 rounded-lg hover:bg-black/5 text-slate-500 hover:text-slate-900 transition-colors lg:hidden"
             >
               <X size={14} />
             </button>
@@ -140,7 +145,7 @@ export default function Sidebar({ onClose }: Props) {
         </div>
 
         {/* Footer */}
-        <div className="p-3 border-t border-white/5">
+        <div className="p-3 border-t border-black/5">
           <button
             onClick={() => setShowCreate(true)}
             className="btn-primary w-full justify-center text-sm py-2.5"

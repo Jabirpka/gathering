@@ -20,7 +20,7 @@ export interface AppNotification {
   read: boolean;
 }
 
-export type RoomType = 'VIDEO_CALL' | 'VIDEO_WATCH' | 'AUDIO_CALL';
+export type RoomType = 'VIDEO_CALL' | 'AUDIO_CALL';
 export type Role = 'OWNER' | 'ADMIN' | 'MEMBER';
 export type MemberStatus = 'PENDING' | 'APPROVED' | 'BANNED';
 
@@ -68,6 +68,7 @@ export interface Group {
   createdAt: string;
   updatedAt: string;
   _count?: { members: number };
+  unreadCount?: number;
 }
 
 export interface Message {
@@ -76,29 +77,6 @@ export interface Message {
   userId: string;
   groupId?: string | null;
   roomId?: string | null;
-  user: Pick<User, 'id' | 'name' | 'avatar'>;
-  createdAt: string;
-}
-
-export interface VideoSession {
-  id: string;
-  groupId: string;
-  roomId?: string | null;
-  videoUrl: string;
-  title: string;
-  isActive: boolean;
-  currentTime: number;
-  isPlaying: boolean;
-  hostId: string;
-  createdAt: string;
-}
-
-export interface VideoComment {
-  id: string;
-  content: string;
-  timestamp: number;
-  userId: string;
-  sessionId: string;
   user: Pick<User, 'id' | 'name' | 'avatar'>;
   createdAt: string;
 }
@@ -134,9 +112,3 @@ export interface PresenceEvent {
   online: boolean;
 }
 
-export interface VideoSyncEvent {
-  action: 'play' | 'pause' | 'seek';
-  currentTime: number;
-  timestamp: number;
-  userId: string;
-}

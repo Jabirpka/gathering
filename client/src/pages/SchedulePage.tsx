@@ -20,21 +20,21 @@ function EventCard({ event, onDelete }: { event: ScheduledEvent; onDelete: () =>
       className={`card p-4 transition-colors ${past ? 'opacity-50' : 'hover:border-brand/20'}`}
     >
       <div className="flex items-start gap-3">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${past ? 'bg-slate-700' : 'bg-brand/15'}`}>
-          <Calendar size={17} className={past ? 'text-slate-500' : 'text-brand-light'} />
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${past ? 'bg-surface-3' : 'bg-brand-dim'}`}>
+          <Calendar size={17} className={past ? 'text-slate-400' : 'text-brand'} />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-semibold text-white text-sm">{event.title}</h3>
-            {past && <span className="badge bg-slate-700 text-slate-500 text-[10px]">Past</span>}
+            <h3 className="font-semibold text-slate-900 text-sm">{event.title}</h3>
+            {past && <span className="badge bg-surface-3 text-slate-500 text-[10px]">Past</span>}
           </div>
           {event.description && <p className="text-xs text-slate-500 mb-2">{event.description}</p>}
           <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
             <span className="flex items-center gap-1.5"><Clock size={11} />{format(new Date(event.scheduledAt), 'MMM d, yyyy · h:mm a')}</span>
-            {!past && <span className="text-brand-light">{formatDistanceToNow(new Date(event.scheduledAt), { addSuffix: true })}</span>}
+            {!past && <span className="text-brand">{formatDistanceToNow(new Date(event.scheduledAt), { addSuffix: true })}</span>}
           </div>
         </div>
-        <button onClick={onDelete} className="text-slate-600 hover:text-red-400 transition-colors p-2 -mr-1">
+        <button onClick={onDelete} className="text-slate-400 hover:text-red-500 transition-colors p-2 -mr-1">
           <Trash2 size={14} />
         </button>
       </div>
@@ -76,21 +76,21 @@ function CreateEventModal({ groupId, onCreated, onClose }: { groupId: string; on
         animate={{ opacity: 1, y: 0 }}
         className="relative card w-full sm:max-w-lg p-5 sm:p-6 shadow-2xl rounded-b-none sm:rounded-2xl"
       >
-        <h2 className="font-semibold text-white text-lg mb-5 flex items-center gap-2">
-          <Calendar size={18} className="text-brand-light" />
+        <h2 className="font-semibold text-slate-900 text-lg mb-5 flex items-center gap-2">
+          <Calendar size={18} className="text-brand" />
           Schedule an Event
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-xs font-medium text-slate-400 mb-1.5 block">Title *</label>
+            <label className="text-xs font-medium text-slate-500 mb-1.5 block">Title *</label>
             <input className="input" placeholder="Movie Night 🎬" value={title} onChange={(e) => setTitle(e.target.value)} required autoFocus />
           </div>
           <div>
-            <label className="text-xs font-medium text-slate-400 mb-1.5 block">Description</label>
+            <label className="text-xs font-medium text-slate-500 mb-1.5 block">Description</label>
             <textarea className="input resize-none" rows={2} placeholder="Details…" value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
           <div>
-            <label className="text-xs font-medium text-slate-400 mb-1.5 block">Date & Time *</label>
+            <label className="text-xs font-medium text-slate-500 mb-1.5 block">Date & Time *</label>
             <input type="datetime-local" className="input" value={dateTime} onChange={(e) => setDateTime(e.target.value)} required min={new Date().toISOString().slice(0, 16)} />
           </div>
           <div className="flex gap-2 pt-2">
@@ -137,7 +137,7 @@ export default function SchedulePage() {
       <div className="flex items-center gap-3 mb-6">
         <Link to={`/groups/${groupId}`} className="btn-ghost p-1.5"><ArrowLeft size={15} /></Link>
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-white">Schedule</h1>
+          <h1 className="text-xl font-bold text-slate-900">Schedule</h1>
           {activeGroup && <p className="text-sm text-slate-500">{activeGroup.name}</p>}
         </div>
         <button onClick={() => setShowCreate(true)} className="btn-primary">
@@ -151,9 +151,9 @@ export default function SchedulePage() {
         <div className="flex justify-center py-16"><Loader2 size={24} className="animate-spin text-brand" /></div>
       ) : events.length === 0 ? (
         <div className="card p-12 text-center">
-          <Calendar size={40} className="text-slate-600 mx-auto mb-3" />
-          <p className="text-slate-400 font-medium mb-1">No events yet</p>
-          <p className="text-slate-500 text-sm mb-4">Schedule watch parties or group calls.</p>
+          <Calendar size={40} className="text-slate-300 mx-auto mb-3" />
+          <p className="text-slate-500 font-medium mb-1">No events yet</p>
+          <p className="text-slate-400 text-sm mb-4">Schedule watch parties or group calls.</p>
           <button onClick={() => setShowCreate(true)} className="btn-primary mx-auto"><Plus size={15} />Schedule event</button>
         </div>
       ) : (
