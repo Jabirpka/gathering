@@ -65,6 +65,18 @@
                 <action android:name="com.jabirpka.gathering.DECLINE_CALL" />
             </intent-filter>
         </receiver>
+
+        <!-- Full-screen "incoming call" screen launched by the call notification's
+             full-screen intent. Shows over the lock screen and turns the screen on
+             so the ring is visible even when the device is asleep/locked. -->
+        <activity
+            android:name=".IncomingCallActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:excludeFromRecents="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
     <!-- Permissions -->
@@ -74,6 +86,15 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Ring like a real call while the device is locked/asleep -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Screen sharing in calls. The WebView's getDisplayMedia() runs screen
+         capture through MediaProjection in a foreground service inside this
+         app's process, so Android 14+ requires these to be declared here. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
 
     <!-- Mark camera/mic as optional so the app installs on devices without them -->
     <uses-feature android:name="android.hardware.camera"         android:required="false" />

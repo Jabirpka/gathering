@@ -1,5 +1,6 @@
 package com.jabirpka.gathering;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -13,6 +14,7 @@ import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -24,7 +26,11 @@ public final class CallNotificationHelper {
 
     public static final String CHANNEL_ID = "calls";
     public static final String ACTION_DECLINE = "com.jabirpka.gathering.DECLINE_CALL";
+    public static final String ACTION_CANCEL = "com.jabirpka.gathering.CANCEL_CALL";
     public static final String EXTRA_NOTIFICATION_ID = "notificationId";
+    public static final String EXTRA_ROOM_ID = "roomId";
+    /** How long an unanswered call keeps ringing before it gives up. */
+    public static final long RING_TIMEOUT_MS = 30_000L;
 
     private CallNotificationHelper() {}
 
@@ -39,12 +45,20 @@ public final class CallNotificationHelper {
         channel.setDescription("Incoming call notifications");
         channel.setShowBadge(true);
         channel.enableVibration(true);
+        channel.setVibrationPattern(new long[]{0, 1000, 500, 1000, 500, 1000});
+        // Let the ring punch through Do Not Disturb and always show on the lock screen,
+        // matching how a normal phone call behaves while the device is asleep.
+        channel.setBypassDnd(true);
+        channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
 
         AudioAttributes audioAttrs = new AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .build();
         Uri ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+        if (ringtoneUri == null) {
+            ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        }
         channel.setSound(ringtoneUri, audioAttrs);
 
         NotificationManager manager = context.getSystemService(NotificationManager.class);
@@ -67,6 +81,7 @@ public final class CallNotificationHelper {
 
         int notificationId = roomId.hashCode();
 
+        // "Answer" → deep-link straight into the call room.
         Uri callUri = Uri.parse("gathering://call?groupId=" + groupId + "&roomId=" + roomId);
         Intent answerIntent = new Intent(Intent.ACTION_VIEW, callUri);
         answerIntent.setPackage(context.getPackageName());
@@ -76,11 +91,26 @@ public final class CallNotificationHelper {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
+        // "Decline" → dismiss the ring.
         Intent declineIntent = new Intent(context, CallActionReceiver.class);
         declineIntent.setAction(ACTION_DECLINE);
         declineIntent.putExtra(EXTRA_NOTIFICATION_ID, notificationId);
         PendingIntent declinePending = PendingIntent.getBroadcast(
                 context, notificationId, declineIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        // Full-screen intent → the native incoming-call screen. This is what makes
+        // Android wake the screen and ring like a real call while the device is
+        // locked or asleep (Doze), instead of a silent background notification.
+        Intent fullScreenIntent = new Intent(context, IncomingCallActivity.class);
+        fullScreenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        fullScreenIntent.putExtra(EXTRA_NOTIFICATION_ID, notificationId);
+        for (Map.Entry<String, String> e : new HashMap<>(data).entrySet()) {
+            fullScreenIntent.putExtra(e.getKey(), e.getValue());
+        }
+        PendingIntent fullScreenPending = PendingIntent.getActivity(
+                context, notificationId + 1, fullScreenIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
@@ -90,11 +120,38 @@ public final class CallNotificationHelper {
                 .setContentText(body != null ? body : "")
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_CALL)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setAutoCancel(true)
+                // Keep the ring sticky so it can't be casually swiped away mid-call.
+                .setOngoing(true)
+                // Stop ringing on its own if nobody answers, like a missed call.
+                .setTimeoutAfter(RING_TIMEOUT_MS)
                 .setContentIntent(answerPending)
+                .setFullScreenIntent(fullScreenPending, true)
                 .addAction(R.mipmap.ic_launcher, "Decline", declinePending)
                 .addAction(R.mipmap.ic_launcher, "Answer", answerPending);
 
-        NotificationManagerCompat.from(context).notify(notificationId, builder.build());
+        Notification notification = builder.build();
+        // Repeat the ringtone until the call is answered or declined, the way a
+        // phone call rings continuously rather than chiming once.
+        notification.flags |= Notification.FLAG_INSISTENT;
+
+        NotificationManagerCompat.from(context).notify(notificationId, notification);
+    }
+
+    /**
+     * Stops an incoming-call ring that's already showing — used when the caller
+     * hangs up before the callee answers. Cancels the notification (which stops
+     * the insistent ringtone) and broadcasts so the full-screen
+     * {@link IncomingCallActivity}, if open, dismisses itself.
+     */
+    public static void cancelIncomingCall(Context context, String roomId) {
+        if (roomId == null) return;
+        NotificationManagerCompat.from(context).cancel(roomId.hashCode());
+
+        Intent cancel = new Intent(ACTION_CANCEL);
+        cancel.setPackage(context.getPackageName());
+        cancel.putExtra(EXTRA_ROOM_ID, roomId);
+        context.sendBroadcast(cancel);
     }
 }

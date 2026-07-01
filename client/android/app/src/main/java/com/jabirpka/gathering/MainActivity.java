@@ -1,9 +1,14 @@
 package com.jabirpka.gathering;
 
 import android.Manifest;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -44,6 +49,30 @@ public class MainActivity extends BridgeActivity {
         // Must exist before the first FCM call_ring message arrives so
         // CallMessagingService can post to this channel immediately.
         CallNotificationHelper.createChannel(this);
+
+        ensureFullScreenIntentAllowed();
+    }
+
+    /**
+     * On Android 14+ (API 34) the USE_FULL_SCREEN_INTENT permission is no longer
+     * auto-granted to apps that aren't the default phone/dialer. Without it the
+     * incoming-call screen can't wake the device, so a call only chimes quietly
+     * instead of ringing. If it isn't granted, send the user once to the system
+     * screen where they can enable it. (It's a no-op on older versions, which
+     * grant it at install time.)
+     */
+    private void ensureFullScreenIntentAllowed() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return;
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm == null || nm.canUseFullScreenIntent()) return;
+        try {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT);
+            intent.setData(Uri.parse("package:" + getPackageName()));
+            startActivity(intent);
+        } catch (Exception ignored) {
+            // Settings screen unavailable on this device — the notification still
+            // rings as a heads-up, just without waking a locked screen.
+        }
     }
 
     /**
