@@ -3,8 +3,7 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../index';
 import { config } from '../config';
 import { setupChatHandlers } from './chat';
-import { setupVideoSyncHandlers } from './videoSync';
-import { sendCallPush } from '../services/push';
+import { sendCallPush, sendCallCancelPush } from '../services/push';
 
 export interface SocketUser {
   id: string;
@@ -23,6 +22,38 @@ let _io: Server;
 export function getIO(): Server {
   if (!_io) throw new Error('Socket.io not initialized');
   return _io;
+}
+
+// Tracks live call rooms (roomId → groupId) so we can stop the ring on every
+// callee's device the moment the call empties out — i.e. the caller hung up
+// before anyone answered, or the last participant left.
+const activeCallRooms = new Map<string, string>();
+
+function socketsInRoom(io: Server, roomId: string): number {
+  return io.sockets.adapter.rooms.get(`room:${roomId}`)?.size ?? 0;
+}
+
+/**
+ * If a call room has no one left in it, tell everyone to stop ringing
+ * (in-app via socket + on devices via a cancel push) and forget the room.
+ */
+async function cancelCallIfEmpty(io: Server, roomId: string) {
+  const groupId = activeCallRooms.get(roomId);
+  if (!groupId) return;
+  if (socketsInRoom(io, roomId) > 0) return;
+
+  activeCallRooms.delete(roomId);
+  io.to(`group:${groupId}`).emit('call:cancel', { roomId, groupId });
+
+  try {
+    const members = await prisma.groupMember.findMany({
+      where: { groupId, status: 'APPROVED' },
+      select: { userId: true },
+    });
+    if (members.length > 0) {
+      sendCallCancelPush(members.map((m) => m.userId), roomId).catch(() => {});
+    }
+  } catch {}
 }
 
 export function setupSocketHandlers(io: Server) {
@@ -50,7 +81,6 @@ export function setupSocketHandlers(io: Server) {
     socket.join(`user:${socket.user.id}`);
 
     setupChatHandlers(io, socket);
-    setupVideoSyncHandlers(io, socket);
 
     // Group room presence
     socket.on('group:join', async ({ groupId }: { groupId: string }) => {
@@ -76,7 +106,7 @@ export function setupSocketHandlers(io: Server) {
       });
     });
 
-    // Room presence (video call / watch party rooms)
+    // Room presence (call rooms)
     socket.on('room:join', async ({ roomId, groupId }: { roomId: string; groupId?: string }) => {
       socket.join(`room:${roomId}`);
       socket.to(`room:${roomId}`).emit('room:user-joined', {
@@ -90,6 +120,8 @@ export function setupSocketHandlers(io: Server) {
         try {
           const room = await prisma.room.findUnique({ where: { id: roomId }, include: { group: { select: { name: true } } } });
           if (room && (room.type === 'VIDEO_CALL' || room.type === 'AUDIO_CALL')) {
+            // Remember this is a live call so we can cancel the ring if it empties.
+            activeCallRooms.set(roomId, groupId);
             io.to(`group:${groupId}`).emit('call:ring', {
               roomId,
               groupId,
@@ -123,6 +155,8 @@ export function setupSocketHandlers(io: Server) {
     socket.on('room:leave', ({ roomId }: { roomId: string }) => {
       socket.leave(`room:${roomId}`);
       socket.to(`room:${roomId}`).emit('room:user-left', { userId: socket.user.id });
+      // If that was the last person in the call, stop everyone else's ring.
+      cancelCallIfEmpty(io, roomId).catch(() => {});
     });
 
     // Emoji reactions
@@ -154,6 +188,21 @@ export function setupSocketHandlers(io: Server) {
 
     socket.on('room:ptt:end', ({ roomId }: { roomId: string }) => {
       socket.to(`room:${roomId}`).emit('room:ptt:end', { userId: socket.user.id });
+    });
+
+    // Captured while socket.rooms is still populated (it's cleared by the time
+    // 'disconnect' fires), so we know which call rooms to re-check afterwards.
+    socket.on('disconnecting', () => {
+      const callRooms = [...socket.rooms]
+        .filter((r) => r.startsWith('room:'))
+        .map((r) => r.slice('room:'.length))
+        .filter((roomId) => activeCallRooms.has(roomId));
+      if (callRooms.length === 0) return;
+      // Defer until after socket.io has removed this socket from the rooms,
+      // so the emptiness check reflects the disconnect.
+      setImmediate(() => {
+        callRooms.forEach((roomId) => cancelCallIfEmpty(io, roomId).catch(() => {}));
+      });
     });
 
     socket.on('disconnect', () => {

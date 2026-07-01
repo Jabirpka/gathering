@@ -25,7 +25,25 @@ router.get('/', async (req: Request, res: Response) => {
     },
     orderBy: { updatedAt: 'desc' },
   });
-  res.json(groups);
+
+  // Count group-chat messages (roomId null) each group has received since this
+  // user last opened its chat, so the client can show unread badges.
+  const withUnread = await Promise.all(
+    groups.map(async (g) => {
+      const mine = g.members.find((m) => m.userId === req.user!.id);
+      const unreadCount = await prisma.message.count({
+        where: {
+          groupId: g.id,
+          roomId: null,
+          userId: { not: req.user!.id },
+          ...(mine?.lastReadAt ? { createdAt: { gt: mine.lastReadAt } } : {}),
+        },
+      });
+      return { ...g, unreadCount };
+    })
+  );
+
+  res.json(withUnread);
 });
 
 router.post(
@@ -57,7 +75,6 @@ router.post(
         rooms: {
           create: [
             { name: 'General', type: 'VIDEO_CALL' },
-            { name: 'Watch Party', type: 'VIDEO_WATCH' },
           ],
         },
       },
@@ -200,13 +217,96 @@ router.delete('/:id/leave', async (req: Request, res: Response) => {
     return;
   }
   if (member.role === 'OWNER') {
-    res.status(400).json({ error: 'Owner cannot leave. Transfer ownership first.' });
+    res.status(400).json({ error: 'Owner cannot leave. Transfer ownership or delete the group.' });
     return;
   }
   await prisma.groupMember.delete({
     where: { userId_groupId: { userId: req.user!.id, groupId: req.params.id } },
   });
   res.json({ message: 'Left group' });
+});
+
+// Mark this group's chat as read up to now for the current user.
+router.post('/:id/read', async (req: Request, res: Response) => {
+  await prisma.groupMember.updateMany({
+    where: { userId: req.user!.id, groupId: req.params.id },
+    data: { lastReadAt: new Date() },
+  });
+  res.json({ ok: true });
+});
+
+// Hand the group over to another member. The previous owner is demoted to ADMIN
+// so they keep elevated access without owning the group.
+router.post('/:id/transfer', async (req: Request, res: Response) => {
+  const groupId = req.params.id;
+  const { userId } = req.body as { userId?: string };
+  if (!userId) {
+    res.status(400).json({ error: 'Missing userId' });
+    return;
+  }
+
+  const me = await prisma.groupMember.findUnique({
+    where: { userId_groupId: { userId: req.user!.id, groupId } },
+  });
+  if (!me || me.role !== 'OWNER') {
+    res.status(403).json({ error: 'Only the owner can transfer ownership' });
+    return;
+  }
+  if (userId === req.user!.id) {
+    res.status(400).json({ error: 'You already own this group' });
+    return;
+  }
+
+  const target = await prisma.groupMember.findUnique({
+    where: { userId_groupId: { userId, groupId } },
+  });
+  if (!target || target.status !== 'APPROVED') {
+    res.status(400).json({ error: 'New owner must be an approved member' });
+    return;
+  }
+
+  await prisma.$transaction([
+    prisma.groupMember.update({
+      where: { userId_groupId: { userId: req.user!.id, groupId } },
+      data: { role: 'ADMIN' },
+    }),
+    prisma.groupMember.update({
+      where: { userId_groupId: { userId, groupId } },
+      data: { role: 'OWNER' },
+    }),
+  ]);
+
+  const group = await prisma.group.findUnique({
+    where: { id: groupId },
+    include: {
+      creator: { select: { id: true, name: true, avatar: true } },
+      members: { include: { user: { select: { id: true, name: true, avatar: true } } } },
+      rooms: true,
+    },
+  });
+  res.json(group);
+});
+
+// Permanently delete the entire group (owner only). ScheduledEvent and Message
+// don't cascade from Group, so clear them explicitly before deleting the group,
+// which then cascade-removes its rooms and memberships.
+router.delete('/:id', async (req: Request, res: Response) => {
+  const groupId = req.params.id;
+  const member = await prisma.groupMember.findUnique({
+    where: { userId_groupId: { userId: req.user!.id, groupId } },
+  });
+  if (!member || member.role !== 'OWNER') {
+    res.status(403).json({ error: 'Only the owner can delete this group' });
+    return;
+  }
+
+  await prisma.$transaction([
+    prisma.message.deleteMany({ where: { groupId } }),
+    prisma.scheduledEvent.deleteMany({ where: { groupId } }),
+    prisma.group.delete({ where: { id: groupId } }),
+  ]);
+
+  res.json({ message: 'Group deleted' });
 });
 
 export default router;

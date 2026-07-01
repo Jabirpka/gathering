@@ -63,23 +63,65 @@ export async function sendCallPush(userIds: string[], payload: CallPushPayload) 
   try {
     const res = await getMessaging(fbApp).sendEachForMulticast(message);
     console.log(`sendCallPush: sent to ${res.successCount}/${tokens.length} device(s), ${res.failureCount} failed`);
-    // Clean up tokens that are no longer valid (app uninstalled, token rotated, etc.)
-    const invalid: string[] = [];
-    res.responses.forEach((r: SendResponse, i: number) => {
-      if (!r.success) {
-        const code = r.error?.code;
-        if (
-          code === 'messaging/invalid-registration-token' ||
-          code === 'messaging/registration-token-not-registered'
-        ) {
-          invalid.push(tokens[i].token);
-        }
-      }
-    });
-    if (invalid.length > 0) {
-      await prisma.pushToken.deleteMany({ where: { token: { in: invalid } } });
-    }
+    await pruneInvalidTokens(res.responses, tokens.map((t) => t.token));
   } catch (err) {
     console.error('Failed to send call push notifications', err);
+  }
+}
+
+/**
+ * Sends a data-only "call_cancel" push so the callees' devices stop ringing the
+ * moment the call ends (caller hung up before anyone answered, or the room
+ * emptied out). The Android CallMessagingService dismisses the matching
+ * incoming-call notification and full-screen screen on receipt.
+ */
+export async function sendCallCancelPush(userIds: string[], roomId: string) {
+  const fbApp = getFirebaseApp();
+  if (!fbApp || userIds.length === 0) return;
+
+  const tokens = await prisma.pushToken.findMany({
+    where: { userId: { in: userIds } },
+  });
+  if (tokens.length === 0) return;
+
+  const message: MulticastMessage = {
+    tokens: tokens.map((t) => t.token),
+    data: {
+      type: 'call_cancel',
+      roomId,
+    },
+    android: {
+      priority: 'high',
+    },
+  };
+
+  try {
+    const res = await getMessaging(fbApp).sendEachForMulticast(message);
+    console.log(`sendCallCancelPush: sent to ${res.successCount}/${tokens.length} device(s)`);
+    await pruneInvalidTokens(res.responses, tokens.map((t) => t.token));
+  } catch (err) {
+    console.error('Failed to send call-cancel push notifications', err);
+  }
+}
+
+/**
+ * Removes device tokens that FCM reported as permanently invalid (app
+ * uninstalled, token rotated, etc.) so we stop trying to reach them.
+ */
+async function pruneInvalidTokens(responses: SendResponse[], tokens: string[]) {
+  const invalid: string[] = [];
+  responses.forEach((r: SendResponse, i: number) => {
+    if (!r.success) {
+      const code = r.error?.code;
+      if (
+        code === 'messaging/invalid-registration-token' ||
+        code === 'messaging/registration-token-not-registered'
+      ) {
+        invalid.push(tokens[i]);
+      }
+    }
+  });
+  if (invalid.length > 0) {
+    await prisma.pushToken.deleteMany({ where: { token: { in: invalid } } });
   }
 }

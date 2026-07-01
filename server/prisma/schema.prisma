@@ -19,7 +19,6 @@ model User {
   groups        GroupMember[]
   createdGroups Group[]        @relation("GroupCreator")
   messages      Message[]
-  videoComments VideoComment[]
   pokesReceived Poke[]         @relation("PokeReceiver")
   pokesSent     Poke[]         @relation("PokeSender")
   pushTokens    PushToken[]
@@ -55,7 +54,6 @@ model Group {
   creator         User             @relation("GroupCreator", fields: [creatorId], references: [id])
   members         GroupMember[]
   messages        Message[]
-  videoSessions   VideoSession[]
   rooms           Room[]
   scheduledEvents ScheduledEvent[]
   createdAt       DateTime         @default(now())
@@ -68,9 +66,10 @@ model GroupMember {
   groupId  String
   user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   group    Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  role     Role         @default(MEMBER)
-  status   MemberStatus @default(PENDING)
-  joinedAt DateTime     @default(now())
+  role       Role         @default(MEMBER)
+  status     MemberStatus @default(PENDING)
+  joinedAt   DateTime     @default(now())
+  lastReadAt DateTime?
 
   @@unique([userId, groupId])
 }
@@ -88,20 +87,18 @@ enum MemberStatus {
 }
 
 model Room {
-  id            String         @id @default(cuid())
-  name          String
-  type          RoomType       @default(VIDEO_CALL)
-  groupId       String
-  group         Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  isActive      Boolean        @default(true)
-  messages      Message[]
-  videoSessions VideoSession[]
-  createdAt     DateTime       @default(now())
+  id        String   @id @default(cuid())
+  name      String
+  type      RoomType @default(VIDEO_CALL)
+  groupId   String
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  isActive  Boolean  @default(true)
+  messages  Message[]
+  createdAt DateTime @default(now())
 }
 
 enum RoomType {
   VIDEO_CALL
-  VIDEO_WATCH
   AUDIO_CALL
 }
 
@@ -115,34 +112,6 @@ model Message {
   group     Group?   @relation(fields: [groupId], references: [id])
   room      Room?    @relation(fields: [roomId], references: [id])
   createdAt DateTime @default(now())
-}
-
-model VideoSession {
-  id          String         @id @default(cuid())
-  groupId     String
-  roomId      String?
-  videoUrl    String
-  title       String
-  isActive    Boolean        @default(true)
-  currentTime Float          @default(0)
-  isPlaying   Boolean        @default(false)
-  hostId      String
-  group       Group          @relation(fields: [groupId], references: [id])
-  room        Room?          @relation(fields: [roomId], references: [id])
-  comments    VideoComment[]
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-}
-
-model VideoComment {
-  id        String       @id @default(cuid())
-  content   String
-  timestamp Float
-  userId    String
-  sessionId String
-  user      User         @relation(fields: [userId], references: [id])
-  session   VideoSession @relation(fields: [sessionId], references: [id])
-  createdAt DateTime     @default(now())
 }
 
 model ScheduledEvent {

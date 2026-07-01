@@ -36,6 +36,17 @@ export function setupChatHandlers(io: Server, socket: Socket) {
 
         const channel = roomId ? `room:${roomId}` : `group:${groupId}`;
         io.to(channel).emit('chat:message', message);
+
+        // For group chat, push a lightweight unread signal to every other
+        // member's personal room so their sidebar badge updates even when they
+        // aren't viewing this group. Room (in-call) chat is excluded.
+        if (!roomId) {
+          const others = await prisma.groupMember.findMany({
+            where: { groupId, status: 'APPROVED', userId: { not: socket.user.id } },
+            select: { userId: true },
+          });
+          others.forEach((m) => io.to(`user:${m.userId}`).emit('chat:unread', { groupId }));
+        }
       } catch (err) {
         socket.emit('chat:error', { error: 'Failed to send message' });
       }
