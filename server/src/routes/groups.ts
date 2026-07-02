@@ -239,12 +239,21 @@ router.delete('/:id/leave', async (req: Request, res: Response) => {
   res.json({ message: 'Left group' });
 });
 
-// Mark this group's chat as read up to now for the current user.
+// Mark this group's chat as read up to now for the current user, and tell the
+// group live so senders' ✓✓ ticks update.
 router.post('/:id/read', async (req: Request, res: Response) => {
+  const at = new Date();
   await prisma.groupMember.updateMany({
     where: { userId: req.user!.id, groupId: req.params.id },
-    data: { lastReadAt: new Date() },
+    data: { lastReadAt: at },
   });
+  try {
+    getIO().to(`group:${req.params.id}`).emit('group:read', {
+      groupId: req.params.id,
+      userId: req.user!.id,
+      at: at.toISOString(),
+    });
+  } catch {}
   res.json({ ok: true });
 });
 

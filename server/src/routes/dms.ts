@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { authMiddleware } from '../middleware/auth';
 import { prisma } from '../index';
+import { getIO } from '../socket/index';
 
 const router = Router();
 router.use(authMiddleware);
@@ -10,12 +11,15 @@ function orderPair(a: string, b: string): [string, string] {
   return a < b ? [a, b] : [b, a];
 }
 
-/** Shape a thread for the client: the other participant + my unread state. */
+/** Shape a thread for the client: the other participant + my unread state.
+ *  partnerLastReadAt powers the sender's ✓✓ read ticks. */
 function shapeThread(thread: any, myId: string) {
-  const partner = thread.userAId === myId ? thread.userB : thread.userA;
+  const isA = thread.userAId === myId;
+  const partner = isA ? thread.userB : thread.userA;
   return {
     id: thread.id,
     partner: { id: partner.id, name: partner.name, nickname: partner.nickname, avatar: partner.avatar },
+    partnerLastReadAt: isA ? thread.lastReadB : thread.lastReadA,
     updatedAt: thread.updatedAt,
     createdAt: thread.createdAt,
   };
@@ -94,7 +98,8 @@ router.post('/open', async (req: Request, res: Response) => {
   res.json(shapeThread(thread, myId));
 });
 
-// Mark my side of the thread read up to now.
+// Mark my side of the thread read up to now, and tell the partner live so
+// their sent messages flip to ✓✓ read.
 router.post('/:id/read', async (req: Request, res: Response) => {
   const myId = req.user!.id;
   const thread = await prisma.dmThread.findUnique({ where: { id: req.params.id } });
@@ -102,10 +107,15 @@ router.post('/:id/read', async (req: Request, res: Response) => {
     res.status(404).json({ error: 'Thread not found' });
     return;
   }
+  const at = new Date();
   await prisma.dmThread.update({
     where: { id: thread.id },
-    data: thread.userAId === myId ? { lastReadA: new Date() } : { lastReadB: new Date() },
+    data: thread.userAId === myId ? { lastReadA: at } : { lastReadB: at },
   });
+  const partnerId = thread.userAId === myId ? thread.userBId : thread.userAId;
+  try {
+    getIO().to(`user:${partnerId}`).emit('dm:read', { threadId: thread.id, at: at.toISOString() });
+  } catch {}
   res.json({ ok: true });
 });
 

@@ -40,6 +40,7 @@ export interface GroupMember {
   role: Role;
   status: MemberStatus;
   joinedAt: string;
+  lastReadAt?: string | null;
   user: Pick<User, 'id' | 'name' | 'avatar'>;
 }
 
@@ -84,6 +85,9 @@ export interface Message {
   groupId?: string | null;
   roomId?: string | null;
   threadId?: string | null;
+  replyToId?: string | null;
+  replyTo?: { id: string; content: string; deletedAt?: string | null; user: { name: string } } | null;
+  deletedAt?: string | null;
   user: Pick<User, 'id' | 'name' | 'avatar'>;
   createdAt: string;
 }
@@ -91,6 +95,7 @@ export interface Message {
 export interface DmThread {
   id: string;
   partner: Pick<User, 'id' | 'name' | 'nickname' | 'avatar'>;
+  partnerLastReadAt?: string | null;
   unreadCount?: number;
   lastMessage?: { content: string; createdAt: string; userId: string } | null;
   updatedAt: string;

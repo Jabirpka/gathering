@@ -17,6 +17,8 @@ interface DmState {
   handleIncoming: (message: Message, myId?: string) => void;
   clearUnread: (threadId: string) => void;
   bumpThread: (threadId: string, message: Message) => void;
+  markMessageDeleted: (messageId: string, deletedAt: string) => void;
+  setPartnerRead: (threadId: string, at: string) => void;
 }
 
 export const useDmStore = create<DmState>((set, get) => ({
@@ -74,6 +76,21 @@ export const useDmStore = create<DmState>((set, get) => ({
 
   clearUnread: (threadId) =>
     set((state) => ({ unreadByThread: { ...state.unreadByThread, [threadId]: 0 } })),
+
+  markMessageDeleted: (messageId, deletedAt) =>
+    set((state) => ({
+      messages: state.messages.map((m) =>
+        m.id === messageId ? { ...m, content: '', deletedAt } : m
+      ),
+    })),
+
+  // Partner read the thread — flip my sent messages to ✓✓.
+  setPartnerRead: (threadId, at) =>
+    set((state) => ({
+      threads: state.threads.map((t) =>
+        t.id === threadId ? { ...t, partnerLastReadAt: at } : t
+      ),
+    })),
 
   // Refresh the thread's preview + move it to the top of the chats list.
   bumpThread: (threadId, message) =>

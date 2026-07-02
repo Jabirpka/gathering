@@ -1,6 +1,20 @@
 import { Server, Socket } from 'socket.io';
 import { prisma } from '../index';
 
+// Shared payload shape so every message (live or history, group or DM)
+// carries its sender and the quoted reply-to message.
+const messageInclude = {
+  user: { select: { id: true, name: true, avatar: true } },
+  replyTo: {
+    select: {
+      id: true,
+      content: true,
+      deletedAt: true,
+      user: { select: { name: true } },
+    },
+  },
+} as const;
+
 export function setupChatHandlers(io: Server, socket: Socket) {
   socket.on(
     'chat:send',
@@ -8,10 +22,12 @@ export function setupChatHandlers(io: Server, socket: Socket) {
       roomId,
       groupId,
       content,
+      replyToId,
     }: {
       roomId?: string;
       groupId: string;
       content: string;
+      replyToId?: string;
     }) => {
       if (!content?.trim()) return;
       if (content.length > 2000) return;
@@ -22,16 +38,24 @@ export function setupChatHandlers(io: Server, socket: Socket) {
         });
         if (!member || member.status !== 'APPROVED') return;
 
+        // A quote must point at a message in this same conversation.
+        let validReplyId: string | null = null;
+        if (replyToId) {
+          const target = await prisma.message.findUnique({ where: { id: replyToId } });
+          if (target && target.groupId === groupId && (target.roomId ?? null) === (roomId ?? null)) {
+            validReplyId = target.id;
+          }
+        }
+
         const message = await prisma.message.create({
           data: {
             content: content.trim(),
             userId: socket.user.id,
             groupId,
             roomId: roomId || null,
+            replyToId: validReplyId,
           },
-          include: {
-            user: { select: { id: true, name: true, avatar: true } },
-          },
+          include: messageInclude,
         });
 
         const channel = roomId ? `room:${roomId}` : `group:${groupId}`;
@@ -69,7 +93,7 @@ export function setupChatHandlers(io: Server, socket: Socket) {
           roomId: roomId || null,
           ...(cursor ? { createdAt: { lt: new Date(cursor) } } : {}),
         },
-        include: { user: { select: { id: true, name: true, avatar: true } } },
+        include: messageInclude,
         orderBy: { createdAt: 'desc' },
         take: 50,
       });
@@ -99,15 +123,21 @@ export function setupChatHandlers(io: Server, socket: Socket) {
     return thread;
   };
 
-  socket.on('dm:send', async ({ threadId, content }: { threadId: string; content: string }) => {
+  socket.on('dm:send', async ({ threadId, content, replyToId }: { threadId: string; content: string; replyToId?: string }) => {
     if (!content?.trim() || content.length > 2000) return;
     try {
       const thread = await loadMyThread(threadId);
       if (!thread) return;
 
+      let validReplyId: string | null = null;
+      if (replyToId) {
+        const target = await prisma.message.findUnique({ where: { id: replyToId } });
+        if (target && target.threadId === threadId) validReplyId = target.id;
+      }
+
       const message = await prisma.message.create({
-        data: { content: content.trim(), userId: socket.user.id, threadId },
-        include: { user: { select: { id: true, name: true, avatar: true } } },
+        data: { content: content.trim(), userId: socket.user.id, threadId, replyToId: validReplyId },
+        include: messageInclude,
       });
       // Bump the thread so conversation lists re-sort by activity.
       await prisma.dmThread.update({ where: { id: threadId }, data: { updatedAt: new Date() } });
@@ -128,7 +158,7 @@ export function setupChatHandlers(io: Server, socket: Socket) {
           threadId,
           ...(cursor ? { createdAt: { lt: new Date(cursor) } } : {}),
         },
-        include: { user: { select: { id: true, name: true, avatar: true } } },
+        include: messageInclude,
         orderBy: { createdAt: 'desc' },
         take: 50,
       });
@@ -147,5 +177,40 @@ export function setupChatHandlers(io: Server, socket: Socket) {
       userId: socket.user.id,
       name: socket.user.name,
     });
+  });
+
+  // Delete for everyone (WhatsApp-style): only the sender can delete; the
+  // content is blanked and every viewer gets a live chat:deleted event so the
+  // bubble flips to a "deleted" placeholder. Works for group, room, and DM.
+  socket.on('chat:delete', async ({ messageId }: { messageId: string }) => {
+    try {
+      const msg = await prisma.message.findUnique({ where: { id: messageId } });
+      if (!msg || msg.userId !== socket.user.id || msg.deletedAt) return;
+
+      const updated = await prisma.message.update({
+        where: { id: messageId },
+        data: { content: '', deletedAt: new Date() },
+      });
+
+      const payload = {
+        messageId,
+        groupId: msg.groupId,
+        roomId: msg.roomId,
+        threadId: msg.threadId,
+        deletedAt: updated.deletedAt,
+      };
+
+      if (msg.threadId) {
+        const thread = await prisma.dmThread.findUnique({ where: { id: msg.threadId } });
+        if (thread) {
+          io.to(`user:${thread.userAId}`).emit('chat:deleted', payload);
+          io.to(`user:${thread.userBId}`).emit('chat:deleted', payload);
+        }
+      } else if (msg.roomId) {
+        io.to(`room:${msg.roomId}`).emit('chat:deleted', payload);
+      } else if (msg.groupId) {
+        io.to(`group:${msg.groupId}`).emit('chat:deleted', payload);
+      }
+    } catch {}
   });
 }

@@ -22,6 +22,8 @@ interface GroupState {
 
   addMessage: (message: Message) => void;
   setMessages: (messages: Message[]) => void;
+  markMessageDeleted: (messageId: string, deletedAt: string) => void;
+  updateMemberRead: (groupId: string, userId: string, at: string) => void;
 
   incrementUnread: (groupId: string) => void;
   clearUnread: (groupId: string) => void;
@@ -91,6 +93,28 @@ export const useGroupStore = create<GroupState>((set, get) => ({
     set((state) => ({ messages: [...state.messages, message] })),
 
   setMessages: (messages) => set({ messages }),
+
+  // Delete-for-everyone arrived: blank the bubble in place.
+  markMessageDeleted: (messageId, deletedAt) =>
+    set((state) => ({
+      messages: state.messages.map((m) =>
+        m.id === messageId ? { ...m, content: '', deletedAt } : m
+      ),
+    })),
+
+  // A member read the group chat — refresh their lastReadAt so ✓✓ ticks update.
+  updateMemberRead: (groupId, userId, at) =>
+    set((state) => {
+      if (state.activeGroup?.id !== groupId) return {};
+      return {
+        activeGroup: {
+          ...state.activeGroup,
+          members: state.activeGroup.members.map((m) =>
+            m.userId === userId ? { ...m, lastReadAt: at } : m
+          ),
+        },
+      };
+    }),
 
   incrementUnread: (groupId) =>
     set((state) => {

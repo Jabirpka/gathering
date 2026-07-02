@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { Send, MessageSquare } from 'lucide-react';
+import { Send, MessageSquare, X } from 'lucide-react';
 import { useGroupStore } from '../../store/groupStore';
 import { useAuthStore } from '../../store/authStore';
 import { getSocket } from '../../hooks/useSocket';
 import { Message } from '../../types';
-import { formatDistanceToNow } from 'date-fns';
+import MessageBubble from './MessageBubble';
 import clsx from 'clsx';
 
 interface Props {
@@ -15,41 +15,35 @@ interface Props {
   bordered?: boolean;
 }
 
-function ChatMessage({ message, isOwn }: { message: Message; isOwn: boolean }) {
-  return (
-    <div className={clsx('flex gap-2.5 items-end', isOwn && 'flex-row-reverse')}>
-      {!isOwn && (
-        message.user.avatar ? (
-          <img src={message.user.avatar} className="w-6 h-6 rounded-full object-cover shrink-0 mb-0.5" alt={message.user.name} />
-        ) : (
-          <div className="w-6 h-6 rounded-full bg-brand-dim flex items-center justify-center text-[10px] font-bold text-brand shrink-0 mb-0.5">
-            {message.user.name[0]}
-          </div>
-        )
-      )}
-      <div className={clsx('max-w-[75%]', isOwn && 'items-end flex flex-col')}>
-        {!isOwn && (
-          <p className="text-[10px] text-slate-500 mb-0.5 ml-1">{message.user.name}</p>
-        )}
-        <div className={clsx('px-3 py-2 rounded-2xl text-sm leading-relaxed break-words',
-          isOwn ? 'bg-brand text-white rounded-br-sm' : 'bg-surface-2 text-slate-700 rounded-bl-sm')}>
-          {message.content}
-        </div>
-        <p className="text-[10px] text-slate-400 mt-0.5 mx-1">
-          {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
-        </p>
-      </div>
+function SenderAvatar({ message }: { message: Message }) {
+  return message.user.avatar ? (
+    <img src={message.user.avatar} className="w-6 h-6 rounded-full object-cover shrink-0 mb-0.5" alt={message.user.name} />
+  ) : (
+    <div className="w-6 h-6 rounded-full bg-brand-dim flex items-center justify-center text-[10px] font-bold text-brand shrink-0 mb-0.5">
+      {message.user.name[0]}
     </div>
   );
 }
 
 export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
-  const { messages, addMessage } = useGroupStore();
+  const { messages } = useGroupStore();
+  const activeGroup = useGroupStore((s) => s.activeGroup);
   const user = useAuthStore((s) => s.user);
   const [input, setInput] = useState('');
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const [typingUsers, setTypingUsers] = useState<Record<string, { name: string; at: number }>>({});
   const bottomRef = useRef<HTMLDivElement>(null);
   const socket = getSocket();
+
+  // ✓✓ when every other approved member has read past the message. Only
+  // group-level chat tracks lastReadAt, so room (in-call) chat shows no ticks.
+  const readStateFor = (msg: Message): 'sent' | 'read' | undefined => {
+    if (roomId || msg.userId !== user?.id) return undefined;
+    const others = activeGroup?.members.filter((m) => m.status === 'APPROVED' && m.userId !== user?.id) ?? [];
+    if (others.length === 0) return 'sent';
+    const allRead = others.every((m) => m.lastReadAt && new Date(m.lastReadAt) >= new Date(msg.createdAt));
+    return allRead ? 'read' : 'sent';
+  };
 
   useEffect(() => {
     socket?.emit('chat:history', { groupId, roomId });
@@ -82,8 +76,13 @@ export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
   const send = () => {
     const content = input.trim();
     if (!content || !socket) return;
-    socket.emit('chat:send', { groupId, roomId, content });
+    socket.emit('chat:send', { groupId, roomId, content, replyToId: replyingTo?.id });
     setInput('');
+    setReplyingTo(null);
+  };
+
+  const deleteMessage = (msg: Message) => {
+    socket?.emit('chat:delete', { messageId: msg.id });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -117,9 +116,21 @@ export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
             <p className="text-slate-500 text-sm">No messages yet.<br />Say hello!</p>
           </div>
         )}
-        {roomMessages.map((msg) => (
-          <ChatMessage key={msg.id} message={msg} isOwn={msg.userId === user?.id} />
-        ))}
+        {roomMessages.map((msg) => {
+          const isOwn = msg.userId === user?.id;
+          return (
+            <MessageBubble
+              key={msg.id}
+              message={msg}
+              isOwn={isOwn}
+              senderName={!isOwn ? msg.user.name : undefined}
+              avatar={!isOwn ? <SenderAvatar message={msg} /> : undefined}
+              readState={readStateFor(msg)}
+              onReply={setReplyingTo}
+              onDelete={deleteMessage}
+            />
+          );
+        })}
         <div ref={bottomRef} />
       </div>
 
@@ -128,6 +139,21 @@ export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
         <div className="px-4 pb-1 text-[11px] text-brand animate-pulse shrink-0">
           {Object.values(typingUsers).map((t) => t.name.split(' ')[0]).join(', ')}{' '}
           {Object.keys(typingUsers).length === 1 ? 'is' : 'are'} typing…
+        </div>
+      )}
+
+      {/* Reply preview */}
+      {replyingTo && (
+        <div className="px-3 pt-2 shrink-0">
+          <div className="flex items-center gap-2 bg-surface-2 rounded-xl px-3 py-1.5 border-l-2 border-brand">
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-semibold text-brand">
+                Replying to {replyingTo.userId === user?.id ? 'yourself' : replyingTo.user.name}
+              </p>
+              <p className="text-xs text-slate-500 truncate">{replyingTo.content}</p>
+            </div>
+            <button onClick={() => setReplyingTo(null)} className="btn-ghost p-1"><X size={12} /></button>
+          </div>
         </div>
       )}
 

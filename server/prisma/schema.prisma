@@ -129,6 +129,13 @@ model Message {
   groupId   String?
   roomId    String?
   threadId  String?
+  // Reply-to (quoted message). Kept when the original is deleted so the
+  // quote can render a "deleted" placeholder.
+  replyToId String?
+  replyTo   Message?  @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies   Message[] @relation("MessageReplies")
+  // Delete-for-everyone: content is blanked and this timestamp set.
+  deletedAt DateTime?
   user      User      @relation(fields: [userId], references: [id])
   group     Group?    @relation(fields: [groupId], references: [id])
   room      Room?     @relation(fields: [roomId], references: [id])

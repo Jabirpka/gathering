@@ -1,35 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Send } from 'lucide-react';
+import { ArrowLeft, Send, X } from 'lucide-react';
 import { useDmStore } from '../store/dmStore';
 import { useAuthStore } from '../store/authStore';
 import { getSocket } from '../hooks/useSocket';
 import { dmsApi } from '../services/api';
 import { Message } from '../types';
-import { formatDistanceToNow } from 'date-fns';
-import clsx from 'clsx';
-
-function Bubble({ message, isOwn }: { message: Message; isOwn: boolean }) {
-  return (
-    <div className={clsx('flex items-end', isOwn && 'flex-row-reverse')}>
-      <div className={clsx('max-w-[75%]', isOwn && 'items-end flex flex-col')}>
-        <div className={clsx('px-3 py-2 rounded-2xl text-sm leading-relaxed break-words',
-          isOwn ? 'bg-brand text-white rounded-br-sm' : 'bg-surface-2 text-slate-700 rounded-bl-sm')}>
-          {message.content}
-        </div>
-        <p className="text-[10px] text-slate-400 mt-0.5 mx-1">
-          {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
-        </p>
-      </div>
-    </div>
-  );
-}
+import MessageBubble from '../components/chat/MessageBubble';
 
 export default function DmPage() {
   const { threadId } = useParams<{ threadId: string }>();
   const user = useAuthStore((s) => s.user);
   const { threads, messages, fetchThreads, setActiveThread, setMessages, clearUnread } = useDmStore();
   const [input, setInput] = useState('');
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const [partnerTyping, setPartnerTyping] = useState(false);
   const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -76,11 +60,31 @@ export default function DmPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, partnerTyping]);
 
+  // Keep read state current while the conversation is open, so the partner's
+  // ✓✓ flips live as their messages land on my screen.
+  useEffect(() => {
+    const last = messages[messages.length - 1];
+    if (threadId && last && last.userId !== user?.id) {
+      dmsApi.markRead(threadId).catch(() => {});
+    }
+  }, [messages.length]);
+
   const send = () => {
     const content = input.trim();
     if (!content || !socket || !threadId) return;
-    socket.emit('dm:send', { threadId, content });
+    socket.emit('dm:send', { threadId, content, replyToId: replyingTo?.id });
     setInput('');
+    setReplyingTo(null);
+  };
+
+  const deleteMessage = (msg: Message) => {
+    socket?.emit('chat:delete', { messageId: msg.id });
+  };
+
+  const readStateFor = (msg: Message): 'sent' | 'read' | undefined => {
+    if (msg.userId !== user?.id) return undefined;
+    const readAt = thread?.partnerLastReadAt;
+    return readAt && new Date(readAt) >= new Date(msg.createdAt) ? 'read' : 'sent';
   };
 
   const partnerName = thread ? (thread.partner.nickname || thread.partner.name) : 'Chat';
@@ -111,10 +115,32 @@ export default function DmPage() {
           </p>
         )}
         {messages.map((m) => (
-          <Bubble key={m.id} message={m} isOwn={m.userId === user?.id} />
+          <MessageBubble
+            key={m.id}
+            message={m}
+            isOwn={m.userId === user?.id}
+            readState={readStateFor(m)}
+            onReply={setReplyingTo}
+            onDelete={deleteMessage}
+          />
         ))}
         <div ref={bottomRef} />
       </div>
+
+      {/* Reply preview */}
+      {replyingTo && (
+        <div className="px-3 pt-2 shrink-0">
+          <div className="flex items-center gap-2 bg-surface-2 rounded-xl px-3 py-1.5 border-l-2 border-brand max-w-3xl mx-auto w-full">
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-semibold text-brand">
+                Replying to {replyingTo.userId === user?.id ? 'yourself' : partnerName}
+              </p>
+              <p className="text-xs text-slate-500 truncate">{replyingTo.content}</p>
+            </div>
+            <button onClick={() => setReplyingTo(null)} className="btn-ghost p-1"><X size={12} /></button>
+          </div>
+        </div>
+      )}
 
       {/* Input */}
       <div className="p-3 border-t border-white/50 glass-panel shrink-0">

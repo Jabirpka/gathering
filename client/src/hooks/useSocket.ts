@@ -63,6 +63,20 @@ export function useSocket() {
       useDmStore.getState().handleIncoming(msg, useAuthStore.getState().user?.id);
     });
 
+    // Delete-for-everyone: flip the bubble wherever it's rendered.
+    socketInstance.on('chat:deleted', ({ messageId, deletedAt }: { messageId: string; deletedAt: string }) => {
+      useGroupStore.getState().markMessageDeleted(messageId, deletedAt);
+      useDmStore.getState().markMessageDeleted(messageId, deletedAt);
+    });
+
+    // Live read receipts for ✓✓ ticks.
+    socketInstance.on('group:read', ({ groupId, userId, at }: { groupId: string; userId: string; at: string }) => {
+      useGroupStore.getState().updateMemberRead(groupId, userId, at);
+    });
+    socketInstance.on('dm:read', ({ threadId, at }: { threadId: string; at: string }) => {
+      useDmStore.getState().setPartnerRead(threadId, at);
+    });
+
     socketInstance.on('group:presence', (event: PresenceEvent) => handlePresence(event));
 
     return () => {
