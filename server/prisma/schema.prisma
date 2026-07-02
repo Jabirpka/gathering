@@ -22,6 +22,26 @@ model User {
   pokesReceived Poke[]         @relation("PokeReceiver")
   pokesSent     Poke[]         @relation("PokeSender")
   pushTokens    PushToken[]
+  dmThreadsA    DmThread[]     @relation("DmUserA")
+  dmThreadsB    DmThread[]     @relation("DmUserB")
+}
+
+// 1:1 direct-message conversation. The pair is stored in canonical order
+// (userAId < userBId) so each pair has exactly one thread. Per-side lastRead
+// timestamps drive unread counts, mirroring GroupMember.lastReadAt.
+model DmThread {
+  id        String    @id @default(cuid())
+  userAId   String
+  userBId   String
+  userA     User      @relation("DmUserA", fields: [userAId], references: [id], onDelete: Cascade)
+  userB     User      @relation("DmUserB", fields: [userBId], references: [id], onDelete: Cascade)
+  lastReadA DateTime?
+  lastReadB DateTime?
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([userAId, userBId])
 }
 
 model PushToken {
@@ -103,15 +123,17 @@ enum RoomType {
 }
 
 model Message {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   content   String
   userId    String
   groupId   String?
   roomId    String?
-  user      User     @relation(fields: [userId], references: [id])
-  group     Group?   @relation(fields: [groupId], references: [id])
-  room      Room?    @relation(fields: [roomId], references: [id])
-  createdAt DateTime @default(now())
+  threadId  String?
+  user      User      @relation(fields: [userId], references: [id])
+  group     Group?    @relation(fields: [groupId], references: [id])
+  room      Room?     @relation(fields: [roomId], references: [id])
+  thread    DmThread? @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
 }
 
 model ScheduledEvent {

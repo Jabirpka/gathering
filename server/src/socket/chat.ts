@@ -87,4 +87,65 @@ export function setupChatHandlers(io: Server, socket: Socket) {
       name: socket.user.name,
     });
   });
+
+  // ---- 1:1 direct messages ----
+  // Delivered via each participant's personal room (user:<id>), so DMs work
+  // no matter which page either person is on.
+
+  const loadMyThread = async (threadId: string) => {
+    const thread = await prisma.dmThread.findUnique({ where: { id: threadId } });
+    if (!thread) return null;
+    if (thread.userAId !== socket.user.id && thread.userBId !== socket.user.id) return null;
+    return thread;
+  };
+
+  socket.on('dm:send', async ({ threadId, content }: { threadId: string; content: string }) => {
+    if (!content?.trim() || content.length > 2000) return;
+    try {
+      const thread = await loadMyThread(threadId);
+      if (!thread) return;
+
+      const message = await prisma.message.create({
+        data: { content: content.trim(), userId: socket.user.id, threadId },
+        include: { user: { select: { id: true, name: true, avatar: true } } },
+      });
+      // Bump the thread so conversation lists re-sort by activity.
+      await prisma.dmThread.update({ where: { id: threadId }, data: { updatedAt: new Date() } });
+
+      io.to(`user:${thread.userAId}`).emit('dm:message', message);
+      io.to(`user:${thread.userBId}`).emit('dm:message', message);
+    } catch {
+      socket.emit('chat:error', { error: 'Failed to send message' });
+    }
+  });
+
+  socket.on('dm:history', async ({ threadId, cursor }: { threadId: string; cursor?: string }) => {
+    try {
+      const thread = await loadMyThread(threadId);
+      if (!thread) return;
+      const messages = await prisma.message.findMany({
+        where: {
+          threadId,
+          ...(cursor ? { createdAt: { lt: new Date(cursor) } } : {}),
+        },
+        include: { user: { select: { id: true, name: true, avatar: true } } },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+      });
+      socket.emit('dm:history', { threadId, messages: messages.reverse() });
+    } catch {
+      socket.emit('chat:error', { error: 'Failed to load messages' });
+    }
+  });
+
+  socket.on('dm:typing', async ({ threadId }: { threadId: string }) => {
+    const thread = await loadMyThread(threadId);
+    if (!thread) return;
+    const partnerId = thread.userAId === socket.user.id ? thread.userBId : thread.userAId;
+    io.to(`user:${partnerId}`).emit('dm:typing', {
+      threadId,
+      userId: socket.user.id,
+      name: socket.user.name,
+    });
+  });
 }

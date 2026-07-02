@@ -15,6 +15,7 @@ import DashboardPage from './pages/DashboardPage';
 import GroupPage from './pages/GroupPage';
 import RoomPage from './pages/RoomPage';
 import SchedulePage from './pages/SchedulePage';
+import DmPage from './pages/DmPage';
 import ProfilePage from './pages/ProfilePage';
 import AuthCallback from './pages/AuthCallback';
 import Layout from './components/layout/Layout';
@@ -146,6 +147,7 @@ function AppRoutes() {
             <Route path="/groups/:groupId" element={<GroupPage />} />
             <Route path="/groups/:groupId/rooms/:roomId" element={<RoomPage />} />
             <Route path="/groups/:groupId/schedule" element={<SchedulePage />} />
+            <Route path="/dm/:threadId" element={<DmPage />} />
           </Route>
         ) : (
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -83,7 +83,17 @@ export interface Message {
   userId: string;
   groupId?: string | null;
   roomId?: string | null;
+  threadId?: string | null;
   user: Pick<User, 'id' | 'name' | 'avatar'>;
+  createdAt: string;
+}
+
+export interface DmThread {
+  id: string;
+  partner: Pick<User, 'id' | 'name' | 'nickname' | 'avatar'>;
+  unreadCount?: number;
+  lastMessage?: { content: string; createdAt: string; userId: string } | null;
+  updatedAt: string;
   createdAt: string;
 }
 

@@ -55,6 +55,12 @@ export const groupsApi = {
     api.patch(`/groups/${groupId}/members/${userId}`, { action }),
 };
 
+export const dmsApi = {
+  list: () => api.get('/dms'),
+  open: (userId: string) => api.post('/dms/open', { userId }),
+  markRead: (threadId: string) => api.post(`/dms/${threadId}/read`, {}),
+};
+
 export const eventsApi = {
   list: (groupId: string) => api.get(`/events/group/${groupId}`),
   create: (groupId: string, data: { title: string; description?: string; scheduledAt: string; meetupData?: any }) =>

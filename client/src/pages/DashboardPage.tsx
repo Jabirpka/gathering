@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGroupStore } from '../store/groupStore';
+import { useDmStore } from '../store/dmStore';
 import { useAuthStore } from '../store/authStore';
 import { Users, Calendar, Plus, LogIn, MessageSquare } from 'lucide-react';
 import { format, isToday, formatDistanceToNow } from 'date-fns';
-import { Group } from '../types';
+import { Group, DmThread } from '../types';
 import CreateGroupModal from '../components/groups/CreateGroupModal';
 import JoinGroupModal from '../components/groups/JoinGroupModal';
 import { motion } from 'framer-motion';
@@ -55,12 +56,71 @@ function ChatRow({ group, onClick }: { group: Group; onClick: () => void }) {
   );
 }
 
+function DmRow({ thread, onClick }: { thread: DmThread; onClick: () => void }) {
+  const unread = useDmStore((s) => s.unreadByThread[thread.id] ?? 0);
+  const myId = useAuthStore((s) => s.user?.id);
+  const name = thread.partner.nickname || thread.partner.name;
+  const last = thread.lastMessage;
+
+  return (
+    <motion.div whileTap={{ scale: 0.98 }} onClick={onClick}
+      className="card px-3.5 py-3 cursor-pointer hover:border-brand/30 transition-all flex items-center gap-3">
+      <div className="w-12 h-12 rounded-full overflow-hidden shrink-0">
+        {thread.partner.avatar ? (
+          <img src={thread.partner.avatar} className="w-full h-full object-cover" alt={name} />
+        ) : (
+          <div className="w-full h-full bg-brand-dim flex items-center justify-center text-lg font-bold text-brand">
+            {name[0].toUpperCase()}
+          </div>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-baseline justify-between gap-2">
+          <h3 className="font-semibold text-slate-900 text-sm truncate">{name}</h3>
+          <span className={`text-[11px] shrink-0 ${unread > 0 ? 'text-brand font-semibold' : 'text-slate-400'}`}>
+            {last ? chatTime(last.createdAt) : ''}
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-2 mt-0.5">
+          <p className={`text-xs truncate ${unread > 0 ? 'text-slate-700 font-medium' : 'text-slate-500'}`}>
+            {last ? `${last.userId === myId ? 'You: ' : ''}${last.content}` : 'New conversation'}
+          </p>
+          {unread > 0 && (
+            <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-brand text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+              {unread > 99 ? '99+' : unread}
+            </span>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
   const { groups, loading } = useGroupStore();
+  const { threads, fetchThreads } = useDmStore();
   const navigate = useNavigate();
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
+
+  useEffect(() => { fetchThreads(); }, []);
+
+  // Merge groups and DMs into one WhatsApp-style list, newest activity first.
+  const chatItems = [
+    ...groups.map((g) => ({
+      kind: 'group' as const,
+      id: `g-${g.id}`,
+      at: +new Date(g.lastMessage?.createdAt ?? g.updatedAt),
+      group: g,
+    })),
+    ...threads.map((t) => ({
+      kind: 'dm' as const,
+      id: `d-${t.id}`,
+      at: +new Date(t.lastMessage?.createdAt ?? t.updatedAt),
+      thread: t,
+    })),
+  ].sort((a, b) => b.at - a.at);
 
   const upcoming = groups
     .flatMap((g) => (g.scheduledEvents ?? []).map((e) => ({ ...e, groupName: g.name, groupId: g.id })))
@@ -145,7 +205,7 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
-        ) : groups.length === 0 ? (
+        ) : chatItems.length === 0 ? (
           <div className="card p-10 text-center">
             <Users size={36} className="text-slate-300 mx-auto mb-3" />
             <p className="text-slate-700 font-medium mb-1">No chats yet</p>
@@ -156,13 +216,13 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="space-y-2">
-            {[...groups]
-              .sort((a, b) =>
-                +new Date(b.lastMessage?.createdAt ?? b.updatedAt) - +new Date(a.lastMessage?.createdAt ?? a.updatedAt)
+            {chatItems.map((item) =>
+              item.kind === 'group' ? (
+                <ChatRow key={item.id} group={item.group} onClick={() => navigate(`/groups/${item.group.id}`)} />
+              ) : (
+                <DmRow key={item.id} thread={item.thread} onClick={() => navigate(`/dm/${item.thread.id}`)} />
               )
-              .map((g) => (
-                <ChatRow key={g.id} group={g} onClick={() => navigate(`/groups/${g.id}`)} />
-              ))}
+            )}
           </div>
         )}
       </div>

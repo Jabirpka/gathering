@@ -1,9 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useGroupStore } from '../store/groupStore';
+import { useDmStore } from '../store/dmStore';
 import { useAuthStore } from '../store/authStore';
 import { getSocket } from '../hooks/useSocket';
-import { Users, Video, Copy, Check, Settings, UserCheck, Headphones, Calendar, Zap, Share2, Camera, Loader2, Crown, Trash2 } from 'lucide-react';
+import { Users, Video, Copy, Check, Settings, UserCheck, Headphones, Calendar, Zap, Share2, Camera, Loader2, Crown, Trash2, MessageSquare } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { GroupMember, Room, Message } from '../types';
 import MemberApproval from '../components/groups/MemberApproval';
@@ -38,6 +39,8 @@ function RoomCard({ room, groupId }: { room: Room; groupId: string }) {
 
 function MemberRow({ member, currentUserId, groupId }: { member: GroupMember; currentUserId?: string; groupId: string }) {
   const [poking, setPoking] = useState(false);
+  const navigate = useNavigate();
+  const openThread = useDmStore((s) => s.openThread);
   const roleColors: Record<string, string> = {
     OWNER: 'bg-amber-100 text-amber-700',
     ADMIN: 'bg-blue-100 text-blue-600',
@@ -56,6 +59,15 @@ function MemberRow({ member, currentUserId, groupId }: { member: GroupMember; cu
     }
   };
 
+  const handleMessage = async () => {
+    try {
+      const thread = await openThread(member.userId);
+      navigate(`/dm/${thread.id}`);
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Could not open chat');
+    }
+  };
+
   return (
     <div className="flex items-center gap-3 py-2.5">
       {member.user.avatar ? (
@@ -70,10 +82,16 @@ function MemberRow({ member, currentUserId, groupId }: { member: GroupMember; cu
       </div>
       <span className={`badge text-[10px] ${roleColors[member.role]}`}>{member.role}</span>
       {member.userId !== currentUserId && (
-        <button onClick={handlePoke} disabled={poking} title="Poke"
-          className="p-2 rounded-lg hover:bg-amber-100 text-slate-400 hover:text-amber-600 transition-colors disabled:opacity-50 active:scale-90">
-          <Zap size={14} />
-        </button>
+        <>
+          <button onClick={handleMessage} title="Message"
+            className="p-2 rounded-lg hover:bg-brand-dim text-slate-400 hover:text-brand transition-colors active:scale-90">
+            <MessageSquare size={14} />
+          </button>
+          <button onClick={handlePoke} disabled={poking} title="Poke"
+            className="p-2 rounded-lg hover:bg-amber-100 text-slate-400 hover:text-amber-600 transition-colors disabled:opacity-50 active:scale-90">
+            <Zap size={14} />
+          </button>
+        </>
       )}
     </div>
   );

@@ -16,6 +16,7 @@ import userRoutes from './routes/users';
 import eventRoutes from './routes/events';
 import livekitRoutes from './routes/livekit';
 import pushRoutes from './routes/push';
+import dmRoutes from './routes/dms';
 import { setupSocketHandlers } from './socket';
 import { errorHandler } from './middleware/error';
 
@@ -69,6 +70,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/livekit', livekitRoutes);
 app.use('/api/push', pushRoutes);
+app.use('/api/dms', dmRoutes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 

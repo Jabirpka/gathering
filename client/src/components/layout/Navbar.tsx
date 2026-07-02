@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useGroupStore } from '../../store/groupStore';
+import { useDmStore } from '../../store/dmStore';
 import NotificationPanel from '../notifications/NotificationPanel';
 
 interface Props {
@@ -14,7 +15,9 @@ export default function Navbar({ onMenuClick }: Props) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { unreadCount } = useNotificationStore();
-  const totalChatUnread = useGroupStore((s) => Object.values(s.unreadByGroup).reduce((a, b) => a + b, 0));
+  const groupUnread = useGroupStore((s) => Object.values(s.unreadByGroup).reduce((a, b) => a + b, 0));
+  const dmUnread = useDmStore((s) => Object.values(s.unreadByThread).reduce((a, b) => a + b, 0));
+  const totalChatUnread = groupUnread + dmUnread;
   const [showNotifs, setShowNotifs] = useState(false);
 
   return (

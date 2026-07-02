@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuthStore } from '../store/authStore';
 import { useGroupStore } from '../store/groupStore';
+import { useDmStore } from '../store/dmStore';
 import { Message, PresenceEvent } from '../types';
 
 let socketInstance: Socket | null = null;
@@ -55,6 +56,11 @@ export function useSocket() {
           user: { name: message.user?.name ?? 'Someone' },
         });
       }
+    });
+
+    // Direct messages arrive on the personal room regardless of current page.
+    socketInstance.on('dm:message', (msg: Message) => {
+      useDmStore.getState().handleIncoming(msg, useAuthStore.getState().user?.id);
     });
 
     socketInstance.on('group:presence', (event: PresenceEvent) => handlePresence(event));
