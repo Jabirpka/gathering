@@ -9,11 +9,33 @@ const messageInclude = {
     select: {
       id: true,
       content: true,
+      kind: true,
       deletedAt: true,
       user: { select: { name: true } },
     },
   },
 } as const;
+
+// Voice notes arrive as audio data URLs; cap size (~60s of opus) and length.
+const MAX_TEXT_LEN = 2000;
+const MAX_VOICE_LEN = 1_500_000;
+const MAX_VOICE_SECONDS = 120;
+
+function validateMessage(kind: string | undefined, content: string, duration?: number):
+  { kind: 'TEXT' | 'VOICE'; duration: number | null } | null {
+  if (kind === 'VOICE') {
+    if (!content.startsWith('data:audio/') || content.length > MAX_VOICE_LEN) return null;
+    if (!duration || duration < 1 || duration > MAX_VOICE_SECONDS) return null;
+    return { kind: 'VOICE', duration: Math.round(duration) };
+  }
+  if (content.length > MAX_TEXT_LEN) return null;
+  return { kind: 'TEXT', duration: null };
+}
+
+/** Text shown in chat-list previews instead of a giant data URL. */
+export function previewText(kind: string, content: string) {
+  return kind === 'VOICE' ? '🎤 Voice message' : content;
+}
 
 export function setupChatHandlers(io: Server, socket: Socket) {
   socket.on(
@@ -23,14 +45,19 @@ export function setupChatHandlers(io: Server, socket: Socket) {
       groupId,
       content,
       replyToId,
+      kind,
+      duration,
     }: {
       roomId?: string;
       groupId: string;
       content: string;
       replyToId?: string;
+      kind?: string;
+      duration?: number;
     }) => {
       if (!content?.trim()) return;
-      if (content.length > 2000) return;
+      const valid = validateMessage(kind, content, duration);
+      if (!valid) return;
 
       try {
         const member = await prisma.groupMember.findUnique({
@@ -49,7 +76,9 @@ export function setupChatHandlers(io: Server, socket: Socket) {
 
         const message = await prisma.message.create({
           data: {
-            content: content.trim(),
+            content: valid.kind === 'VOICE' ? content : content.trim(),
+            kind: valid.kind,
+            duration: valid.duration,
             userId: socket.user.id,
             groupId,
             roomId: roomId || null,
@@ -72,7 +101,7 @@ export function setupChatHandlers(io: Server, socket: Socket) {
           // Include a preview so chats lists can update their last-message
           // row live without refetching.
           const preview = {
-            content: message.content,
+            content: previewText(message.kind, message.content),
             createdAt: message.createdAt,
             userId: message.userId,
             user: { name: message.user.name },
@@ -123,8 +152,10 @@ export function setupChatHandlers(io: Server, socket: Socket) {
     return thread;
   };
 
-  socket.on('dm:send', async ({ threadId, content, replyToId }: { threadId: string; content: string; replyToId?: string }) => {
-    if (!content?.trim() || content.length > 2000) return;
+  socket.on('dm:send', async ({ threadId, content, replyToId, kind, duration }: { threadId: string; content: string; replyToId?: string; kind?: string; duration?: number }) => {
+    if (!content?.trim()) return;
+    const valid = validateMessage(kind, content, duration);
+    if (!valid) return;
     try {
       const thread = await loadMyThread(threadId);
       if (!thread) return;
@@ -136,7 +167,14 @@ export function setupChatHandlers(io: Server, socket: Socket) {
       }
 
       const message = await prisma.message.create({
-        data: { content: content.trim(), userId: socket.user.id, threadId, replyToId: validReplyId },
+        data: {
+          content: valid.kind === 'VOICE' ? content : content.trim(),
+          kind: valid.kind,
+          duration: valid.duration,
+          userId: socket.user.id,
+          threadId,
+          replyToId: validReplyId,
+        },
         include: messageInclude,
       });
       // Bump the thread so conversation lists re-sort by activity.

@@ -55,6 +55,12 @@ export const groupsApi = {
     api.patch(`/groups/${groupId}/members/${userId}`, { action }),
 };
 
+export const statusApi = {
+  list: () => api.get('/status'),
+  create: (data: { kind: 'TEXT' | 'IMAGE'; content: string; bg?: string }) => api.post('/status', data),
+  remove: (id: string) => api.delete(`/status/${id}`),
+};
+
 export const dmsApi = {
   list: () => api.get('/dms'),
   open: (userId: string) => api.post('/dms/open', { userId }),

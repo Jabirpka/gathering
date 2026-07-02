@@ -35,7 +35,7 @@ export function useSocket() {
       // Group-level messages also refresh the chats-list preview row.
       if (!msg.roomId && msg.groupId) {
         updateGroupPreview(msg.groupId, {
-          content: msg.content,
+          content: msg.kind === 'VOICE' ? '🎤 Voice message' : msg.content,
           createdAt: msg.createdAt,
           userId: msg.userId,
           user: { name: msg.user.name },

@@ -49,7 +49,11 @@ export default function MessageBubble({ message, isOwn, senderName, avatar, read
                 {message.replyTo.user.name}
               </p>
               <p className={clsx('truncate', isOwn ? 'text-white/75' : 'text-slate-500')}>
-                {message.replyTo.deletedAt ? 'Message deleted' : message.replyTo.content}
+                {message.replyTo.deletedAt
+                  ? 'Message deleted'
+                  : message.replyTo.kind === 'VOICE'
+                    ? '🎤 Voice message'
+                    : message.replyTo.content}
               </p>
             </div>
           )}
@@ -57,6 +61,15 @@ export default function MessageBubble({ message, isOwn, senderName, avatar, read
           {deleted ? (
             <span className={clsx('italic flex items-center gap-1.5', isOwn ? 'text-white/70' : 'text-slate-400')}>
               <Ban size={12} /> This message was deleted
+            </span>
+          ) : message.kind === 'VOICE' ? (
+            <span className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+              <audio controls preload="metadata" src={message.content} className="max-w-[200px] h-9" />
+              {message.duration != null && (
+                <span className={clsx('text-[10px]', isOwn ? 'text-white/75' : 'text-slate-500')}>
+                  {Math.floor(message.duration / 60)}:{(message.duration % 60).toString().padStart(2, '0')}
+                </span>
+              )}
             </span>
           ) : (
             message.content

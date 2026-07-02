@@ -8,6 +8,7 @@ import { format, isToday, formatDistanceToNow } from 'date-fns';
 import { Group, DmThread } from '../types';
 import CreateGroupModal from '../components/groups/CreateGroupModal';
 import JoinGroupModal from '../components/groups/JoinGroupModal';
+import StatusBar from '../components/status/StatusBar';
 import { motion } from 'framer-motion';
 
 /** WhatsApp-style timestamp: clock time today, short date otherwise. */
@@ -136,6 +137,9 @@ export default function DashboardPage() {
         </h1>
         <p className="text-slate-500 text-sm">Hang out with your people.</p>
       </div>
+
+      {/* Status / stories */}
+      <StatusBar />
 
       {/* Quick actions */}
       <div className="grid grid-cols-2 gap-3 mb-6">

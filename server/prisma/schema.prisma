@@ -24,6 +24,20 @@ model User {
   pushTokens    PushToken[]
   dmThreadsA    DmThread[]     @relation("DmUserA")
   dmThreadsB    DmThread[]     @relation("DmUserB")
+  statuses      Status[]
+}
+
+// WhatsApp-style status/story: text or image, auto-expires after 24h.
+// Visible to anyone who shares an approved group with the author.
+model Status {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      String   @default("TEXT") // TEXT | IMAGE
+  content   String   // text body, or image data URL
+  bg        String?  // background color for text statuses
+  createdAt DateTime @default(now())
+  expiresAt DateTime
 }
 
 // 1:1 direct-message conversation. The pair is stored in canonical order
@@ -125,6 +139,10 @@ enum RoomType {
 model Message {
   id        String    @id @default(cuid())
   content   String
+  // TEXT (plain content) or VOICE (content is an audio data URL)
+  kind      String    @default("TEXT")
+  // Voice note length in seconds
+  duration  Int?
   userId    String
   groupId   String?
   roomId    String?

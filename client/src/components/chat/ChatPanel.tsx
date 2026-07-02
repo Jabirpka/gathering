@@ -5,6 +5,7 @@ import { useAuthStore } from '../../store/authStore';
 import { getSocket } from '../../hooks/useSocket';
 import { Message } from '../../types';
 import MessageBubble from './MessageBubble';
+import VoiceRecorderButton from './VoiceRecorderButton';
 import clsx from 'clsx';
 
 interface Props {
@@ -85,6 +86,13 @@ export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
     socket?.emit('chat:delete', { messageId: msg.id });
   };
 
+  const sendVoice = (dataUrl: string, seconds: number) => {
+    socket?.emit('chat:send', {
+      groupId, roomId, content: dataUrl, kind: 'VOICE', duration: seconds, replyToId: replyingTo?.id,
+    });
+    setReplyingTo(null);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -150,7 +158,9 @@ export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
               <p className="text-[11px] font-semibold text-brand">
                 Replying to {replyingTo.userId === user?.id ? 'yourself' : replyingTo.user.name}
               </p>
-              <p className="text-xs text-slate-500 truncate">{replyingTo.content}</p>
+              <p className="text-xs text-slate-500 truncate">
+                {replyingTo.kind === 'VOICE' ? '🎤 Voice message' : replyingTo.content}
+              </p>
             </div>
             <button onClick={() => setReplyingTo(null)} className="btn-ghost p-1"><X size={12} /></button>
           </div>
@@ -168,13 +178,16 @@ export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
             onKeyDown={handleKeyDown}
             rows={1}
           />
-          <button
-            onClick={send}
-            disabled={!input.trim()}
-            className="w-9 h-9 rounded-xl bg-brand hover:bg-brand-light disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-colors shrink-0"
-          >
-            <Send size={15} className="text-white" />
-          </button>
+          {input.trim() ? (
+            <button
+              onClick={send}
+              className="w-9 h-9 rounded-xl bg-brand hover:bg-brand-light flex items-center justify-center transition-colors shrink-0"
+            >
+              <Send size={15} className="text-white" />
+            </button>
+          ) : (
+            <VoiceRecorderButton onSend={sendVoice} />
+          )}
         </div>
       </div>
     </div>

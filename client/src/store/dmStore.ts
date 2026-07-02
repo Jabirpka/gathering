@@ -100,7 +100,11 @@ export const useDmStore = create<DmState>((set, get) => ({
           ? {
               ...t,
               updatedAt: message.createdAt,
-              lastMessage: { content: message.content, createdAt: message.createdAt, userId: message.userId },
+              lastMessage: {
+                content: message.kind === 'VOICE' ? '🎤 Voice message' : message.content,
+                createdAt: message.createdAt,
+                userId: message.userId,
+              },
             }
           : t
       ),

@@ -17,6 +17,7 @@ import eventRoutes from './routes/events';
 import livekitRoutes from './routes/livekit';
 import pushRoutes from './routes/push';
 import dmRoutes from './routes/dms';
+import statusRoutes from './routes/status';
 import { setupSocketHandlers } from './socket';
 import { errorHandler } from './middleware/error';
 
@@ -45,8 +46,9 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Large-ish limits so base64 payloads (avatars, image statuses) fit.
+app.use(express.json({ limit: '4mb' }));
+app.use(express.urlencoded({ extended: true, limit: '4mb' }));
 
 app.use(
   session({
@@ -71,6 +73,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/livekit', livekitRoutes);
 app.use('/api/push', pushRoutes);
 app.use('/api/dms', dmRoutes);
+app.use('/api/status', statusRoutes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
@@ -85,6 +88,8 @@ export const io = new SocketServer(httpServer, {
   transports: ['websocket', 'polling'],
   pingTimeout: 60000,
   pingInterval: 25000,
+  // Voice messages travel as base64 data URLs over the socket.
+  maxHttpBufferSize: 2e6,
 });
 
 async function setupRedis() {

@@ -46,13 +46,18 @@ router.get('/', async (req: Request, res: Response) => {
           orderBy: { createdAt: 'desc' },
           select: {
             content: true,
+            kind: true,
             createdAt: true,
             userId: true,
             user: { select: { name: true, nickname: true } },
           },
         }),
       ]);
-      return { ...g, unreadCount, lastMessage };
+      // Voice notes are data URLs — swap in a short label for the preview.
+      const preview = lastMessage
+        ? { ...lastMessage, content: lastMessage.kind === 'VOICE' ? '🎤 Voice message' : lastMessage.content }
+        : null;
+      return { ...g, unreadCount, lastMessage: preview };
     })
   );
 

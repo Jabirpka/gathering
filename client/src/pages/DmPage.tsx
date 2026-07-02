@@ -7,6 +7,7 @@ import { getSocket } from '../hooks/useSocket';
 import { dmsApi } from '../services/api';
 import { Message } from '../types';
 import MessageBubble from '../components/chat/MessageBubble';
+import VoiceRecorderButton from '../components/chat/VoiceRecorderButton';
 
 export default function DmPage() {
   const { threadId } = useParams<{ threadId: string }>();
@@ -81,6 +82,12 @@ export default function DmPage() {
     socket?.emit('chat:delete', { messageId: msg.id });
   };
 
+  const sendVoice = (dataUrl: string, seconds: number) => {
+    if (!threadId) return;
+    socket?.emit('dm:send', { threadId, content: dataUrl, kind: 'VOICE', duration: seconds, replyToId: replyingTo?.id });
+    setReplyingTo(null);
+  };
+
   const readStateFor = (msg: Message): 'sent' | 'read' | undefined => {
     if (msg.userId !== user?.id) return undefined;
     const readAt = thread?.partnerLastReadAt;
@@ -135,7 +142,9 @@ export default function DmPage() {
               <p className="text-[11px] font-semibold text-brand">
                 Replying to {replyingTo.userId === user?.id ? 'yourself' : partnerName}
               </p>
-              <p className="text-xs text-slate-500 truncate">{replyingTo.content}</p>
+              <p className="text-xs text-slate-500 truncate">
+                {replyingTo.kind === 'VOICE' ? '🎤 Voice message' : replyingTo.content}
+              </p>
             </div>
             <button onClick={() => setReplyingTo(null)} className="btn-ghost p-1"><X size={12} /></button>
           </div>
@@ -161,13 +170,16 @@ export default function DmPage() {
             }}
             rows={1}
           />
-          <button
-            onClick={send}
-            disabled={!input.trim()}
-            className="w-10 h-10 rounded-xl bg-brand hover:bg-brand-light disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-colors shrink-0"
-          >
-            <Send size={16} className="text-white" />
-          </button>
+          {input.trim() ? (
+            <button
+              onClick={send}
+              className="w-10 h-10 rounded-xl bg-brand hover:bg-brand-light flex items-center justify-center transition-colors shrink-0"
+            >
+              <Send size={16} className="text-white" />
+            </button>
+          ) : (
+            <VoiceRecorderButton onSend={sendVoice} />
+          )}
         </div>
       </div>
     </div>

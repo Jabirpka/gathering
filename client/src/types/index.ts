@@ -81,15 +81,31 @@ export interface Group {
 export interface Message {
   id: string;
   content: string;
+  kind?: 'TEXT' | 'VOICE';
+  duration?: number | null;
   userId: string;
   groupId?: string | null;
   roomId?: string | null;
   threadId?: string | null;
   replyToId?: string | null;
-  replyTo?: { id: string; content: string; deletedAt?: string | null; user: { name: string } } | null;
+  replyTo?: { id: string; content: string; kind?: 'TEXT' | 'VOICE'; deletedAt?: string | null; user: { name: string } } | null;
   deletedAt?: string | null;
   user: Pick<User, 'id' | 'name' | 'avatar'>;
   createdAt: string;
+}
+
+export interface StatusItem {
+  id: string;
+  kind: 'TEXT' | 'IMAGE';
+  content: string;
+  bg?: string | null;
+  createdAt: string;
+  expiresAt: string;
+}
+
+export interface StatusGroup {
+  user: Pick<User, 'id' | 'name' | 'nickname' | 'avatar'>;
+  statuses: StatusItem[];
 }
 
 export interface DmThread {

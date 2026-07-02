@@ -131,6 +131,15 @@
   }
 }
 
+/* Status story progress bar */
+@keyframes statusProgress {
+  from { width: 0; }
+  to { width: 100%; }
+}
+.animate-status-progress {
+  animation: statusProgress linear forwards;
+}
+
 /* LiveKit overrides */
 .lk-room-container {
   background: #0a0a0f !important;

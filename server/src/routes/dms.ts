@@ -52,10 +52,13 @@ router.get('/', async (req: Request, res: Response) => {
         prisma.message.findFirst({
           where: { threadId: t.id },
           orderBy: { createdAt: 'desc' },
-          select: { content: true, createdAt: true, userId: true },
+          select: { content: true, kind: true, createdAt: true, userId: true },
         }),
       ]);
-      return { ...shapeThread(t, myId), unreadCount, lastMessage };
+      const preview = lastMessage
+        ? { ...lastMessage, content: lastMessage.kind === 'VOICE' ? '🎤 Voice message' : lastMessage.content }
+        : null;
+      return { ...shapeThread(t, myId), unreadCount, lastMessage: preview };
     })
   );
 
