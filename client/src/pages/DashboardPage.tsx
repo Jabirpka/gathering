@@ -2,53 +2,54 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGroupStore } from '../store/groupStore';
 import { useAuthStore } from '../store/authStore';
-import { Users, Video, Calendar, Plus, LogIn, ArrowRight, Clock } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { Users, Calendar, Plus, LogIn, MessageSquare } from 'lucide-react';
+import { format, isToday, formatDistanceToNow } from 'date-fns';
 import { Group } from '../types';
 import CreateGroupModal from '../components/groups/CreateGroupModal';
 import JoinGroupModal from '../components/groups/JoinGroupModal';
 import { motion } from 'framer-motion';
 
-function GroupCard({ group, onClick }: { group: Group; onClick: () => void }) {
-  const approvedCount = group.members?.filter((m) => m.status === 'APPROVED').length ?? 0;
+/** WhatsApp-style timestamp: clock time today, short date otherwise. */
+function chatTime(iso: string) {
+  const d = new Date(iso);
+  return isToday(d) ? format(d, 'h:mm a') : format(d, 'MMM d');
+}
+
+function ChatRow({ group, onClick }: { group: Group; onClick: () => void }) {
   const unread = useGroupStore((s) => s.unreadByGroup[group.id] ?? 0);
+  const myId = useAuthStore((s) => s.user?.id);
+  const last = group.lastMessage;
+  const sender = last ? (last.userId === myId ? 'You' : (last.user.nickname || last.user.name).split(' ')[0]) : null;
 
   return (
-    <motion.div whileTap={{ scale: 0.97 }} onClick={onClick}
-      className="card p-4 cursor-pointer hover:border-brand/30 transition-all group">
-      <div className="flex items-start justify-between mb-3">
-        <div className="w-11 h-11 rounded-xl overflow-hidden shrink-0">
-          {group.avatar ? (
-            <img src={group.avatar} className="w-full h-full object-cover" alt={group.name} />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-brand to-accent flex items-center justify-center text-lg font-bold text-white">
-              {group.name[0].toUpperCase()}
-            </div>
-          )}
+    <motion.div whileTap={{ scale: 0.98 }} onClick={onClick}
+      className="card px-3.5 py-3 cursor-pointer hover:border-brand/30 transition-all flex items-center gap-3">
+      <div className="w-12 h-12 rounded-full overflow-hidden shrink-0">
+        {group.avatar ? (
+          <img src={group.avatar} className="w-full h-full object-cover" alt={group.name} />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-brand to-accent flex items-center justify-center text-lg font-bold text-white">
+            {group.name[0].toUpperCase()}
+          </div>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-baseline justify-between gap-2">
+          <h3 className="font-semibold text-slate-900 text-sm truncate">{group.name}</h3>
+          <span className={`text-[11px] shrink-0 ${unread > 0 ? 'text-brand font-semibold' : 'text-slate-400'}`}>
+            {last ? chatTime(last.createdAt) : ''}
+          </span>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center justify-between gap-2 mt-0.5">
+          <p className={`text-xs truncate ${unread > 0 ? 'text-slate-700 font-medium' : 'text-slate-500'}`}>
+            {last ? `${sender}: ${last.content}` : 'No messages yet — say hello!'}
+          </p>
           {unread > 0 && (
-            <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-brand text-white text-[10px] font-bold flex items-center justify-center">
+            <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-brand text-white text-[10px] font-bold flex items-center justify-center shrink-0">
               {unread > 99 ? '99+' : unread}
             </span>
           )}
-          <span className={`badge text-[10px] ${group.isPublic ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}>
-            {group.isPublic ? 'Public' : 'Private'}
-          </span>
         </div>
-      </div>
-      <h3 className="font-semibold text-slate-900 mb-1 group-hover:text-brand transition-colors text-sm">{group.name}</h3>
-      {group.description && <p className="text-xs text-slate-500 mb-2 line-clamp-1">{group.description}</p>}
-      <div className="flex items-center gap-3 text-xs text-slate-500">
-        <span className="flex items-center gap-1"><Users size={11} />{approvedCount}</span>
-        <span className="flex items-center gap-1"><Video size={11} />{group.rooms?.length ?? 0}</span>
-        <span className="flex items-center gap-1 ml-auto"><Clock size={11} />
-          {formatDistanceToNow(new Date(group.updatedAt), { addSuffix: true })}
-        </span>
-      </div>
-      <div className="mt-2.5 pt-2.5 border-t border-black/5 flex items-center justify-between">
-        <span className="text-xs text-slate-400">Code: <span className="font-mono text-slate-600">{group.code}</span></span>
-        <ArrowRight size={13} className="text-slate-400 group-hover:text-brand transition-colors" />
       </div>
     </motion.div>
   );
@@ -126,36 +127,42 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Groups */}
+      {/* Chats — WhatsApp-style conversation list, most recent first */}
       <div>
         <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2.5 flex items-center gap-2">
-          <Users size={12} />Your Groups
+          <MessageSquare size={12} />Chats
         </h2>
 
         {loading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="space-y-2">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="card p-4 h-32 animate-pulse">
-                <div className="w-11 h-11 rounded-xl bg-slate-100 mb-3" />
-                <div className="h-3.5 bg-slate-100 rounded w-2/3 mb-2" />
-                <div className="h-3 bg-slate-100 rounded w-1/2" />
+              <div key={i} className="card px-3.5 py-3 flex items-center gap-3 animate-pulse">
+                <div className="w-12 h-12 rounded-full bg-slate-100 shrink-0" />
+                <div className="flex-1">
+                  <div className="h-3.5 bg-slate-100 rounded w-1/3 mb-2" />
+                  <div className="h-3 bg-slate-100 rounded w-2/3" />
+                </div>
               </div>
             ))}
           </div>
         ) : groups.length === 0 ? (
           <div className="card p-10 text-center">
             <Users size={36} className="text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-700 font-medium mb-1">No groups yet</p>
+            <p className="text-slate-700 font-medium mb-1">No chats yet</p>
             <p className="text-slate-500 text-sm mb-4">Create a group or join one with a code.</p>
             <button onClick={() => setShowCreate(true)} className="btn-primary mx-auto">
               <Plus size={15} />Create group
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-            {groups.map((g) => (
-              <GroupCard key={g.id} group={g} onClick={() => navigate(`/groups/${g.id}`)} />
-            ))}
+          <div className="space-y-2">
+            {[...groups]
+              .sort((a, b) =>
+                +new Date(b.lastMessage?.createdAt ?? b.updatedAt) - +new Date(a.lastMessage?.createdAt ?? a.updatedAt)
+              )
+              .map((g) => (
+                <ChatRow key={g.id} group={g} onClick={() => navigate(`/groups/${g.id}`)} />
+              ))}
           </div>
         )}
       </div>

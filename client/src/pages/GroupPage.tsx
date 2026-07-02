@@ -86,7 +86,8 @@ export default function GroupPage() {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [showApproval, setShowApproval] = useState(false);
-  const [tab, setTab] = useState<'rooms' | 'chat' | 'members'>('rooms');
+  // Chat-first (WhatsApp-style): opening a group lands in its conversation.
+  const [tab, setTab] = useState<'chat' | 'rooms' | 'members'>('chat');
   const [showOwnerMenu, setShowOwnerMenu] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
@@ -286,7 +287,7 @@ export default function GroupPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 mb-4 glass p-1 rounded-xl w-fit">
-        {(['rooms', 'chat', 'members'] as const).map((t) => (
+        {(['chat', 'rooms', 'members'] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)}
             className={clsx('px-4 py-1.5 rounded-lg text-sm font-medium transition-all capitalize flex items-center gap-1.5', t === tab ? 'bg-brand text-white shadow' : 'text-slate-500 hover:text-slate-900')}>
             {t}

@@ -69,6 +69,12 @@ export interface Group {
   updatedAt: string;
   _count?: { members: number };
   unreadCount?: number;
+  lastMessage?: {
+    content: string;
+    createdAt: string;
+    userId: string;
+    user: { name: string; nickname?: string | null };
+  } | null;
 }
 
 export interface Message {

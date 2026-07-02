@@ -26,20 +26,33 @@ router.get('/', async (req: Request, res: Response) => {
     orderBy: { updatedAt: 'desc' },
   });
 
-  // Count group-chat messages (roomId null) each group has received since this
-  // user last opened its chat, so the client can show unread badges.
+  // For the WhatsApp-style chats list: attach each group's unread count
+  // (group-chat messages since this user's lastReadAt) and a last-message
+  // preview so the client can sort and render conversation rows.
   const withUnread = await Promise.all(
     groups.map(async (g) => {
       const mine = g.members.find((m) => m.userId === req.user!.id);
-      const unreadCount = await prisma.message.count({
-        where: {
-          groupId: g.id,
-          roomId: null,
-          userId: { not: req.user!.id },
-          ...(mine?.lastReadAt ? { createdAt: { gt: mine.lastReadAt } } : {}),
-        },
-      });
-      return { ...g, unreadCount };
+      const [unreadCount, lastMessage] = await Promise.all([
+        prisma.message.count({
+          where: {
+            groupId: g.id,
+            roomId: null,
+            userId: { not: req.user!.id },
+            ...(mine?.lastReadAt ? { createdAt: { gt: mine.lastReadAt } } : {}),
+          },
+        }),
+        prisma.message.findFirst({
+          where: { groupId: g.id, roomId: null },
+          orderBy: { createdAt: 'desc' },
+          select: {
+            content: true,
+            createdAt: true,
+            userId: true,
+            user: { select: { name: true, nickname: true } },
+          },
+        }),
+      ]);
+      return { ...g, unreadCount, lastMessage };
     })
   );
 

@@ -26,6 +26,7 @@ interface GroupState {
   incrementUnread: (groupId: string) => void;
   clearUnread: (groupId: string) => void;
   setActiveChatGroup: (groupId: string | null) => void;
+  updateGroupPreview: (groupId: string, message: NonNullable<Group['lastMessage']>) => void;
 
   handlePresence: (event: PresenceEvent) => void;
 }
@@ -102,6 +103,12 @@ export const useGroupStore = create<GroupState>((set, get) => ({
     set((state) => ({ unreadByGroup: { ...state.unreadByGroup, [groupId]: 0 } })),
 
   setActiveChatGroup: (groupId) => set({ activeChatGroupId: groupId }),
+
+  // Keep the chats-list row (preview + ordering) fresh as messages arrive.
+  updateGroupPreview: (groupId, message) =>
+    set((state) => ({
+      groups: state.groups.map((g) => (g.id === groupId ? { ...g, lastMessage: message } : g)),
+    })),
 
   handlePresence: ({ userId, online }) =>
     set((state) => ({ onlineUsers: { ...state.onlineUsers, [userId]: online } })),

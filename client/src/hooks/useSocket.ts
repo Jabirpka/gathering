@@ -12,7 +12,7 @@ export function getSocket(): Socket | null {
 
 export function useSocket() {
   const token = useAuthStore((s) => s.token);
-  const { addMessage, setMessages, handlePresence, incrementUnread } = useGroupStore();
+  const { addMessage, setMessages, handlePresence, incrementUnread, updateGroupPreview } = useGroupStore();
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -29,12 +29,33 @@ export function useSocket() {
     socketInstance.on('disconnect', () => console.log('Socket disconnected'));
     socketInstance.on('connect_error', (err) => console.error('Socket error', err.message));
 
-    socketInstance.on('chat:message', (msg: Message) => addMessage(msg));
+    socketInstance.on('chat:message', (msg: Message) => {
+      addMessage(msg);
+      // Group-level messages also refresh the chats-list preview row.
+      if (!msg.roomId && msg.groupId) {
+        updateGroupPreview(msg.groupId, {
+          content: msg.content,
+          createdAt: msg.createdAt,
+          userId: msg.userId,
+          user: { name: msg.user.name },
+        });
+      }
+    });
     socketInstance.on('chat:history', (msgs: Message[]) => setMessages(msgs));
 
     // App-wide unread signal for group chat, delivered to this user's personal
     // room regardless of which group they're viewing.
-    socketInstance.on('chat:unread', ({ groupId }: { groupId: string }) => incrementUnread(groupId));
+    socketInstance.on('chat:unread', ({ groupId, message }: { groupId: string; message?: Message }) => {
+      incrementUnread(groupId);
+      if (message) {
+        updateGroupPreview(groupId, {
+          content: message.content,
+          createdAt: message.createdAt,
+          userId: message.userId,
+          user: { name: message.user?.name ?? 'Someone' },
+        });
+      }
+    });
 
     socketInstance.on('group:presence', (event: PresenceEvent) => handlePresence(event));
 

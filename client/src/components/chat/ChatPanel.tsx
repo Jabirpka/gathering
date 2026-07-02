@@ -47,12 +47,33 @@ export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
   const { messages, addMessage } = useGroupStore();
   const user = useAuthStore((s) => s.user);
   const [input, setInput] = useState('');
+  const [typingUsers, setTypingUsers] = useState<Record<string, { name: string; at: number }>>({});
   const bottomRef = useRef<HTMLDivElement>(null);
   const socket = getSocket();
 
   useEffect(() => {
     socket?.emit('chat:history', { groupId, roomId });
   }, [groupId, roomId]);
+
+  // Show "X is typing…" — track senders and expire them after a short pause.
+  useEffect(() => {
+    if (!socket) return;
+    const onTyping = ({ userId, name }: { userId: string; name: string }) => {
+      setTypingUsers((p) => ({ ...p, [userId]: { name, at: Date.now() } }));
+    };
+    socket.on('chat:typing', onTyping);
+    const sweep = setInterval(() => {
+      setTypingUsers((p) => {
+        const now = Date.now();
+        const alive = Object.fromEntries(Object.entries(p).filter(([, v]) => now - v.at < 2500));
+        return Object.keys(alive).length === Object.keys(p).length ? p : alive;
+      });
+    }, 800);
+    return () => {
+      socket.off('chat:typing', onTyping);
+      clearInterval(sweep);
+    };
+  }, [socket]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -101,6 +122,14 @@ export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
         ))}
         <div ref={bottomRef} />
       </div>
+
+      {/* Typing indicator */}
+      {Object.keys(typingUsers).length > 0 && (
+        <div className="px-4 pb-1 text-[11px] text-brand animate-pulse shrink-0">
+          {Object.values(typingUsers).map((t) => t.name.split(' ')[0]).join(', ')}{' '}
+          {Object.keys(typingUsers).length === 1 ? 'is' : 'are'} typing…
+        </div>
+      )}
 
       {/* Input */}
       <div className="p-3 border-t border-black/5 shrink-0">

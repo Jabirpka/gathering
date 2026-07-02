@@ -45,7 +45,15 @@ export function setupChatHandlers(io: Server, socket: Socket) {
             where: { groupId, status: 'APPROVED', userId: { not: socket.user.id } },
             select: { userId: true },
           });
-          others.forEach((m) => io.to(`user:${m.userId}`).emit('chat:unread', { groupId }));
+          // Include a preview so chats lists can update their last-message
+          // row live without refetching.
+          const preview = {
+            content: message.content,
+            createdAt: message.createdAt,
+            userId: message.userId,
+            user: { name: message.user.name },
+          };
+          others.forEach((m) => io.to(`user:${m.userId}`).emit('chat:unread', { groupId, message: preview }));
         }
       } catch (err) {
         socket.emit('chat:error', { error: 'Failed to send message' });
