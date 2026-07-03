@@ -89,6 +89,7 @@ export interface Message {
   replyToId?: string | null;
   replyTo?: { id: string; content: string; kind?: 'TEXT' | 'VOICE'; deletedAt?: string | null; user: { name: string } } | null;
   deletedAt?: string | null;
+  reactions?: { userId: string; emoji: string }[];
   user: Pick<User, 'id' | 'name' | 'avatar'>;
   createdAt: string;
 }

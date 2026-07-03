@@ -243,6 +243,35 @@ router.delete('/:id/leave', async (req: Request, res: Response) => {
   res.json({ message: 'Left group' });
 });
 
+// Search text messages in the group chat.
+router.get('/:id/messages/search', async (req: Request, res: Response) => {
+  const q = String(req.query.q ?? '').trim();
+  if (!q) {
+    res.json([]);
+    return;
+  }
+  const member = await prisma.groupMember.findUnique({
+    where: { userId_groupId: { userId: req.user!.id, groupId: req.params.id } },
+  });
+  if (!member || member.status !== 'APPROVED') {
+    res.status(403).json({ error: 'Not a member' });
+    return;
+  }
+  const results = await prisma.message.findMany({
+    where: {
+      groupId: req.params.id,
+      roomId: null,
+      kind: 'TEXT',
+      deletedAt: null,
+      content: { contains: q, mode: 'insensitive' },
+    },
+    include: { user: { select: { id: true, name: true, avatar: true } } },
+    orderBy: { createdAt: 'desc' },
+    take: 30,
+  });
+  res.json(results);
+});
+
 // WhatsApp-style call buttons: each group lazily gets one video and one voice
 // call room. Tapping 📹/📞 resolves (or creates) the room of that type and the
 // client navigates into it, which triggers the normal ring flow.

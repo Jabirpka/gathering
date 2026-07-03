@@ -14,6 +14,7 @@ const messageInclude = {
       user: { select: { name: true } },
     },
   },
+  reactions: { select: { userId: true, emoji: true } },
 } as const;
 
 // Voice notes arrive as audio data URLs; cap size (~60s of opus) and length.
@@ -191,9 +192,12 @@ export function setupChatHandlers(io: Server, socket: Socket) {
     try {
       const thread = await loadMyThread(threadId);
       if (!thread) return;
+      // Respect "delete chat": hide everything before my side's clearedAt.
+      const myClearedAt = thread.userAId === socket.user.id ? thread.clearedAtA : thread.clearedAtB;
       const messages = await prisma.message.findMany({
         where: {
           threadId,
+          ...(myClearedAt ? { createdAt: { gt: myClearedAt } } : {}),
           ...(cursor ? { createdAt: { lt: new Date(cursor) } } : {}),
         },
         include: messageInclude,
@@ -215,6 +219,60 @@ export function setupChatHandlers(io: Server, socket: Socket) {
       userId: socket.user.id,
       name: socket.user.name,
     });
+  });
+
+  // Toggle an emoji reaction (one per user per message). Everyone viewing the
+  // conversation gets the message's fresh reaction list.
+  socket.on('chat:react', async ({ messageId, emoji }: { messageId: string; emoji: string }) => {
+    if (!emoji || emoji.length > 8) return;
+    try {
+      const msg = await prisma.message.findUnique({ where: { id: messageId } });
+      if (!msg || msg.deletedAt) return;
+
+      // Must be a participant of the conversation the message lives in.
+      if (msg.threadId) {
+        const thread = await prisma.dmThread.findUnique({ where: { id: msg.threadId } });
+        if (!thread || (thread.userAId !== socket.user.id && thread.userBId !== socket.user.id)) return;
+      } else if (msg.groupId) {
+        const member = await prisma.groupMember.findUnique({
+          where: { userId_groupId: { userId: socket.user.id, groupId: msg.groupId } },
+        });
+        if (!member || member.status !== 'APPROVED') return;
+      } else {
+        return;
+      }
+
+      const existing = await prisma.messageReaction.findUnique({
+        where: { messageId_userId: { messageId, userId: socket.user.id } },
+      });
+      if (existing && existing.emoji === emoji) {
+        await prisma.messageReaction.delete({ where: { id: existing.id } });
+      } else {
+        await prisma.messageReaction.upsert({
+          where: { messageId_userId: { messageId, userId: socket.user.id } },
+          update: { emoji },
+          create: { messageId, userId: socket.user.id, emoji },
+        });
+      }
+
+      const reactions = await prisma.messageReaction.findMany({
+        where: { messageId },
+        select: { userId: true, emoji: true },
+      });
+      const payload = { messageId, reactions };
+
+      if (msg.threadId) {
+        const thread = await prisma.dmThread.findUnique({ where: { id: msg.threadId } });
+        if (thread) {
+          io.to(`user:${thread.userAId}`).emit('chat:reacted', payload);
+          io.to(`user:${thread.userBId}`).emit('chat:reacted', payload);
+        }
+      } else if (msg.roomId) {
+        io.to(`room:${msg.roomId}`).emit('chat:reacted', payload);
+      } else if (msg.groupId) {
+        io.to(`group:${msg.groupId}`).emit('chat:reacted', payload);
+      }
+    } catch {}
   });
 
   // Delete for everyone (WhatsApp-style): only the sender can delete; the

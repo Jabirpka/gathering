@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Send, MessageSquare, X } from 'lucide-react';
+import { Send, MessageSquare, X, Search } from 'lucide-react';
 import { useGroupStore } from '../../store/groupStore';
 import { useAuthStore } from '../../store/authStore';
 import { getSocket } from '../../hooks/useSocket';
+import { groupsApi } from '../../services/api';
 import { Message } from '../../types';
 import MessageBubble from './MessageBubble';
 import VoiceRecorderButton from './VoiceRecorderButton';
@@ -33,8 +34,25 @@ export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
   const [input, setInput] = useState('');
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const [typingUsers, setTypingUsers] = useState<Record<string, { name: string; at: number }>>({});
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Message[]>([]);
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const socket = getSocket();
+
+  // Debounced in-conversation search (group chat only — room chat is ephemeral).
+  const runSearch = (q: string) => {
+    setSearchQuery(q);
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    if (!q.trim() || roomId) { setSearchResults([]); return; }
+    searchTimer.current = setTimeout(async () => {
+      try {
+        const res = await groupsApi.searchMessages(groupId, q.trim());
+        setSearchResults(res.data);
+      } catch { setSearchResults([]); }
+    }, 300);
+  };
 
   // ✓✓ when every other approved member has read past the message. Only
   // group-level chat tracks lastReadAt, so room (in-call) chat shows no ticks.
@@ -86,6 +104,10 @@ export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
     socket?.emit('chat:delete', { messageId: msg.id });
   };
 
+  const react = (msg: Message, emoji: string) => {
+    socket?.emit('chat:react', { messageId: msg.id, emoji });
+  };
+
   const sendVoice = (dataUrl: string, seconds: number) => {
     socket?.emit('chat:send', {
       groupId, roomId, content: dataUrl, kind: 'VOICE', duration: seconds, replyToId: replyingTo?.id,
@@ -113,8 +135,44 @@ export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
       {/* Header */}
       <div className="px-4 py-3 border-b border-black/5 flex items-center gap-2 shrink-0">
         <MessageSquare size={15} className="text-slate-500" />
-        <span className="text-sm font-medium text-slate-700">Chat</span>
+        <span className="text-sm font-medium text-slate-700 flex-1">Chat</span>
+        {!roomId && (
+          <button
+            onClick={() => { setSearchOpen((v) => !v); setSearchQuery(''); setSearchResults([]); }}
+            className={`p-1.5 rounded-lg transition-colors ${searchOpen ? 'bg-brand-dim text-brand' : 'text-slate-400 hover:text-slate-700'}`}
+            title="Search messages"
+          >
+            <Search size={14} />
+          </button>
+        )}
       </div>
+
+      {/* Search */}
+      {searchOpen && (
+        <div className="px-3 py-2 border-b border-black/5 shrink-0 space-y-2">
+          <input
+            className="input text-sm"
+            placeholder="Search messages…"
+            value={searchQuery}
+            onChange={(e) => runSearch(e.target.value)}
+            autoFocus
+          />
+          {searchQuery.trim() && (
+            <div className="max-h-48 overflow-y-auto space-y-1">
+              {searchResults.length === 0 ? (
+                <p className="text-xs text-slate-400 text-center py-2">No matches</p>
+              ) : (
+                searchResults.map((m) => (
+                  <div key={m.id} className="px-2.5 py-1.5 rounded-lg bg-surface-2 text-xs">
+                    <span className="font-semibold text-brand mr-1.5">{m.user.name.split(' ')[0]}</span>
+                    <span className="text-slate-700">{m.content}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
@@ -134,8 +192,10 @@ export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
               senderName={!isOwn ? msg.user.name : undefined}
               avatar={!isOwn ? <SenderAvatar message={msg} /> : undefined}
               readState={readStateFor(msg)}
+              myId={user?.id}
               onReply={setReplyingTo}
               onDelete={deleteMessage}
+              onReact={react}
             />
           );
         })}

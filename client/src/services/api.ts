@@ -51,6 +51,7 @@ export const groupsApi = {
   transferOwnership: (id: string, userId: string) => api.post(`/groups/${id}/transfer`, { userId }),
   markRead: (id: string) => api.post(`/groups/${id}/read`, {}),
   startCall: (id: string, type: 'video' | 'audio') => api.post(`/groups/${id}/call/${type}`, {}),
+  searchMessages: (id: string, q: string) => api.get(`/groups/${id}/messages/search`, { params: { q } }),
   pending: (id: string) => api.get(`/groups/${id}/pending`),
   approveMember: (groupId: string, userId: string, action: 'approve' | 'ban') =>
     api.patch(`/groups/${groupId}/members/${userId}`, { action }),
@@ -66,6 +67,8 @@ export const dmsApi = {
   list: () => api.get('/dms'),
   open: (userId: string) => api.post('/dms/open', { userId }),
   markRead: (threadId: string) => api.post(`/dms/${threadId}/read`, {}),
+  remove: (threadId: string) => api.delete(`/dms/${threadId}`),
+  searchMessages: (threadId: string, q: string) => api.get(`/dms/${threadId}/search`, { params: { q } }),
 };
 
 export const livekitApi = {

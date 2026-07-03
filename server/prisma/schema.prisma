@@ -25,6 +25,7 @@ model User {
   dmThreadsA    DmThread[]     @relation("DmUserA")
   dmThreadsB    DmThread[]     @relation("DmUserB")
   statuses      Status[]
+  reactions     MessageReaction[]
 }
 
 // WhatsApp-style status/story: text or image, auto-expires after 24h.
@@ -44,18 +45,35 @@ model Status {
 // (userAId < userBId) so each pair has exactly one thread. Per-side lastRead
 // timestamps drive unread counts, mirroring GroupMember.lastReadAt.
 model DmThread {
-  id        String    @id @default(cuid())
-  userAId   String
-  userBId   String
-  userA     User      @relation("DmUserA", fields: [userAId], references: [id], onDelete: Cascade)
-  userB     User      @relation("DmUserB", fields: [userBId], references: [id], onDelete: Cascade)
-  lastReadA DateTime?
-  lastReadB DateTime?
-  messages  Message[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id         String    @id @default(cuid())
+  userAId    String
+  userBId    String
+  userA      User      @relation("DmUserA", fields: [userAId], references: [id], onDelete: Cascade)
+  userB      User      @relation("DmUserB", fields: [userBId], references: [id], onDelete: Cascade)
+  lastReadA  DateTime?
+  lastReadB  DateTime?
+  // "Delete chat" (WhatsApp-style, per side): messages up to this point are
+  // hidden for that user; the other side keeps their copy.
+  clearedAtA DateTime?
+  clearedAtB DateTime?
+  messages   Message[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@unique([userAId, userBId])
+}
+
+// One reaction per user per message (tap again to remove / change).
+model MessageReaction {
+  id        String   @id @default(cuid())
+  messageId String
+  userId    String
+  emoji     String
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([messageId, userId])
 }
 
 model PushToken {
@@ -157,6 +175,7 @@ model Message {
   group     Group?    @relation(fields: [groupId], references: [id])
   room      Room?     @relation(fields: [roomId], references: [id])
   thread    DmThread? @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  reactions MessageReaction[]
   createdAt DateTime  @default(now())
 }
 

@@ -4,7 +4,7 @@ import { useGroupStore } from '../store/groupStore';
 import { useDmStore } from '../store/dmStore';
 import { useAuthStore } from '../store/authStore';
 import { getSocket } from '../hooks/useSocket';
-import { Users, Video, Phone, Copy, Check, Settings, UserCheck, Zap, Share2, Camera, Loader2, Crown, Trash2, MessageSquare } from 'lucide-react';
+import { Users, Video, Phone, Copy, Check, Settings, UserCheck, Zap, Share2, Camera, Loader2, Crown, Trash2, MessageSquare, LogOut } from 'lucide-react';
 import { GroupMember, Message } from '../types';
 import MemberApproval from '../components/groups/MemberApproval';
 import ChatPanel from '../components/chat/ChatPanel';
@@ -76,7 +76,7 @@ function MemberRow({ member, currentUserId, groupId }: { member: GroupMember; cu
 
 export default function GroupPage() {
   const { groupId } = useParams<{ groupId: string }>();
-  const { activeGroup, fetchGroup, loading, updateGroup, clearUnread, setActiveChatGroup } = useGroupStore();
+  const { activeGroup, fetchGroup, loading, updateGroup, removeGroup, clearUnread, setActiveChatGroup } = useGroupStore();
   const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
@@ -157,6 +157,20 @@ export default function GroupPage() {
     setCopied(true);
     toast.success('Code copied!');
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Leave the group (non-owners; owners must transfer or delete instead).
+  const handleExitGroup = async () => {
+    if (!groupId) return;
+    if (!window.confirm(`Exit "${activeGroup?.name}"? You'll need an invite code to rejoin.`)) return;
+    try {
+      await groupsApi.leave(groupId);
+      removeGroup(groupId);
+      toast.success('You left the group');
+      navigate('/dashboard');
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to exit group');
+    }
   };
 
   // WhatsApp-style call buttons: resolve the group's call room of that type
@@ -265,32 +279,41 @@ export default function GroupPage() {
           <button onClick={handleShare} className="btn-ghost p-2" title="Share invite">
             <Share2 size={15} />
           </button>
-          {isOwner && (
-            <div className="relative">
-              <button onClick={() => setShowOwnerMenu((v) => !v)} className="btn-ghost p-2" title="Group settings">
-                <Settings size={15} />
-              </button>
-              {showOwnerMenu && (
-                <>
-                  <div className="fixed inset-0 z-10" onClick={() => setShowOwnerMenu(false)} />
-                  <div className="absolute right-0 top-11 z-20 w-52 card shadow-xl overflow-hidden py-1">
+          <div className="relative">
+            <button onClick={() => setShowOwnerMenu((v) => !v)} className="btn-ghost p-2" title="Group options">
+              <Settings size={15} />
+            </button>
+            {showOwnerMenu && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowOwnerMenu(false)} />
+                <div className="absolute right-0 top-11 z-20 w-52 card shadow-xl overflow-hidden py-1">
+                  {isOwner ? (
+                    <>
+                      <button
+                        onClick={() => { setShowOwnerMenu(false); setShowTransfer(true); }}
+                        className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-slate-700 hover:bg-black/5 transition-colors text-left"
+                      >
+                        <Crown size={14} /> Transfer ownership
+                      </button>
+                      <button
+                        onClick={() => { setShowOwnerMenu(false); setShowDelete(true); }}
+                        className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
+                      >
+                        <Trash2 size={14} /> Delete group
+                      </button>
+                    </>
+                  ) : (
                     <button
-                      onClick={() => { setShowOwnerMenu(false); setShowTransfer(true); }}
-                      className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-slate-700 hover:bg-black/5 transition-colors text-left"
-                    >
-                      <Crown size={14} /> Transfer ownership
-                    </button>
-                    <button
-                      onClick={() => { setShowOwnerMenu(false); setShowDelete(true); }}
+                      onClick={() => { setShowOwnerMenu(false); handleExitGroup(); }}
                       className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
                     >
-                      <Trash2 size={14} /> Delete group
+                      <LogOut size={14} /> Exit group
                     </button>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
+                  )}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 

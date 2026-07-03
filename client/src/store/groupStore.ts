@@ -23,6 +23,7 @@ interface GroupState {
   addMessage: (message: Message) => void;
   setMessages: (messages: Message[]) => void;
   markMessageDeleted: (messageId: string, deletedAt: string) => void;
+  updateMessageReactions: (messageId: string, reactions: { userId: string; emoji: string }[]) => void;
   updateMemberRead: (groupId: string, userId: string, at: string) => void;
 
   incrementUnread: (groupId: string) => void;
@@ -100,6 +101,11 @@ export const useGroupStore = create<GroupState>((set, get) => ({
       messages: state.messages.map((m) =>
         m.id === messageId ? { ...m, content: '', deletedAt } : m
       ),
+    })),
+
+  updateMessageReactions: (messageId, reactions) =>
+    set((state) => ({
+      messages: state.messages.map((m) => (m.id === messageId ? { ...m, reactions } : m)),
     })),
 
   // A member read the group chat — refresh their lastReadAt so ✓✓ ticks update.

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Send, X } from 'lucide-react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Send, X, Search, MoreVertical, Trash2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useDmStore } from '../store/dmStore';
 import { useAuthStore } from '../store/authStore';
 import { getSocket } from '../hooks/useSocket';
@@ -12,10 +13,16 @@ import VoiceRecorderButton from '../components/chat/VoiceRecorderButton';
 export default function DmPage() {
   const { threadId } = useParams<{ threadId: string }>();
   const user = useAuthStore((s) => s.user);
-  const { threads, messages, fetchThreads, setActiveThread, setMessages, clearUnread } = useDmStore();
+  const { threads, messages, fetchThreads, setActiveThread, setMessages, clearUnread, removeThread } = useDmStore();
+  const navigate = useNavigate();
   const [input, setInput] = useState('');
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const [partnerTyping, setPartnerTyping] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Message[]>([]);
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const socket = getSocket();
@@ -94,6 +101,36 @@ export default function DmPage() {
     return readAt && new Date(readAt) >= new Date(msg.createdAt) ? 'read' : 'sent';
   };
 
+  const react = (msg: Message, emoji: string) => {
+    socket?.emit('chat:react', { messageId: msg.id, emoji });
+  };
+
+  const runSearch = (q: string) => {
+    setSearchQuery(q);
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    if (!q.trim() || !threadId) { setSearchResults([]); return; }
+    searchTimer.current = setTimeout(async () => {
+      try {
+        const res = await dmsApi.searchMessages(threadId, q.trim());
+        setSearchResults(res.data);
+      } catch { setSearchResults([]); }
+    }, 300);
+  };
+
+  // "Delete chat" — clears this conversation for me only.
+  const deleteChat = async () => {
+    if (!threadId) return;
+    if (!window.confirm('Delete this chat? Messages are removed for you only.')) return;
+    try {
+      await dmsApi.remove(threadId);
+      removeThread(threadId);
+      toast.success('Chat deleted');
+      navigate('/dashboard');
+    } catch {
+      toast.error('Failed to delete chat');
+    }
+  };
+
   const partnerName = thread ? (thread.partner.nickname || thread.partner.name) : 'Chat';
 
   return (
@@ -112,7 +149,61 @@ export default function DmPage() {
           <p className="text-sm font-semibold text-slate-900 truncate">{partnerName}</p>
           {partnerTyping && <p className="text-[11px] text-brand animate-pulse">typing…</p>}
         </div>
+        <button
+          onClick={() => { setSearchOpen((v) => !v); setSearchQuery(''); setSearchResults([]); }}
+          className={`p-2 rounded-lg transition-colors ${searchOpen ? 'bg-brand-dim text-brand' : 'text-slate-400 hover:text-slate-700'}`}
+          title="Search messages"
+        >
+          <Search size={16} />
+        </button>
+        <div className="relative">
+          <button onClick={() => setShowMenu((v) => !v)} className="btn-ghost p-2" title="More">
+            <MoreVertical size={16} />
+          </button>
+          {showMenu && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
+              <div className="absolute right-0 top-11 z-20 w-44 card shadow-xl overflow-hidden py-1">
+                <button
+                  onClick={() => { setShowMenu(false); deleteChat(); }}
+                  className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
+                >
+                  <Trash2 size={14} /> Delete chat
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
+
+      {/* Search */}
+      {searchOpen && (
+        <div className="px-3 py-2 border-b border-white/50 glass-panel shrink-0 space-y-2">
+          <input
+            className="input text-sm"
+            placeholder="Search messages…"
+            value={searchQuery}
+            onChange={(e) => runSearch(e.target.value)}
+            autoFocus
+          />
+          {searchQuery.trim() && (
+            <div className="max-h-48 overflow-y-auto space-y-1">
+              {searchResults.length === 0 ? (
+                <p className="text-xs text-slate-400 text-center py-2">No matches</p>
+              ) : (
+                searchResults.map((m) => (
+                  <div key={m.id} className="px-2.5 py-1.5 rounded-lg bg-surface-2 text-xs">
+                    <span className="font-semibold text-brand mr-1.5">
+                      {m.userId === user?.id ? 'You' : partnerName.split(' ')[0]}
+                    </span>
+                    <span className="text-slate-700">{m.content}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -127,8 +218,10 @@ export default function DmPage() {
             message={m}
             isOwn={m.userId === user?.id}
             readState={readStateFor(m)}
+            myId={user?.id}
             onReply={setReplyingTo}
             onDelete={deleteMessage}
+            onReact={react}
           />
         ))}
         <div ref={bottomRef} />

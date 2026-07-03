@@ -13,18 +13,34 @@ interface Props {
   avatar?: React.ReactNode;
   /** Read state for my own messages: 'read' → blue ✓✓, 'sent' → gray ✓. */
   readState?: 'sent' | 'read';
+  /** My user id, for highlighting my own reaction. */
+  myId?: string;
   onReply: (message: Message) => void;
   onDelete: (message: Message) => void;
+  onReact: (message: Message, emoji: string) => void;
 }
+
+// Reaction set tuned to the app's purple/glass theme (💜 = brand).
+const REACTIONS = ['💜', '🔥', '😂', '😮', '😢', '👍'];
 
 /**
  * WhatsApp-style bubble: tap to reveal Reply / Delete actions, quoted
  * reply block above the text, ✓/✓✓ ticks on own messages, and an italic
  * placeholder once a message is deleted for everyone.
  */
-export default function MessageBubble({ message, isOwn, senderName, avatar, readState, onReply, onDelete }: Props) {
+export default function MessageBubble({ message, isOwn, senderName, avatar, readState, myId, onReply, onDelete, onReact }: Props) {
   const [showActions, setShowActions] = useState(false);
   const deleted = !!message.deletedAt;
+
+  // Group identical emojis into chips: emoji → count + whether I reacted.
+  const reactionChips = Object.entries(
+    (message.reactions ?? []).reduce<Record<string, { count: number; mine: boolean }>>((acc, r) => {
+      acc[r.emoji] = acc[r.emoji] || { count: 0, mine: false };
+      acc[r.emoji].count += 1;
+      if (r.userId === myId) acc[r.emoji].mine = true;
+      return acc;
+    }, {})
+  );
 
   return (
     <div className={clsx('flex gap-2.5 items-end', isOwn && 'flex-row-reverse')}>
@@ -76,23 +92,58 @@ export default function MessageBubble({ message, isOwn, senderName, avatar, read
           )}
         </div>
 
+        {/* Reaction chips */}
+        {reactionChips.length > 0 && (
+          <div className={clsx('flex flex-wrap gap-1 -mt-1.5 relative z-[1]', isOwn && 'justify-end')}>
+            {reactionChips.map(([emoji, info]) => (
+              <button
+                key={emoji}
+                onClick={() => onReact(message, emoji)}
+                className={clsx(
+                  'flex items-center gap-0.5 text-[11px] px-1.5 py-0.5 rounded-full border backdrop-blur transition-all',
+                  info.mine
+                    ? 'bg-brand-dim border-brand/40 text-brand font-semibold'
+                    : 'bg-white/70 border-white/70 text-slate-600'
+                )}
+              >
+                <span className="text-[13px] leading-none">{emoji}</span>
+                {info.count > 1 && info.count}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Tap actions */}
         {showActions && !deleted && (
-          <div className={clsx('flex gap-1 mt-1', isOwn && 'justify-end')}>
-            <button
-              onClick={() => { setShowActions(false); onReply(message); }}
-              className="flex items-center gap-1 text-[11px] px-2 py-1 rounded-lg bg-surface-2 text-slate-600 hover:text-brand transition-colors"
-            >
-              <Reply size={11} /> Reply
-            </button>
-            {isOwn && (
+          <div className={clsx('flex flex-col gap-1 mt-1', isOwn && 'items-end')}>
+            {/* Themed reaction picker */}
+            <div className="flex gap-0.5 px-1.5 py-1 rounded-full glass shadow-lg">
+              {REACTIONS.map((emoji) => (
+                <button
+                  key={emoji}
+                  onClick={() => { setShowActions(false); onReact(message, emoji); }}
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-base hover:bg-brand-dim hover:scale-125 transition-transform"
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+            <div className={clsx('flex gap-1', isOwn && 'justify-end')}>
               <button
-                onClick={() => { setShowActions(false); onDelete(message); }}
-                className="flex items-center gap-1 text-[11px] px-2 py-1 rounded-lg bg-surface-2 text-slate-600 hover:text-red-500 transition-colors"
+                onClick={() => { setShowActions(false); onReply(message); }}
+                className="flex items-center gap-1 text-[11px] px-2 py-1 rounded-lg bg-surface-2 text-slate-600 hover:text-brand transition-colors"
               >
-                <Trash2 size={11} /> Delete
+                <Reply size={11} /> Reply
               </button>
-            )}
+              {isOwn && (
+                <button
+                  onClick={() => { setShowActions(false); onDelete(message); }}
+                  className="flex items-center gap-1 text-[11px] px-2 py-1 rounded-lg bg-surface-2 text-slate-600 hover:text-red-500 transition-colors"
+                >
+                  <Trash2 size={11} /> Delete
+                </button>
+              )}
+            </div>
           </div>
         )}
 

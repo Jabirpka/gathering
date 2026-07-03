@@ -69,6 +69,12 @@ export function useSocket() {
       useDmStore.getState().markMessageDeleted(messageId, deletedAt);
     });
 
+    // Reaction toggled somewhere in a conversation I can see.
+    socketInstance.on('chat:reacted', ({ messageId, reactions }: { messageId: string; reactions: { userId: string; emoji: string }[] }) => {
+      useGroupStore.getState().updateMessageReactions(messageId, reactions);
+      useDmStore.getState().updateMessageReactions(messageId, reactions);
+    });
+
     // Live read receipts for ✓✓ ticks.
     socketInstance.on('group:read', ({ groupId, userId, at }: { groupId: string; userId: string; at: string }) => {
       useGroupStore.getState().updateMemberRead(groupId, userId, at);

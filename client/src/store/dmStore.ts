@@ -18,7 +18,9 @@ interface DmState {
   clearUnread: (threadId: string) => void;
   bumpThread: (threadId: string, message: Message) => void;
   markMessageDeleted: (messageId: string, deletedAt: string) => void;
+  updateMessageReactions: (messageId: string, reactions: { userId: string; emoji: string }[]) => void;
   setPartnerRead: (threadId: string, at: string) => void;
+  removeThread: (threadId: string) => void;
 }
 
 export const useDmStore = create<DmState>((set, get) => ({
@@ -84,12 +86,26 @@ export const useDmStore = create<DmState>((set, get) => ({
       ),
     })),
 
+  updateMessageReactions: (messageId, reactions) =>
+    set((state) => ({
+      messages: state.messages.map((m) => (m.id === messageId ? { ...m, reactions } : m)),
+    })),
+
   // Partner read the thread — flip my sent messages to ✓✓.
   setPartnerRead: (threadId, at) =>
     set((state) => ({
       threads: state.threads.map((t) =>
         t.id === threadId ? { ...t, partnerLastReadAt: at } : t
       ),
+    })),
+
+  // "Delete chat" — drop the conversation from my list.
+  removeThread: (threadId) =>
+    set((state) => ({
+      threads: state.threads.filter((t) => t.id !== threadId),
+      unreadByThread: { ...state.unreadByThread, [threadId]: 0 },
+      messages: state.activeThreadId === threadId ? [] : state.messages,
+      activeThreadId: state.activeThreadId === threadId ? null : state.activeThreadId,
     })),
 
   // Refresh the thread's preview + move it to the top of the chats list.
