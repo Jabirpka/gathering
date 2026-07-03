@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useGroupStore } from '../store/groupStore';
 import { useDmStore } from '../store/dmStore';
 import { useAuthStore } from '../store/authStore';
-import { Users, Calendar, Plus, LogIn, MessageSquare } from 'lucide-react';
-import { format, isToday, formatDistanceToNow } from 'date-fns';
+import { Users, Plus, LogIn, MessageSquare } from 'lucide-react';
+import { format, isToday } from 'date-fns';
 import { Group, DmThread } from '../types';
 import CreateGroupModal from '../components/groups/CreateGroupModal';
 import JoinGroupModal from '../components/groups/JoinGroupModal';
@@ -123,12 +123,6 @@ export default function DashboardPage() {
     })),
   ].sort((a, b) => b.at - a.at);
 
-  const upcoming = groups
-    .flatMap((g) => (g.scheduledEvents ?? []).map((e) => ({ ...e, groupName: g.name, groupId: g.id })))
-    .filter((e) => new Date(e.scheduledAt) > new Date())
-    .sort((a, b) => +new Date(a.scheduledAt) - +new Date(b.scheduledAt))
-    .slice(0, 3);
-
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-fade-in">
       <div className="mb-5">
@@ -164,32 +158,6 @@ export default function DashboardPage() {
           </div>
         </button>
       </div>
-
-      {/* Upcoming events */}
-      {upcoming.length > 0 && (
-        <div className="mb-6">
-          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2.5 flex items-center gap-2">
-            <Calendar size={12} />Upcoming
-          </h2>
-          <div className="space-y-2">
-            {upcoming.map((e) => (
-              <div key={e.id} onClick={() => navigate(`/groups/${e.groupId}/schedule`)}
-                className="card px-3.5 py-3 flex items-center gap-3 cursor-pointer hover:border-brand/20 transition-colors active:scale-[0.98]">
-                <div className="w-8 h-8 rounded-lg bg-brand-dim flex items-center justify-center shrink-0">
-                  <Calendar size={13} className="text-brand" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 truncate">{e.title}</p>
-                  <p className="text-xs text-slate-500">{e.groupName}</p>
-                </div>
-                <span className="text-xs text-slate-500 shrink-0 hidden sm:block">
-                  {formatDistanceToNow(new Date(e.scheduledAt), { addSuffix: true })}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Chats — WhatsApp-style conversation list, most recent first */}
       <div>

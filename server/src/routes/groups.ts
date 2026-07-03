@@ -121,7 +121,6 @@ router.get('/:id', async (req: Request, res: Response) => {
         orderBy: { joinedAt: 'asc' },
       },
       rooms: { where: { isActive: true } },
-      scheduledEvents: { orderBy: { scheduledAt: 'asc' } },
     },
   });
   if (!group) {
@@ -244,6 +243,30 @@ router.delete('/:id/leave', async (req: Request, res: Response) => {
   res.json({ message: 'Left group' });
 });
 
+// WhatsApp-style call buttons: each group lazily gets one video and one voice
+// call room. Tapping 📹/📞 resolves (or creates) the room of that type and the
+// client navigates into it, which triggers the normal ring flow.
+router.post('/:id/call/:type', async (req: Request, res: Response) => {
+  const groupId = req.params.id;
+  const type = req.params.type === 'audio' ? 'AUDIO_CALL' : 'VIDEO_CALL';
+
+  const member = await prisma.groupMember.findUnique({
+    where: { userId_groupId: { userId: req.user!.id, groupId } },
+  });
+  if (!member || member.status !== 'APPROVED') {
+    res.status(403).json({ error: 'Not a member' });
+    return;
+  }
+
+  let room = await prisma.room.findFirst({ where: { groupId, type } });
+  if (!room) {
+    room = await prisma.room.create({
+      data: { groupId, type, name: type === 'AUDIO_CALL' ? 'Voice call' : 'Video call' },
+    });
+  }
+  res.json(room);
+});
+
 // Mark this group's chat as read up to now for the current user, and tell the
 // group live so senders' ✓✓ ticks update.
 router.post('/:id/read', async (req: Request, res: Response) => {
@@ -314,9 +337,9 @@ router.post('/:id/transfer', async (req: Request, res: Response) => {
   res.json(group);
 });
 
-// Permanently delete the entire group (owner only). ScheduledEvent and Message
-// don't cascade from Group, so clear them explicitly before deleting the group,
-// which then cascade-removes its rooms and memberships.
+// Permanently delete the entire group (owner only). Message doesn't cascade
+// from Group, so clear it explicitly before deleting the group, which then
+// cascade-removes its rooms and memberships.
 router.delete('/:id', async (req: Request, res: Response) => {
   const groupId = req.params.id;
   const member = await prisma.groupMember.findUnique({
@@ -329,7 +352,6 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
   await prisma.$transaction([
     prisma.message.deleteMany({ where: { groupId } }),
-    prisma.scheduledEvent.deleteMany({ where: { groupId } }),
     prisma.group.delete({ where: { id: groupId } }),
   ]);
 

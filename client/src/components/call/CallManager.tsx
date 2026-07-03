@@ -94,7 +94,7 @@ export default function CallManager() {
         token={token}
         serverUrl={wsUrl}
         connect
-        video
+        video={!call.audioOnly}
         audio
         data-lk-theme="default"
         style={{ height: '100%', width: '100%', background: '#0a0a0f', position: 'relative' }}

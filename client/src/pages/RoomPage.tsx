@@ -106,8 +106,9 @@ export default function RoomPage() {
       roomId,
       roomLabel: room?.name ?? 'Call',
       displayName: user?.name ?? 'Participant',
+      audioOnly: room?.type === 'AUDIO_CALL',
     });
-  }, [groupId, roomId]);
+  }, [groupId, roomId, room?.type]);
 
   // Hand the mount point to CallManager so it can portal the full call UI here
   const setCallMount = useCallback((node: HTMLDivElement | null) => {

@@ -1,85 +1,48 @@
 import { useState, useEffect } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Plus, Video, Headphones, Calendar, ChevronDown, ChevronRight, LogIn, X } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Plus, LogIn, X } from 'lucide-react';
 import { useGroupStore } from '../../store/groupStore';
-import { Group, Room } from '../../types';
+import { Group } from '../../types';
 import CreateGroupModal from '../groups/CreateGroupModal';
 import JoinGroupModal from '../groups/JoinGroupModal';
 import clsx from 'clsx';
 
-function RoomIcon({ type }: { type: string }) {
-  if (type === 'VIDEO_CALL') return <Video size={14} className="shrink-0" />;
-  return <Headphones size={14} className="shrink-0" />;
-}
-
+// WhatsApp-style: a group IS its chat — one flat row, no room sub-links.
+// Calls are started from the buttons inside the group screen.
 function GroupItem({ group, onNavigate }: { group: Group; onNavigate: () => void }) {
-  const { groupId, roomId } = useParams();
-  const [open, setOpen] = useState(groupId === group.id);
+  const { groupId } = useParams();
   const navigate = useNavigate();
   const unread = useGroupStore((s) => s.unreadByGroup[group.id] ?? 0);
 
   return (
-    <div className="mb-1">
-      <button
-        onClick={() => {
-          setOpen((o) => !o);
-          navigate(`/groups/${group.id}`);
-          onNavigate();
-        }}
-        className={clsx(
-          'w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-colors text-left',
-          groupId === group.id
-            ? 'bg-brand-dim text-brand'
-            : 'text-slate-500 hover:text-slate-900 hover:bg-black/5'
-        )}
-      >
-        <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0">
-          {group.avatar ? (
-            <img src={group.avatar} className="w-full h-full object-cover" alt={group.name} />
-          ) : (
-            <div className="w-full h-full bg-brand-dim flex items-center justify-center text-[11px] font-bold text-brand">
-              {group.name[0].toUpperCase()}
-            </div>
-          )}
-        </div>
-        <span className="flex-1 truncate font-medium">{group.name}</span>
-        {unread > 0 && (
-          <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-brand text-white text-[10px] font-bold flex items-center justify-center shrink-0">
-            {unread > 99 ? '99+' : unread}
-          </span>
-        )}
-        {open ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
-      </button>
-
-      {open && (
-        <div className="mt-0.5 ml-3 pl-3 border-l border-black/5 space-y-0.5">
-          {group.rooms?.map((room: Room) => (
-            <Link
-              key={room.id}
-              to={`/groups/${group.id}/rooms/${room.id}`}
-              onClick={onNavigate}
-              className={clsx(
-                'flex items-center gap-2 px-2 py-2 rounded-lg text-sm transition-colors',
-                roomId === room.id
-                  ? 'bg-brand-dim text-brand'
-                  : 'text-slate-500 hover:text-slate-900 hover:bg-black/5'
-              )}
-            >
-              <RoomIcon type={room.type} />
-              <span className="truncate">{room.name}</span>
-            </Link>
-          ))}
-          <Link
-            to={`/groups/${group.id}/schedule`}
-            onClick={onNavigate}
-            className="flex items-center gap-2 px-2 py-2 rounded-lg text-sm text-slate-500 hover:text-slate-900 hover:bg-black/5 transition-colors"
-          >
-            <Calendar size={14} className="shrink-0" />
-            <span>Schedule</span>
-          </Link>
-        </div>
+    <button
+      onClick={() => {
+        navigate(`/groups/${group.id}`);
+        onNavigate();
+      }}
+      className={clsx(
+        'w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-colors text-left mb-1',
+        groupId === group.id
+          ? 'bg-brand-dim text-brand'
+          : 'text-slate-500 hover:text-slate-900 hover:bg-black/5'
       )}
-    </div>
+    >
+      <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0">
+        {group.avatar ? (
+          <img src={group.avatar} className="w-full h-full object-cover" alt={group.name} />
+        ) : (
+          <div className="w-full h-full bg-brand-dim flex items-center justify-center text-[11px] font-bold text-brand">
+            {group.name[0].toUpperCase()}
+          </div>
+        )}
+      </div>
+      <span className="flex-1 truncate font-medium">{group.name}</span>
+      {unread > 0 && (
+        <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-brand text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+          {unread > 99 ? '99+' : unread}
+        </span>
+      )}
+    </button>
   );
 }
 

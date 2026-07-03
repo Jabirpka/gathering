@@ -6,6 +6,8 @@ export interface ActiveCallInfo {
   roomId: string;
   roomLabel: string;
   displayName: string;
+  /** Voice call — join with the camera off (WhatsApp-style audio call). */
+  audioOnly?: boolean;
 }
 
 interface CallStore {

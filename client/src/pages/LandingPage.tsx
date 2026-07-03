@@ -8,11 +8,11 @@ import toast from 'react-hot-toast';
 const BASE = import.meta.env.VITE_API_URL ?? '';
 
 const FEATURES = [
-  { icon: Video, title: 'Synchronized Watching', desc: 'Watch any video in perfect sync — every play, pause, and seek shared instantly.' },
-  { icon: Users, title: 'Group Video Calls', desc: 'Crystal-clear video and audio for up to 1,000 participants.' },
-  { icon: MessageSquare, title: 'Live Chat & Comments', desc: 'Real-time chat and timestamped video comments that appear on the player.' },
+  { icon: MessageSquare, title: 'Group & Private Chat', desc: 'WhatsApp-style messaging with replies, voice notes, read ticks, and typing indicators.' },
+  { icon: Video, title: 'Video & Voice Calls', desc: 'One tap to ring your whole group — crystal-clear calls for up to 1,000 participants.' },
+  { icon: Calendar, title: '24h Status', desc: 'Share photo or text stories that disappear after a day, like your favorite apps.' },
   { icon: Zap, title: 'Poke & Reactions', desc: 'Send emoji reactions, poke friends, and talk walky-talky style.' },
-  { icon: Calendar, title: 'Scheduled Events', desc: 'Book watch parties or calls in advance so your group knows what\'s next.' },
+  { icon: Users, title: 'Direct Messages', desc: 'Private 1:1 conversations with anyone from your groups.' },
   { icon: Users, title: 'Group Management', desc: 'Private or public groups with invite codes, approval system, and roles.' },
 ];
 
@@ -68,12 +68,12 @@ export default function LandingPage() {
           </span>
 
           <h1 className="text-4xl sm:text-6xl font-bold text-slate-900 leading-tight tracking-tight mb-5">
-            Watch together.{' '}
+            Stay close.{' '}
             <span className="bg-gradient-to-r from-brand via-purple-500 to-accent bg-clip-text text-transparent">Anywhere.</span>
           </h1>
 
           <p className="text-lg text-slate-500 max-w-xl mx-auto mb-8 leading-relaxed">
-            Synchronized video watching, group calls, live chat — hang out with your people no matter where they are.
+            Chats, voice notes, video calls, and 24h stories — hang out with your people no matter where they are.
           </p>
 
           <motion.button

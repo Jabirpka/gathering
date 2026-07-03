@@ -53,7 +53,7 @@ export default function DeleteGroupModal({ open, onClose, group }: Props) {
             </div>
             <p className="text-sm text-slate-600 mb-4">
               This permanently deletes <span className="font-semibold text-slate-900">{group.name}</span> and all its
-              rooms, messages, and scheduled events. This can't be undone.
+              chats, calls, and messages. This can't be undone.
             </p>
 
             <label className="text-xs font-medium text-slate-500 mb-1.5 block">

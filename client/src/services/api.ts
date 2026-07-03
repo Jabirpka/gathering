@@ -50,6 +50,7 @@ export const groupsApi = {
   remove: (id: string) => api.delete(`/groups/${id}`),
   transferOwnership: (id: string, userId: string) => api.post(`/groups/${id}/transfer`, { userId }),
   markRead: (id: string) => api.post(`/groups/${id}/read`, {}),
+  startCall: (id: string, type: 'video' | 'audio') => api.post(`/groups/${id}/call/${type}`, {}),
   pending: (id: string) => api.get(`/groups/${id}/pending`),
   approveMember: (groupId: string, userId: string, action: 'approve' | 'ban') =>
     api.patch(`/groups/${groupId}/members/${userId}`, { action }),
@@ -65,13 +66,6 @@ export const dmsApi = {
   list: () => api.get('/dms'),
   open: (userId: string) => api.post('/dms/open', { userId }),
   markRead: (threadId: string) => api.post(`/dms/${threadId}/read`, {}),
-};
-
-export const eventsApi = {
-  list: (groupId: string) => api.get(`/events/group/${groupId}`),
-  create: (groupId: string, data: { title: string; description?: string; scheduledAt: string; meetupData?: any }) =>
-    api.post(`/events/group/${groupId}`, data),
-  delete: (id: string) => api.delete(`/events/${id}`),
 };
 
 export const livekitApi = {

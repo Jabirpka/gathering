@@ -4,9 +4,8 @@ import { useGroupStore } from '../store/groupStore';
 import { useDmStore } from '../store/dmStore';
 import { useAuthStore } from '../store/authStore';
 import { getSocket } from '../hooks/useSocket';
-import { Users, Video, Copy, Check, Settings, UserCheck, Headphones, Calendar, Zap, Share2, Camera, Loader2, Crown, Trash2, MessageSquare } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { GroupMember, Room, Message } from '../types';
+import { Users, Video, Phone, Copy, Check, Settings, UserCheck, Zap, Share2, Camera, Loader2, Crown, Trash2, MessageSquare } from 'lucide-react';
+import { GroupMember, Message } from '../types';
 import MemberApproval from '../components/groups/MemberApproval';
 import ChatPanel from '../components/chat/ChatPanel';
 import TransferOwnershipModal from '../components/groups/TransferOwnershipModal';
@@ -14,28 +13,6 @@ import DeleteGroupModal from '../components/groups/DeleteGroupModal';
 import { usersApi, groupsApi } from '../services/api';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
-
-function RoomCard({ room, groupId }: { room: Room; groupId: string }) {
-  const navigate = useNavigate();
-  const icons = { VIDEO_CALL: Video, AUDIO_CALL: Headphones };
-  const Icon = icons[room.type] ?? Video;
-  const labels = { VIDEO_CALL: 'Video Call', AUDIO_CALL: 'Audio Call' };
-  const colors = { VIDEO_CALL: 'text-blue-600', AUDIO_CALL: 'text-emerald-600' };
-
-  return (
-    <button onClick={() => navigate(`/groups/${groupId}/rooms/${room.id}`)}
-      className="card p-4 flex items-center gap-3 w-full text-left hover:border-brand/30 transition-all group active:scale-[0.98]">
-      <div className="w-10 h-10 rounded-xl bg-brand-dim flex items-center justify-center shrink-0">
-        <Icon size={18} className={colors[room.type]} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="font-medium text-slate-900 text-sm">{room.name}</p>
-        <p className="text-xs text-slate-500">{labels[room.type]}</p>
-      </div>
-      <span className="text-xs text-slate-400 group-hover:text-brand transition-colors shrink-0">Join →</span>
-    </button>
-  );
-}
 
 function MemberRow({ member, currentUserId, groupId }: { member: GroupMember; currentUserId?: string; groupId: string }) {
   const [poking, setPoking] = useState(false);
@@ -105,7 +82,8 @@ export default function GroupPage() {
   const [copied, setCopied] = useState(false);
   const [showApproval, setShowApproval] = useState(false);
   // Chat-first (WhatsApp-style): opening a group lands in its conversation.
-  const [tab, setTab] = useState<'chat' | 'rooms' | 'members'>('chat');
+  const [tab, setTab] = useState<'chat' | 'members'>('chat');
+  const [callStarting, setCallStarting] = useState<'video' | 'audio' | null>(null);
   const [showOwnerMenu, setShowOwnerMenu] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
@@ -181,6 +159,21 @@ export default function GroupPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // WhatsApp-style call buttons: resolve the group's call room of that type
+  // and jump in — joining rings everyone else in the group.
+  const startCall = async (type: 'video' | 'audio') => {
+    if (!groupId || callStarting) return;
+    setCallStarting(type);
+    try {
+      const res = await groupsApi.startCall(groupId, type);
+      navigate(`/groups/${groupId}/rooms/${res.data.id}`);
+    } catch {
+      toast.error('Could not start the call');
+    } finally {
+      setCallStarting(null);
+    }
+  };
+
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !groupId) return;
@@ -248,17 +241,29 @@ export default function GroupPage() {
           </div>
         </div>
 
-        {/* Action buttons */}
+        {/* Action buttons — WhatsApp-style call buttons front and center */}
         <div className="flex items-center gap-1.5 shrink-0">
-          <button onClick={copyCode} className="btn-secondary text-xs gap-1.5 py-1.5 px-2.5">
-            {copied ? <Check size={12} /> : <Copy size={12} />}
-            <span className="font-mono hidden sm:inline">{activeGroup.code}</span>
+          <button
+            onClick={() => startCall('video')}
+            disabled={!!callStarting}
+            className="w-10 h-10 rounded-full bg-brand-dim text-brand hover:bg-brand hover:text-white flex items-center justify-center transition-colors disabled:opacity-50 active:scale-90"
+            title="Video call"
+          >
+            {callStarting === 'video' ? <Loader2 size={17} className="animate-spin" /> : <Video size={17} />}
+          </button>
+          <button
+            onClick={() => startCall('audio')}
+            disabled={!!callStarting}
+            className="w-10 h-10 rounded-full bg-brand-dim text-brand hover:bg-brand hover:text-white flex items-center justify-center transition-colors disabled:opacity-50 active:scale-90"
+            title="Voice call"
+          >
+            {callStarting === 'audio' ? <Loader2 size={17} className="animate-spin" /> : <Phone size={16} />}
+          </button>
+          <button onClick={copyCode} className="btn-ghost p-2 hidden sm:flex" title={`Copy code ${activeGroup.code}`}>
+            {copied ? <Check size={15} /> : <Copy size={15} />}
           </button>
           <button onClick={handleShare} className="btn-ghost p-2" title="Share invite">
             <Share2 size={15} />
-          </button>
-          <button onClick={() => navigate(`/groups/${groupId}/schedule`)} className="btn-ghost p-2" title="Schedule">
-            <Calendar size={15} />
           </button>
           {isOwner && (
             <div className="relative">
@@ -305,7 +310,7 @@ export default function GroupPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 mb-4 glass p-1 rounded-xl w-fit">
-        {(['chat', 'rooms', 'members'] as const).map((t) => (
+        {(['chat', 'members'] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)}
             className={clsx('px-4 py-1.5 rounded-lg text-sm font-medium transition-all capitalize flex items-center gap-1.5', t === tab ? 'bg-brand text-white shadow' : 'text-slate-500 hover:text-slate-900')}>
             {t}
@@ -318,25 +323,6 @@ export default function GroupPage() {
           </button>
         ))}
       </div>
-
-      {tab === 'rooms' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {activeGroup.rooms?.map((room) => <RoomCard key={room.id} room={room} groupId={activeGroup.id} />)}
-          <button
-            onClick={() => navigate(`/groups/${activeGroup.id}/schedule`)}
-            className="card p-4 flex items-center gap-3 w-full text-left hover:border-brand/30 transition-all group active:scale-[0.98]"
-          >
-            <div className="w-10 h-10 rounded-xl bg-brand-dim flex items-center justify-center shrink-0">
-              <Calendar size={18} className="text-brand" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-slate-900 text-sm">Schedule</p>
-              <p className="text-xs text-slate-500">Watch parties & events</p>
-            </div>
-            <span className="text-xs text-slate-400 group-hover:text-brand transition-colors shrink-0">Open →</span>
-          </button>
-        </div>
-      )}
 
       {tab === 'chat' && (
         <div className="card overflow-hidden h-[calc(100dvh-15rem)] min-h-[420px]">

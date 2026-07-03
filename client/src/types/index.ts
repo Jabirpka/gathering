@@ -65,7 +65,6 @@ export interface Group {
   creator: Pick<User, 'id' | 'name' | 'avatar'>;
   members: GroupMember[];
   rooms: Room[];
-  scheduledEvents?: ScheduledEvent[];
   createdAt: string;
   updatedAt: string;
   _count?: { members: number };
@@ -116,30 +115,6 @@ export interface DmThread {
   lastMessage?: { content: string; createdAt: string; userId: string } | null;
   updatedAt: string;
   createdAt: string;
-}
-
-export interface ScheduledEvent {
-  id: string;
-  title: string;
-  description?: string | null;
-  groupId: string;
-  scheduledAt: string;
-  meetupData?: MeetupData | null;
-  createdAt: string;
-}
-
-export interface MeetupData {
-  locations: LocationEntry[];
-  midpoint?: { lat: number; lng: number };
-  address?: string;
-}
-
-export interface LocationEntry {
-  userId: string;
-  name: string;
-  address: string;
-  lat: number;
-  lng: number;
 }
 
 export interface PresenceEvent {

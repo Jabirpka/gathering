@@ -89,7 +89,6 @@ model Group {
   members         GroupMember[]
   messages        Message[]
   rooms           Room[]
-  scheduledEvents ScheduledEvent[]
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 }
@@ -161,14 +160,3 @@ model Message {
   createdAt DateTime  @default(now())
 }
 
-model ScheduledEvent {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  groupId     String
-  group       Group    @relation(fields: [groupId], references: [id])
-  scheduledAt DateTime
-  meetupData  Json?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}

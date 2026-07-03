@@ -14,7 +14,6 @@ import LandingPage from './pages/LandingPage';
 import DashboardPage from './pages/DashboardPage';
 import GroupPage from './pages/GroupPage';
 import RoomPage from './pages/RoomPage';
-import SchedulePage from './pages/SchedulePage';
 import DmPage from './pages/DmPage';
 import ProfilePage from './pages/ProfilePage';
 import AuthCallback from './pages/AuthCallback';
@@ -146,7 +145,6 @@ function AppRoutes() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/groups/:groupId" element={<GroupPage />} />
             <Route path="/groups/:groupId/rooms/:roomId" element={<RoomPage />} />
-            <Route path="/groups/:groupId/schedule" element={<SchedulePage />} />
             <Route path="/dm/:threadId" element={<DmPage />} />
           </Route>
         ) : (
