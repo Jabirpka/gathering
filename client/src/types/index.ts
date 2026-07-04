@@ -5,6 +5,13 @@ export interface User {
   name: string;
   nickname?: string | null;
   avatar?: string | null;
+  username?: string | null;
+  dateOfBirth?: string | null;
+  bio?: string | null;
+  interests?: string[];
+  favoriteSong?: string | null;
+  favoriteMovie?: string | null;
+  city?: string | null;
   strikePoints?: number;
   createdAt?: string;
 }

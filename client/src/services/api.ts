@@ -32,8 +32,11 @@ export const authApi = {
 export const usersApi = {
   me: () => api.get('/users/me'),
   myStrikes: () => api.get('/users/me/strikes'),
-  updateMe: (data: { name?: string; nickname?: string; avatar?: string }) =>
-    api.patch('/users/me', data),
+  updateMe: (data: {
+    name?: string; nickname?: string; avatar?: string;
+    username?: string; dateOfBirth?: string; bio?: string; interests?: string[];
+    favoriteSong?: string; favoriteMovie?: string; city?: string;
+  }) => api.patch('/users/me', data),
   getUser: (id: string) => api.get(`/users/${id}`),
   poke: (id: string) => api.post(`/users/${id}/poke`),
 };

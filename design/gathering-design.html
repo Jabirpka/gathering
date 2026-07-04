@@ -1,0 +1,570 @@
+<!-- @dsCard group="Gathering — Screens" name="Gathering v2 (all screens)" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gathering — Synthwave redesign v2</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap');
+
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center; gap: 18px;
+    background: #08000c; padding: 28px 24px; font-family: 'Space Grotesk', system-ui, sans-serif;
+  }
+  .tabs { display: flex; gap: 6px; background: rgba(34,0,64,0.6); padding: 5px; border-radius: 22px; border: 1px solid rgba(232,121,249,0.18); }
+  .tab { border: none; cursor: pointer; padding: 7px 16px; border-radius: 18px; font-size: 13px; font-weight: 600; font-family: inherit; color: #9b7abd; background: transparent; transition: all .15s; }
+  .tab.on { background: linear-gradient(135deg, #e879f9, #a855f7); color: #fff; }
+  .phone {
+    width: 360px; height: 720px; border-radius: 36px; overflow: hidden; position: relative;
+    background: #0d0010;
+    background-image:
+      radial-gradient(28rem 16rem at 50% -8%, rgba(232,121,249,0.18), transparent 62%),
+      radial-gradient(20rem 20rem at 108% 6%, rgba(168,85,247,0.13), transparent 60%);
+    border: 1px solid #330060; box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+    color: #fff; display: none; flex-direction: column;
+  }
+  .phone.on { display: flex; }
+  .avatar { border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .grad { background: linear-gradient(135deg, #e879f9, #a855f7); }
+  .sub { color: #9b7abd; }
+  .cbtn { width: 36px; height: 36px; border-radius: 50%; background: rgba(232,121,249,0.12); color: #e879f9; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .hicon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #9b7abd; font-size: 15px; }
+  .head { height: 56px; border-bottom: 1px solid #330060; background: rgba(22,0,32,0.86); display: flex; align-items: center; padding: 0 8px; }
+  .composer { padding: 12px 14px 28px; background: rgba(22,0,32,0.86); border-top: 1px solid #330060; display: flex; align-items: center; gap: 10px; }
+  .field { flex: 1; background: #220040; border-radius: 10px; padding: 11px 16px; font-size: 13px; color: #9b7abd; }
+  .send { width: 40px; height: 40px; border-radius: 12px; font-size: 16px; }
+  .recv { background: rgba(232,121,249,0.08); border: 1px solid rgba(232,121,249,0.20); border-radius: 3px 18px 18px 18px; padding: 10px 14px; font-size: 14px; }
+  .mine { border-radius: 18px 3px 18px 18px; padding: 10px 14px; font-size: 14px; box-shadow: 0 4px 20px rgba(232,121,249,0.4); }
+  .stamp { color: #9b7abd; font-size: 10px; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<div class="tabs">
+  <button class="tab on" data-t="login">Login</button>
+  <button class="tab" data-t="profile">Profile</button>
+  <button class="tab" data-t="home">Home</button>
+  <button class="tab" data-t="dm">DM</button>
+  <button class="tab" data-t="group">Group</button>
+  <button class="tab" data-t="members">Members</button>
+  <button class="tab" data-t="call">Call</button>
+</div>
+
+<!-- LOGIN -->
+<div class="phone on" id="login">
+  <!-- Logo -->
+  <div style="display:flex;align-items:center;justify-content:center;gap:9px;padding:36px 0 8px;">
+    <div class="avatar grad" style="width:38px;height:38px;border-radius:12px;font-size:18px;">▶</div>
+    <span style="font-size:22px;font-weight:700;letter-spacing:-0.5px;">Gathering</span>
+  </div>
+
+  <!-- Hero text -->
+  <div style="text-align:center;padding:18px 28px 20px;">
+    <div style="font-size:34px;font-weight:700;line-height:1.1;letter-spacing:-1.5px;">Stay close.<br><span style="background:linear-gradient(90deg,#e879f9,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent;">Anywhere.</span></div>
+    <div class="sub" style="font-size:13px;line-height:1.5;margin-top:10px;">Your people. One place.</div>
+  </div>
+
+  <!-- Glow blob -->
+  <div style="position:absolute;width:260px;height:200px;border-radius:50%;background:rgba(232,121,249,0.13);filter:blur(56px);left:50%;transform:translateX(-50%);top:200px;pointer-events:none;"></div>
+
+  <!-- Phone number input -->
+  <div style="padding:0 22px;display:flex;flex-direction:column;gap:10px;position:relative;">
+    <div style="display:flex;align-items:center;gap:0;background:#220040;border:1px solid #440080;border-radius:14px;overflow:hidden;">
+      <div style="padding:13px 14px;font-size:14px;font-weight:600;color:#e879f9;border-right:1px solid #440080;white-space:nowrap;">🇵🇰 +92</div>
+      <input type="tel" placeholder="Phone number" style="flex:1;background:transparent;border:none;outline:none;padding:13px 14px;font-size:14px;color:#fff;font-family:'Space Grotesk',sans-serif;">
+    </div>
+    <button style="width:100%;padding:14px;background:linear-gradient(135deg,#e879f9,#a855f7);border:none;border-radius:14px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 6px 24px rgba(232,121,249,0.45);">Continue →</button>
+  </div>
+
+  <!-- Divider -->
+  <div style="display:flex;align-items:center;gap:10px;padding:18px 22px;">
+    <div style="flex:1;height:1px;background:#330060;"></div>
+    <span class="sub" style="font-size:12px;">or</span>
+    <div style="flex:1;height:1px;background:#330060;"></div>
+  </div>
+
+  <!-- Google sign-in -->
+  <div style="padding:0 22px;">
+    <button style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1a0030;font-weight:600;padding:13px 24px;border-radius:14px;font-size:14px;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 6px 24px rgba(0,0,0,0.35);">
+      <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"></path><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"></path><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"></path><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"></path></svg>
+      Continue with Google
+    </button>
+  </div>
+
+  <!-- Footer -->
+  <div class="sub" style="text-align:center;font-size:11px;padding:20px 24px 0;line-height:1.6;">By continuing you agree to our <span style="color:#e879f9;">Terms</span> &amp; <span style="color:#e879f9;">Privacy</span></div>
+</div>
+
+<!-- PROFILE SETUP -->
+<div class="phone" id="profile" style="overflow-y:auto;">
+  <!-- Header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px 10px;flex-shrink:0;">
+    <div>
+      <div style="font-size:20px;font-weight:700;letter-spacing:-.5px;">Set up profile</div>
+      <div class="sub" style="font-size:12px;margin-top:2px;">Step 2 of 2</div>
+    </div>
+    <div style="display:flex;gap:4px;">
+      <div style="width:28px;height:4px;border-radius:2px;background:#330060;"></div>
+      <div style="width:28px;height:4px;border-radius:2px;background:linear-gradient(90deg,#e879f9,#a855f7);"></div>
+    </div>
+  </div>
+
+  <!-- Avatar picker -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 0 18px;">
+    <div style="position:relative;">
+      <div class="avatar grad" style="width:80px;height:80px;border-radius:24px;font-size:32px;box-shadow:0 6px 28px rgba(232,121,249,.45);">J</div>
+      <div style="position:absolute;bottom:-6px;right:-6px;width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#e879f9,#a855f7);display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid #0d0010;cursor:pointer;">✎</div>
+    </div>
+    <div style="font-size:11px;color:#e879f9;font-weight:600;cursor:pointer;">Change photo</div>
+  </div>
+
+  <div style="padding:0 20px;display:flex;flex-direction:column;gap:14px;">
+
+    <!-- Basic info section -->
+    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#9b7abd;">BASIC INFO</div>
+
+    <!-- Name -->
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <label style="font-size:12px;font-weight:600;color:#9b7abd;">Full name</label>
+      <div style="background:#220040;border:1px solid #440080;border-radius:12px;padding:12px 14px;font-size:14px;color:#fff;">Jabir Ahmed</div>
+    </div>
+
+    <!-- Username -->
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <label style="font-size:12px;font-weight:600;color:#9b7abd;">Username</label>
+      <div style="background:#220040;border:1px solid #440080;border-radius:12px;padding:12px 14px;font-size:14px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="color:#9b7abd;">@</span><input type="text" value="jabir.ahmed" style="flex:1;background:transparent;border:none;outline:none;font-size:14px;color:#fff;font-family:'Space Grotesk',sans-serif;margin-left:4px;">
+        <span style="font-size:11px;color:#10b981;font-weight:600;">✓ free</span>
+      </div>
+    </div>
+
+    <!-- Phone auto-fetched -->
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <label style="font-size:12px;font-weight:600;color:#9b7abd;">Phone <span style="font-size:10px;background:rgba(232,121,249,.15);color:#e879f9;padding:1px 6px;border-radius:4px;margin-left:4px;">auto-filled</span></label>
+      <div style="background:#160026;border:1px solid #330060;border-radius:12px;padding:12px 14px;font-size:14px;color:#9b7abd;display:flex;align-items:center;gap:8px;">
+        <span>🔒</span><span>+92 300 1234567</span>
+      </div>
+    </div>
+
+    <!-- Email -->
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <label style="font-size:12px;font-weight:600;color:#9b7abd;">Email <span style="font-size:10px;background:rgba(232,121,249,.15);color:#e879f9;padding:1px 6px;border-radius:4px;margin-left:4px;">auto-filled</span></label>
+      <div style="background:#160026;border:1px solid #330060;border-radius:12px;padding:12px 14px;font-size:14px;color:#9b7abd;display:flex;align-items:center;gap:8px;">
+        <span>🔒</span><span>jabir@gmail.com</span>
+      </div>
+    </div>
+
+    <!-- Date of birth -->
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <label style="font-size:12px;font-weight:600;color:#9b7abd;">Date of birth</label>
+      <div style="display:flex;gap:8px;">
+        <div style="flex:1;background:#220040;border:1px solid #440080;border-radius:12px;padding:12px 10px;font-size:14px;color:#fff;text-align:center;">15</div>
+        <div style="flex:1;background:#220040;border:1px solid #440080;border-radius:12px;padding:12px 10px;font-size:14px;color:#fff;text-align:center;">Mar</div>
+        <div style="flex:1.4;background:#220040;border:1px solid #440080;border-radius:12px;padding:12px 10px;font-size:14px;color:#fff;text-align:center;">2000</div>
+      </div>
+    </div>
+
+    <!-- Personal details section -->
+    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#9b7abd;margin-top:4px;">PERSONAL DETAILS</div>
+
+    <!-- Bio -->
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <label style="font-size:12px;font-weight:600;color:#9b7abd;">Bio</label>
+      <div style="background:#220040;border:1px solid #440080;border-radius:12px;padding:12px 14px;font-size:14px;color:#9b7abd;min-height:60px;">Just hanging out ✨</div>
+    </div>
+
+    <!-- Interests -->
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <label style="font-size:12px;font-weight:600;color:#9b7abd;">Interests <span class="sub" style="font-weight:400;font-size:11px;">(pick up to 5)</span></label>
+      <div style="display:flex;flex-wrap:wrap;gap:7px;">
+        <div style="padding:6px 14px;border-radius:20px;background:linear-gradient(135deg,#e879f9,#a855f7);font-size:12px;font-weight:600;cursor:pointer;">🎮 Gaming</div>
+        <div style="padding:6px 14px;border-radius:20px;background:linear-gradient(135deg,#e879f9,#a855f7);font-size:12px;font-weight:600;cursor:pointer;">🎵 Music</div>
+        <div style="padding:6px 14px;border-radius:20px;background:#220040;border:1px solid #440080;font-size:12px;color:#9b7abd;cursor:pointer;">📸 Photography</div>
+        <div style="padding:6px 14px;border-radius:20px;background:linear-gradient(135deg,#e879f9,#a855f7);font-size:12px;font-weight:600;cursor:pointer;">✈️ Travel</div>
+        <div style="padding:6px 14px;border-radius:20px;background:#220040;border:1px solid #440080;font-size:12px;color:#9b7abd;cursor:pointer;">🍕 Food</div>
+        <div style="padding:6px 14px;border-radius:20px;background:#220040;border:1px solid #440080;font-size:12px;color:#9b7abd;cursor:pointer;">📚 Books</div>
+        <div style="padding:6px 14px;border-radius:20px;background:#220040;border:1px solid #440080;font-size:12px;color:#9b7abd;cursor:pointer;">🎬 Movies</div>
+        <div style="padding:6px 14px;border-radius:20px;background:#220040;border:1px solid #440080;font-size:12px;color:#9b7abd;cursor:pointer;">⚽ Sports</div>
+      </div>
+    </div>
+
+    <!-- Favorites -->
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <label style="font-size:12px;font-weight:600;color:#9b7abd;">Favorite things</label>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:#220040;border:1px solid #440080;border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:16px;">🎵</span>
+          <div style="flex:1;"><div style="font-size:10px;color:#9b7abd;margin-bottom:2px;">Fav song</div><div style="font-size:13px;color:#fff;">Blinding Lights</div></div>
+        </div>
+        <div style="background:#220040;border:1px solid #440080;border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:16px;">🎬</span>
+          <div style="flex:1;"><div style="font-size:10px;color:#9b7abd;margin-bottom:2px;">Fav movie</div><div style="font-size:13px;color:#fff;">Interstellar</div></div>
+        </div>
+        <div style="background:#220040;border:1px solid #440080;border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:16px;">📍</span>
+          <div style="flex:1;"><div style="font-size:10px;color:#9b7abd;margin-bottom:2px;">City</div><div style="font-size:13px;color:#fff;">Karachi, Pakistan</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save button -->
+    <button style="width:100%;padding:14px;background:linear-gradient(135deg,#e879f9,#a855f7);border:none;border-radius:14px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 6px 24px rgba(232,121,249,.45);margin:8px 0 28px;">Let's go 🚀</button>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="phone" id="home">
+  <!-- LOCKED HEADER -->
+  <div style="flex-shrink:0;background:rgba(13,0,16,0.95);border-bottom:1px solid #330060;padding:12px 18px 10px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div>
+        <div style="font-size:19px;font-weight:700;letter-spacing:-0.5px;">GATHERING</div>
+        <div class="sub" style="font-size:9px;letter-spacing:2.5px;text-transform:uppercase;margin-top:1px;">your people</div>
+      </div>
+      <div style="font-size:13px;font-weight:600;">Hey, Jabir ✦</div>
+    </div>
+    <!-- Filter pill -->
+    <div style="display:flex;gap:3px;padding:3px;border-radius:12px;background:rgba(34,0,64,0.9);border:1px solid rgba(232,121,249,0.18);">
+      <div style="flex:1;text-align:center;padding:5px;border-radius:9px;font-size:12px;font-weight:600;background:linear-gradient(135deg,#e879f9,#a855f7);">Groups</div>
+      <div class="sub" style="flex:1;text-align:center;padding:5px;font-size:12px;">DMs</div>
+    </div>
+  </div>
+
+  <!-- SCROLLABLE CHAT LIST -->
+  <div style="flex:1;overflow-y:auto;min-height:0;">
+    <div class="sub" style="padding:10px 18px 6px;font-size:10px;font-weight:700;letter-spacing:2px;">CHATS</div>
+    <div style="display:flex;align-items:center;gap:11px;padding:8px 18px;"><div class="avatar grad" style="width:42px;height:42px;font-size:16px;">F</div><div style="flex:1;min-width:0;"><div style="display:flex;justify-content:space-between;"><span style="font-size:14px;font-weight:700;">Family 🏠</span><span class="sub" style="font-size:10px;">12:42 PM</span></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span class="sub" style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Sana: On my way 🚗</span><span style="min-width:18px;height:18px;padding:0 5px;border-radius:6px;background:#e879f9;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span></div></div></div>
+    <div style="display:flex;align-items:center;gap:11px;padding:8px 18px;"><div class="avatar" style="width:42px;height:42px;background:linear-gradient(135deg,#7c3aed,#a855f7);font-size:16px;">W</div><div style="flex:1;min-width:0;"><div style="display:flex;justify-content:space-between;"><span style="font-size:14px;font-weight:700;">Work Squad</span><span class="sub" style="font-size:10px;">11:18 AM</span></div><div class="sub" style="font-size:12px;margin-top:2px;">You: 🎙 Voice message</div></div></div>
+    <div style="display:flex;align-items:center;gap:11px;padding:8px 18px;"><div class="avatar" style="width:42px;height:42px;background:linear-gradient(135deg,#e879f9,#7c3aed);font-size:16px;">S</div><div style="flex:1;min-width:0;"><div style="display:flex;justify-content:space-between;"><span style="font-size:14px;font-weight:700;">Sana</span><span class="sub" style="font-size:10px;">9:04 AM</span></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span class="sub" style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">See you tomorrow 💜</span><span style="min-width:18px;height:18px;padding:0 5px;border-radius:6px;background:#e879f9;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span></div></div></div>
+    <div style="display:flex;align-items:center;gap:11px;padding:8px 18px;"><div class="avatar" style="width:42px;height:42px;background:linear-gradient(135deg,#a855f7,#e879f9);font-size:16px;">T</div><div style="flex:1;min-width:0;"><div style="display:flex;justify-content:space-between;"><span style="font-size:14px;font-weight:700;">Trip Planning ✈️</span><span class="sub" style="font-size:10px;">Yesterday</span></div><div class="sub" style="font-size:12px;margin-top:2px;">Adil: 😂😂😂😂</div></div></div>
+    <div style="display:flex;align-items:center;gap:11px;padding:8px 18px;"><div class="avatar" style="width:42px;height:42px;background:linear-gradient(135deg,#4c1d95,#7c3aed);font-size:16px;">D</div><div style="flex:1;min-width:0;"><div style="display:flex;justify-content:space-between;"><span style="font-size:14px;font-weight:700;">Design Crew</span><span class="sub" style="font-size:10px;">Mon</span></div><div class="sub" style="font-size:12px;margin-top:2px;">Jabir: check the new screens</div></div></div>
+  </div>
+
+  <!-- LOCKED FOOTER -->
+  <div style="flex-shrink:0;height:68px;background:rgba(13,0,16,0.95);border-top:1px solid #330060;display:flex;align-items:center;justify-content:space-around;padding:0 12px 10px;position:relative;">
+    <!-- Chats -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#e879f9"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"></path></svg>
+      <span style="width:4px;height:4px;border-radius:50%;background:#e879f9;"></span>
+    </div>
+    <!-- People -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#9b7abd"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"></path></svg>
+      <span style="width:4px;height:4px;border-radius:50%;background:transparent;"></span>
+    </div>
+    <!-- Centre + -->
+    <div id="plusBtn" onclick="togglePopup()" style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#e879f9,#a855f7);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:300;box-shadow:0 4px 18px rgba(232,121,249,.55);cursor:pointer;color:#fff;line-height:1;margin-bottom:6px;">+</div>
+    <!-- Status (moved from header) -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div style="width:22px;height:22px;border-radius:7px;border:1.5px dashed #9b7abd;display:flex;align-items:center;justify-content:center;">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="#9b7abd"><circle cx="12" cy="8" r="4"></circle><path d="M12 14c-5 0-8 2-8 3v1h16v-1c0-1-3-3-8-3z"></path></svg>
+      </div>
+      <span style="width:4px;height:4px;border-radius:50%;background:transparent;"></span>
+    </div>
+    <!-- Profile -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div class="avatar grad" style="width:22px;height:22px;border-radius:7px;font-size:9px;">J</div>
+      <span style="width:4px;height:4px;border-radius:50%;background:transparent;"></span>
+    </div>
+  </div>
+
+  <!-- Popup overlay -->
+  <div id="homePopup" style="display:none;position:absolute;inset:0;background:rgba(8,0,12,0.72);backdrop-filter:blur(6px);z-index:20;align-items:flex-end;justify-content:center;">
+    <div style="width:100%;background:#160020;border-radius:28px 28px 0 0;border:1px solid #330060;padding:20px 20px 36px;">
+      <!-- Drag handle -->
+      <div style="width:36px;height:4px;border-radius:2px;background:#440080;margin:0 auto 18px;"></div>
+      <!-- Toggle dongle -->
+      <div style="display:flex;gap:0;background:#0d0010;border-radius:14px;padding:4px;margin-bottom:20px;border:1px solid #330060;">
+        <div id="joinTab" onclick="switchTab('join')" style="flex:1;text-align:center;padding:8px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#e879f9,#a855f7);color:#fff;transition:all .2s;">Join group</div>
+        <div id="createTab" onclick="switchTab('create')" style="flex:1;text-align:center;padding:8px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;color:#9b7abd;transition:all .2s;">Create group</div>
+      </div>
+
+      <!-- Join form -->
+      <div id="joinForm" style="display:flex;flex-direction:column;gap:12px;">
+        <div style="font-size:13px;color:#9b7abd;margin-top:-6px;">Enter an invite code to join a group.</div>
+        <div>
+          <label style="font-size:11px;font-weight:600;color:#9b7abd;display:block;margin-bottom:5px;">Invite code</label>
+          <input type="text" placeholder="e.g. FMLY-2026" style="width:100%;box-sizing:border-box;background:#220040;border:1px solid #440080;border-radius:12px;padding:12px 14px;font-size:15px;color:#fff;font-family:'Space Grotesk',sans-serif;outline:none;letter-spacing:2px;">
+        </div>
+        <button style="width:100%;padding:13px;background:linear-gradient(135deg,#e879f9,#a855f7);border:none;border-radius:12px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 4px 18px rgba(232,121,249,.4);">Join →</button>
+      </div>
+
+      <!-- Create form -->
+      <div id="createForm" style="display:none;flex-direction:column;gap:12px;">
+        <div style="font-size:13px;color:#9b7abd;margin-top:-6px;">Start a new gathering for your people.</div>
+        <div>
+          <label style="font-size:11px;font-weight:600;color:#9b7abd;display:block;margin-bottom:5px;">Group name</label>
+          <input type="text" placeholder="Family, Work Squad…" style="width:100%;box-sizing:border-box;background:#220040;border:1px solid #440080;border-radius:12px;padding:12px 14px;font-size:14px;color:#fff;font-family:'Space Grotesk',sans-serif;outline:none;">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:600;color:#9b7abd;display:block;margin-bottom:5px;">Description <span style="font-weight:400;">(optional)</span></label>
+          <input type="text" placeholder="What's this group about?" style="width:100%;box-sizing:border-box;background:#220040;border:1px solid #440080;border-radius:12px;padding:12px 14px;font-size:14px;color:#fff;font-family:'Space Grotesk',sans-serif;outline:none;">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:600;color:#9b7abd;display:block;margin-bottom:8px;">Type</label>
+          <div style="display:flex;gap:8px;">
+            <div style="flex:1;padding:9px;border-radius:10px;border:1px solid #e879f9;background:rgba(232,121,249,.1);text-align:center;font-size:12px;font-weight:700;color:#e879f9;cursor:pointer;">🔒 Private</div>
+            <div style="flex:1;padding:9px;border-radius:10px;border:1px solid #440080;background:#220040;text-align:center;font-size:12px;font-weight:600;color:#9b7abd;cursor:pointer;">🌐 Public</div>
+          </div>
+        </div>
+        <button style="width:100%;padding:13px;background:linear-gradient(135deg,#e879f9,#a855f7);border:none;border-radius:12px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 4px 18px rgba(232,121,249,.4);">Create group 🚀</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DM -->
+<div class="phone" id="dm">
+  <!-- LOCKED HEADER -->
+  <div style="flex-shrink:0;background:rgba(13,0,16,0.95);border-bottom:1px solid #330060;height:56px;display:flex;align-items:center;gap:10px;padding:0 12px;">
+    <div class="sub" style="width:30px;font-size:18px;text-align:center;">‹</div>
+    <div class="avatar grad" style="width:34px;height:34px;">S</div>
+    <div style="flex:1;"><div style="font-size:15px;font-weight:700;">Sana</div><div style="font-size:11px;color:#e879f9;">typing…</div></div>
+    <div class="hicon">⌕</div><div class="hicon">⋮</div>
+  </div>
+  <!-- SCROLLABLE MESSAGES -->
+  <div style="flex:1;overflow-y:auto;min-height:0;padding:14px 16px;display:flex;flex-direction:column;gap:12px;">
+    <div style="text-align:center;"><span class="sub" style="font-size:11px;background:#220040;padding:3px 12px;border-radius:6px;">Today</span></div>
+    <div style="align-self:flex-start;max-width:78%;"><div class="recv">Did you finish the design? ✨</div><div class="stamp">8:58 AM</div></div>
+    <div style="align-self:flex-end;max-width:78%;"><div class="mine grad">Just pushed it — check Figma 💜</div><div class="stamp" style="text-align:right;">9:02 AM ✓✓</div></div>
+    <div style="align-self:flex-start;max-width:78%;"><div class="recv">See you tomorrow 💜</div><div class="stamp">9:04 AM</div></div>
+    <div style="align-self:flex-start;font-size:28px;padding-left:4px;">🔥</div>
+  </div>
+  <!-- LOCKED COMPOSER -->
+  <div style="flex-shrink:0;padding:12px 14px 24px;background:rgba(13,0,16,0.95);border-top:1px solid #330060;display:flex;align-items:center;gap:10px;">
+    <div class="field">Message…</div>
+    <div class="avatar grad send">➤</div>
+  </div>
+</div>
+
+<!-- GROUP -->
+<div class="phone" id="group">
+  <!-- LOCKED HEADER -->
+  <div style="flex-shrink:0;background:rgba(13,0,16,0.95);border-bottom:1px solid #330060;height:56px;display:flex;align-items:center;gap:6px;padding:0 10px;">
+    <div class="sub" style="width:26px;font-size:18px;text-align:center;">‹</div>
+    <div class="avatar grad" style="width:34px;height:34px;">F</div>
+    <div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:700;">Family 🏠</div><div style="font-size:11px;color:#e879f9;">5 members ⌄</div></div>
+    <div class="hicon">⌕</div><div class="cbtn">▷</div><div class="cbtn">☏</div><div class="hicon">⋮</div>
+  </div>
+  <!-- SCROLLABLE MESSAGES -->
+  <div style="flex:1;overflow-y:auto;min-height:0;padding:12px 16px;display:flex;flex-direction:column;gap:11px;">
+    <div style="align-self:flex-start;max-width:80%;"><div style="font-size:11px;color:#e879f9;font-weight:700;margin-bottom:3px;">Sana</div><div class="recv" style="font-size:13px;">Movie night at ours on Friday? 🍿</div><div class="stamp">12:38 PM</div></div>
+    <div style="align-self:flex-end;max-width:80%;">
+      <div class="grad" style="border-radius:18px 3px 18px 18px;overflow:hidden;box-shadow:0 4px 20px rgba(232,121,249,0.4);">
+        <div style="background:rgba(255,255,255,0.12);border-left:3px solid rgba(255,255,255,0.5);margin:8px 8px 0;border-radius:4px;padding:5px 10px;"><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.85);">Sana</div><div style="font-size:11px;color:rgba(255,255,255,0.65);">Movie night at ours on Friday? 🍿</div></div>
+        <div style="padding:6px 14px 10px;font-size:13px;">I'm in! Bringing snacks 😄</div>
+      </div>
+      <div class="stamp" style="text-align:right;">12:40 PM ✓✓</div>
+    </div>
+    <div style="align-self:flex-start;max-width:82%;"><div style="font-size:11px;color:#e879f9;font-weight:700;margin-bottom:3px;">Adil</div>
+      <div style="background:rgba(232,121,249,0.08);border:1px solid rgba(232,121,249,0.20);border-radius:3px 18px 18px 18px;padding:10px 12px;display:flex;align-items:center;gap:10px;min-width:200px;">
+        <div class="avatar grad" style="width:34px;height:34px;border-radius:50%;font-size:12px;">▶</div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:5px;">
+          <div style="height:20px;display:flex;align-items:center;gap:2px;"><span style="width:2px;height:6px;background:#e879f9;border-radius:2px;opacity:.5;"></span><span style="width:2px;height:12px;background:#e879f9;border-radius:2px;"></span><span style="width:2px;height:18px;background:#e879f9;border-radius:2px;"></span><span style="width:2px;height:9px;background:#e879f9;border-radius:2px;opacity:.6;"></span><span style="width:2px;height:20px;background:#e879f9;border-radius:2px;"></span><span style="width:2px;height:14px;background:#e879f9;border-radius:2px;opacity:.8;"></span><span style="width:2px;height:8px;background:#e879f9;border-radius:2px;opacity:.5;"></span><span style="width:2px;height:19px;background:#e879f9;border-radius:2px;"></span><span style="width:2px;height:11px;background:#e879f9;border-radius:2px;opacity:.7;"></span><span style="width:2px;height:16px;background:#e879f9;border-radius:2px;"></span></div>
+          <div style="display:flex;justify-content:space-between;"><span class="sub" style="font-size:10px;">0:12</span><span style="font-size:10px;font-weight:700;color:#e879f9;background:rgba(232,121,249,0.15);border:1px solid rgba(232,121,249,0.3);border-radius:6px;padding:2px 7px;">1×</span></div>
+        </div>
+      </div>
+      <div class="stamp">12:41 PM</div>
+    </div>
+    <div style="align-self:flex-start;display:flex;align-items:center;gap:6px;"><span style="font-size:11px;color:#e879f9;font-weight:600;">Sana is typing</span><span style="display:flex;gap:3px;"><span style="width:4px;height:4px;border-radius:50%;background:#e879f9;"></span><span style="width:4px;height:4px;border-radius:50%;background:#e879f9;opacity:.6;"></span><span style="width:4px;height:4px;border-radius:50%;background:#e879f9;opacity:.35;"></span></span></div>
+  </div>
+  <!-- LOCKED COMPOSER -->
+  <div style="flex-shrink:0;padding:12px 14px 24px;background:rgba(13,0,16,0.95);border-top:1px solid #330060;display:flex;align-items:center;gap:10px;">
+    <div class="field">Message…</div>
+    <div class="avatar grad send">➤</div>
+  </div>
+</div>
+
+<!-- MEMBERS -->
+<div class="phone" id="members">
+  <div class="head" style="gap:6px;">
+    <div class="sub" style="width:26px;font-size:18px;text-align:center;">‹</div>
+    <div class="avatar grad" style="width:36px;height:36px;">F</div>
+    <div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:700;">Family 🏠</div><div style="font-size:11px;color:#e879f9;">5 members ⌃</div></div>
+    <div class="hicon">⌕</div><div class="cbtn">▷</div><div class="cbtn">☏</div><div class="hicon">⋮</div>
+  </div>
+  <div style="background:rgba(22,0,32,0.92);border-bottom:1px solid #330060;">
+    <div class="sub" style="padding:12px 20px 4px;font-size:10px;font-weight:700;letter-spacing:2px;">MEMBERS</div>
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 20px;"><div class="avatar grad" style="width:36px;height:36px;">J</div><div style="flex:1;"><div style="font-size:13px;font-weight:700;">Jabir <span style="font-size:10px;background:rgba(232,121,249,0.2);color:#e879f9;padding:1px 6px;border-radius:4px;">Admin</span></div><div style="font-size:11px;color:#e879f9;">Online</div></div></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 20px;"><div class="avatar" style="width:36px;height:36px;background:linear-gradient(135deg,#a855f7,#7c3aed);">S</div><div style="flex:1;"><div style="font-size:13px;font-weight:700;">Sana</div><div style="font-size:11px;color:#e879f9;">Online</div></div></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 20px;"><div class="avatar" style="width:36px;height:36px;background:linear-gradient(135deg,#7c3aed,#e879f9);">A</div><div style="flex:1;"><div style="font-size:13px;font-weight:700;">Adil</div><div class="sub" style="font-size:11px;">Last seen 1h ago</div></div></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 20px;"><div class="avatar grad" style="width:36px;height:36px;">M</div><div style="flex:1;"><div style="font-size:13px;font-weight:700;">Mishal</div><div class="sub" style="font-size:11px;">Last seen 3h ago</div></div></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 20px 14px;"><div style="width:36px;height:36px;border-radius:12px;background:rgba(232,121,249,0.1);border:1px dashed rgba(232,121,249,0.6);display:flex;align-items:center;justify-content:center;color:#e879f9;font-size:18px;">+</div><div style="font-size:13px;color:#e879f9;font-weight:600;">Add member</div></div>
+  </div>
+  <div style="flex:1;padding:12px 16px;display:flex;flex-direction:column;gap:11px;">
+    <div style="align-self:flex-start;max-width:80%;"><div style="font-size:11px;color:#e879f9;font-weight:700;margin-bottom:3px;">Sana</div><div class="recv" style="font-size:13px;">Movie night at ours on Friday? 🍿</div><div class="stamp">12:38 PM</div></div>
+    <div style="align-self:flex-end;max-width:80%;"><div class="mine grad" style="font-size:13px;">I'm in! Bringing snacks 😄</div><div class="stamp" style="text-align:right;">12:40 PM ✓✓</div></div>
+  </div>
+  <div class="composer"><div class="field">Message…</div><div class="avatar grad send">➤</div></div>
+</div>
+
+<!-- CALL -->
+<div class="phone" id="call">
+  <!-- LOCKED HEADER -->
+  <div style="flex-shrink:0;background:rgba(13,0,16,0.92);border-bottom:1px solid #330060;padding:10px 14px;display:flex;align-items:center;gap:10px;">
+    <div class="sub" style="font-size:18px;cursor:pointer;">‹</div>
+    <div style="flex:1;">
+      <div style="font-size:15px;font-weight:700;">Family 🏠</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:1px;">
+        <div style="width:6px;height:6px;border-radius:50%;background:#10b981;flex-shrink:0;"></div>
+        <span style="font-size:11px;color:#10b981;font-weight:600;">Live · 247 on call</span>
+        <span class="sub" style="font-size:11px;">/ 500</span>
+      </div>
+    </div>
+    <div style="background:rgba(232,121,249,0.12);border:1px solid rgba(232,121,249,0.3);border-radius:10px;padding:5px 12px;font-size:11px;font-weight:600;color:#e879f9;cursor:pointer;">+ Invite</div>
+    <div style="width:32px;height:32px;background:#220040;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;">💬</div>
+  </div>
+
+  <!-- ACTIVE SPEAKER — fills remaining space -->
+  <div style="flex:1;min-height:0;padding:10px 12px 6px;display:flex;flex-direction:column;gap:8px;">
+    <!-- Big active tile -->
+    <div style="flex:1;min-height:0;position:relative;background:linear-gradient(160deg,#1a0030,#0d0010);border-radius:20px;display:flex;align-items:center;justify-content:center;border:2px solid #e879f9;box-shadow:0 0 0 3px rgba(232,121,249,.18),0 8px 40px rgba(232,121,249,.25);overflow:hidden;">
+      <!-- bg glow -->
+      <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(232,121,249,.18),transparent 70%);pointer-events:none;"></div>
+      <div class="avatar grad" style="width:80px;height:80px;border-radius:50%;font-size:32px;box-shadow:0 4px 28px rgba(232,121,249,.5);position:relative;z-index:1;">J</div>
+      <!-- speaking badge -->
+      <div style="position:absolute;top:12px;left:12px;background:linear-gradient(135deg,#e879f9,#a855f7);padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:5px;">
+        <div style="display:flex;align-items:center;gap:1.5px;">
+          <div style="width:2px;height:8px;background:#fff;border-radius:1px;opacity:.7;"></div>
+          <div style="width:2px;height:14px;background:#fff;border-radius:1px;"></div>
+          <div style="width:2px;height:10px;background:#fff;border-radius:1px;opacity:.8;"></div>
+        </div>
+        Speaking
+      </div>
+      <!-- name + video -->
+      <div style="position:absolute;bottom:12px;left:12px;right:12px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="background:rgba(0,0,0,0.55);padding:4px 12px;border-radius:10px;font-size:12px;font-weight:600;backdrop-filter:blur(6px);">You</div>
+        <div style="display:flex;gap:6px;">
+          <div style="width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:14px;backdrop-filter:blur(6px);">📹</div>
+          <div style="width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:14px;backdrop-filter:blur(6px);">🎤</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OTHERS ROW label + count -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+      <span class="sub" style="font-size:10px;font-weight:700;letter-spacing:1.5px;">ON CALL</span>
+      <span style="font-size:10px;color:#e879f9;font-weight:600;cursor:pointer;">View all 247 →</span>
+    </div>
+
+    <!-- Participant strip -->
+    <div style="flex-shrink:0;display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;">
+      <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="position:relative;width:54px;height:54px;border-radius:14px;background:#160020;border:2px solid #a855f7;display:flex;align-items:center;justify-content:center;">
+          <div class="avatar" style="width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,#a855f7,#7c3aed);font-size:17px;">S</div>
+          <div style="position:absolute;bottom:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#10b981;border:2px solid #0d0010;"></div>
+        </div>
+        <span style="font-size:9px;color:#fff;font-weight:600;">Sana</span>
+      </div>
+      <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="position:relative;width:54px;height:54px;border-radius:14px;background:#160020;border:1.5px solid #330060;display:flex;align-items:center;justify-content:center;">
+          <div class="avatar" style="width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,#7c3aed,#e879f9);font-size:17px;">A</div>
+          <div style="position:absolute;bottom:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#330060;border:2px solid #0d0010;display:flex;align-items:center;justify-content:center;font-size:7px;">🔇</div>
+        </div>
+        <span style="font-size:9px;color:#9b7abd;">Adil</span>
+      </div>
+      <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="position:relative;width:54px;height:54px;border-radius:14px;background:#160020;border:1.5px solid #330060;display:flex;align-items:center;justify-content:center;">
+          <div class="avatar" style="width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,#e879f9,#a855f7);font-size:17px;">M</div>
+          <div style="position:absolute;bottom:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#10b981;border:2px solid #0d0010;"></div>
+        </div>
+        <span style="font-size:9px;color:#fff;font-weight:600;">Mishal</span>
+      </div>
+      <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="position:relative;width:54px;height:54px;border-radius:14px;background:#160020;border:1.5px solid #330060;display:flex;align-items:center;justify-content:center;">
+          <div class="avatar" style="width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,#4c1d95,#7c3aed);font-size:17px;">R</div>
+          <div style="position:absolute;bottom:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#10b981;border:2px solid #0d0010;"></div>
+        </div>
+        <span style="font-size:9px;color:#fff;font-weight:600;">Raza</span>
+      </div>
+      <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="width:54px;height:54px;border-radius:14px;background:#220040;border:1.5px dashed #440080;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+          <span style="font-size:12px;font-weight:700;color:#e879f9;">+243</span>
+        </div>
+        <span style="font-size:9px;color:#9b7abd;">more</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- REACTIONS -->
+  <div style="flex-shrink:0;display:flex;gap:6px;justify-content:center;padding:6px 0;">
+    <span style="font-size:22px;cursor:pointer;">👏</span>
+    <span style="font-size:22px;cursor:pointer;">🔥</span>
+    <span style="font-size:22px;cursor:pointer;">❤️</span>
+    <span style="font-size:22px;cursor:pointer;">😂</span>
+    <span style="font-size:22px;cursor:pointer;">😮</span>
+    <span style="font-size:22px;cursor:pointer;">🎉</span>
+  </div>
+
+  <!-- LOCKED CALL CONTROLS -->
+  <div style="flex-shrink:0;padding:8px 14px 26px;background:rgba(13,0,16,0.95);border-top:1px solid #330060;display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div style="width:46px;height:46px;border-radius:50%;background:#220040;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;">🎤</div>
+      <span class="sub" style="font-size:9px;">Mute</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div style="width:46px;height:46px;border-radius:50%;background:#220040;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;">📹</div>
+      <span class="sub" style="font-size:9px;">Video</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div style="width:46px;height:46px;border-radius:50%;background:#220040;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;">🖥️</div>
+      <span class="sub" style="font-size:9px;">Share</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div style="width:46px;height:46px;border-radius:50%;background:#220040;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;">✋</div>
+      <span class="sub" style="font-size:9px;">Raise</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div style="width:58px;height:46px;border-radius:23px;background:#ef4444;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;box-shadow:0 4px 18px rgba(239,68,68,.4);">📞</div>
+      <span style="font-size:9px;color:#ef4444;font-weight:600;">Leave</span>
+    </div>
+  </div>
+</div>
+<script>
+  document.querySelectorAll('.tab').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab').forEach(function (b) { b.classList.remove('on'); });
+      document.querySelectorAll('.phone').forEach(function (p) { p.classList.remove('on'); });
+      btn.classList.add('on');
+      document.getElementById(btn.dataset.t).classList.add('on');
+    });
+  });
+
+  function togglePopup() {
+    var popup = document.getElementById('homePopup');
+    popup.style.display = popup.style.display === 'flex' ? 'none' : 'flex';
+  }
+
+  function switchTab(tab) {
+    var joinTab = document.getElementById('joinTab');
+    var createTab = document.getElementById('createTab');
+    var joinForm = document.getElementById('joinForm');
+    var createForm = document.getElementById('createForm');
+    if (tab === 'join') {
+      joinTab.style.background = 'linear-gradient(135deg,#e879f9,#a855f7)';
+      joinTab.style.color = '#fff';
+      createTab.style.background = 'transparent';
+      createTab.style.color = '#9b7abd';
+      joinForm.style.display = 'flex';
+      createForm.style.display = 'none';
+    } else {
+      createTab.style.background = 'linear-gradient(135deg,#e879f9,#a855f7)';
+      createTab.style.color = '#fff';
+      joinTab.style.background = 'transparent';
+      joinTab.style.color = '#9b7abd';
+      createForm.style.display = 'flex';
+      joinForm.style.display = 'none';
+    }
+  }
+
+  // close popup when tapping backdrop
+  document.addEventListener('click', function(e) {
+    var popup = document.getElementById('homePopup');
+    if (popup && e.target === popup) popup.style.display = 'none';
+  });
+</script>
+</body>
+</html>

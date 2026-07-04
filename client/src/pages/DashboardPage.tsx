@@ -6,8 +6,7 @@ import { useAuthStore } from '../store/authStore';
 import { Users, Plus, LogIn } from 'lucide-react';
 import { format, isToday } from 'date-fns';
 import { Group, DmThread } from '../types';
-import CreateGroupModal from '../components/groups/CreateGroupModal';
-import JoinGroupModal from '../components/groups/JoinGroupModal';
+import GroupSheet from '../components/groups/GroupSheet';
 import StatusBar from '../components/status/StatusBar';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
@@ -83,9 +82,10 @@ export default function DashboardPage() {
   const { groups, loading } = useGroupStore();
   const { threads, fetchThreads } = useDmStore();
   const navigate = useNavigate();
-  const [showCreate, setShowCreate] = useState(false);
-  const [showJoin, setShowJoin] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [sheetTab, setSheetTab] = useState<'join' | 'create'>('join');
   const [filter, setFilter] = useState<Filter>('all');
+  const openSheet = (t: 'join' | 'create') => { setSheetTab(t); setSheetOpen(true); };
 
   useEffect(() => { fetchThreads(); }, []);
 
@@ -108,11 +108,11 @@ export default function DashboardPage() {
           <p className="text-[10px] font-semibold tracking-[0.25em] text-brand/70 mt-1">YOUR PEOPLE</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setShowJoin(true)} title="Join with code"
+          <button onClick={() => openSheet('join')} title="Join with code"
             className="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/10 text-slate-300 hover:text-white flex items-center justify-center transition-colors">
             <LogIn size={16} />
           </button>
-          <button onClick={() => setShowCreate(true)} title="New group"
+          <button onClick={() => openSheet('create')} title="New group"
             className="w-9 h-9 rounded-xl flex items-center justify-center text-white"
             style={{ background: 'linear-gradient(135deg, #a855f7, #d946ef)', boxShadow: '0 4px 14px rgba(168,85,247,0.5)' }}>
             <Plus size={18} />
@@ -159,7 +159,7 @@ export default function DashboardPage() {
           <Users size={36} className="text-slate-600 mx-auto mb-3" />
           <p className="text-slate-200 font-medium mb-1">No chats yet</p>
           <p className="text-slate-400 text-sm mb-4">Create a group or join one with a code.</p>
-          <button onClick={() => setShowCreate(true)} className="btn-primary mx-auto">
+          <button onClick={() => openSheet('create')} className="btn-primary mx-auto">
             <Plus size={15} />Create group
           </button>
         </div>
@@ -175,8 +175,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <CreateGroupModal open={showCreate} onClose={() => setShowCreate(false)} />
-      <JoinGroupModal open={showJoin} onClose={() => setShowJoin(false)} />
+      <GroupSheet open={sheetOpen} initialTab={sheetTab} onClose={() => setSheetOpen(false)} />
     </div>
   );
 }

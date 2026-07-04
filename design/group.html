@@ -1,0 +1,125 @@
+<!-- @dsCard group="Gathering — Screens" name="Group chat" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gathering — Group chat</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap');
+
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center; gap: 18px;
+    background: #08000c; padding: 28px 24px; font-family: 'Space Grotesk', system-ui, sans-serif;
+  }
+  .tabs { display: flex; gap: 6px; background: rgba(34,0,64,0.6); padding: 5px; border-radius: 22px; border: 1px solid rgba(232,121,249,0.18); }
+  .tab { border: none; cursor: pointer; padding: 7px 16px; border-radius: 18px; font-size: 13px; font-weight: 600; font-family: inherit; color: #9b7abd; background: transparent; transition: all .15s; }
+  .tab.on { background: linear-gradient(135deg, #e879f9, #a855f7); color: #fff; }
+  .phone {
+    width: 360px; height: 720px; border-radius: 36px; overflow: hidden; position: relative;
+    background: #0d0010;
+    background-image:
+      radial-gradient(28rem 16rem at 50% -8%, rgba(232,121,249,0.18), transparent 62%),
+      radial-gradient(20rem 20rem at 108% 6%, rgba(168,85,247,0.13), transparent 60%);
+    border: 1px solid #330060; box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+    color: #fff; display: none; flex-direction: column;
+  }
+  .phone.on { display: flex; }
+  .avatar { border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .grad { background: linear-gradient(135deg, #e879f9, #a855f7); }
+  .sub { color: #9b7abd; }
+  .cbtn { width: 36px; height: 36px; border-radius: 50%; background: rgba(232,121,249,0.12); color: #e879f9; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .hicon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #9b7abd; font-size: 15px; }
+  .head { height: 56px; border-bottom: 1px solid #330060; background: rgba(22,0,32,0.86); display: flex; align-items: center; padding: 0 8px; }
+  .composer { padding: 12px 14px 28px; background: rgba(22,0,32,0.86); border-top: 1px solid #330060; display: flex; align-items: center; gap: 10px; }
+  .field { flex: 1; background: #220040; border-radius: 10px; padding: 11px 16px; font-size: 13px; color: #9b7abd; }
+  .send { width: 40px; height: 40px; border-radius: 12px; font-size: 16px; }
+  .recv { background: rgba(232,121,249,0.08); border: 1px solid rgba(232,121,249,0.20); border-radius: 3px 18px 18px 18px; padding: 10px 14px; font-size: 14px; }
+  .mine { border-radius: 18px 3px 18px 18px; padding: 10px 14px; font-size: 14px; box-shadow: 0 4px 20px rgba(232,121,249,0.4); }
+  .stamp { color: #9b7abd; font-size: 10px; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="phone on" id="group">
+  <!-- LOCKED HEADER -->
+  <div style="flex-shrink:0;background:rgba(13,0,16,0.95);border-bottom:1px solid #330060;height:56px;display:flex;align-items:center;gap:6px;padding:0 10px;">
+    <div class="sub" style="width:26px;font-size:18px;text-align:center;">‹</div>
+    <div class="avatar grad" style="width:34px;height:34px;">F</div>
+    <div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:700;">Family 🏠</div><div style="font-size:11px;color:#e879f9;">5 members ⌄</div></div>
+    <div class="hicon">⌕</div><div class="cbtn">▷</div><div class="cbtn">☏</div><div class="hicon">⋮</div>
+  </div>
+  <!-- SCROLLABLE MESSAGES -->
+  <div style="flex:1;overflow-y:auto;min-height:0;padding:12px 16px;display:flex;flex-direction:column;gap:11px;">
+    <div style="align-self:flex-start;max-width:80%;"><div style="font-size:11px;color:#e879f9;font-weight:700;margin-bottom:3px;">Sana</div><div class="recv" style="font-size:13px;">Movie night at ours on Friday? 🍿</div><div class="stamp">12:38 PM</div></div>
+    <div style="align-self:flex-end;max-width:80%;">
+      <div class="grad" style="border-radius:18px 3px 18px 18px;overflow:hidden;box-shadow:0 4px 20px rgba(232,121,249,0.4);">
+        <div style="background:rgba(255,255,255,0.12);border-left:3px solid rgba(255,255,255,0.5);margin:8px 8px 0;border-radius:4px;padding:5px 10px;"><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.85);">Sana</div><div style="font-size:11px;color:rgba(255,255,255,0.65);">Movie night at ours on Friday? 🍿</div></div>
+        <div style="padding:6px 14px 10px;font-size:13px;">I'm in! Bringing snacks 😄</div>
+      </div>
+      <div class="stamp" style="text-align:right;">12:40 PM ✓✓</div>
+    </div>
+    <div style="align-self:flex-start;max-width:82%;"><div style="font-size:11px;color:#e879f9;font-weight:700;margin-bottom:3px;">Adil</div>
+      <div style="background:rgba(232,121,249,0.08);border:1px solid rgba(232,121,249,0.20);border-radius:3px 18px 18px 18px;padding:10px 12px;display:flex;align-items:center;gap:10px;min-width:200px;">
+        <div class="avatar grad" style="width:34px;height:34px;border-radius:50%;font-size:12px;">▶</div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:5px;">
+          <div style="height:20px;display:flex;align-items:center;gap:2px;"><span style="width:2px;height:6px;background:#e879f9;border-radius:2px;opacity:.5;"></span><span style="width:2px;height:12px;background:#e879f9;border-radius:2px;"></span><span style="width:2px;height:18px;background:#e879f9;border-radius:2px;"></span><span style="width:2px;height:9px;background:#e879f9;border-radius:2px;opacity:.6;"></span><span style="width:2px;height:20px;background:#e879f9;border-radius:2px;"></span><span style="width:2px;height:14px;background:#e879f9;border-radius:2px;opacity:.8;"></span><span style="width:2px;height:8px;background:#e879f9;border-radius:2px;opacity:.5;"></span><span style="width:2px;height:19px;background:#e879f9;border-radius:2px;"></span><span style="width:2px;height:11px;background:#e879f9;border-radius:2px;opacity:.7;"></span><span style="width:2px;height:16px;background:#e879f9;border-radius:2px;"></span></div>
+          <div style="display:flex;justify-content:space-between;"><span class="sub" style="font-size:10px;">0:12</span><span style="font-size:10px;font-weight:700;color:#e879f9;background:rgba(232,121,249,0.15);border:1px solid rgba(232,121,249,0.3);border-radius:6px;padding:2px 7px;">1×</span></div>
+        </div>
+      </div>
+      <div class="stamp">12:41 PM</div>
+    </div>
+    <div style="align-self:flex-start;display:flex;align-items:center;gap:6px;"><span style="font-size:11px;color:#e879f9;font-weight:600;">Sana is typing</span><span style="display:flex;gap:3px;"><span style="width:4px;height:4px;border-radius:50%;background:#e879f9;"></span><span style="width:4px;height:4px;border-radius:50%;background:#e879f9;opacity:.6;"></span><span style="width:4px;height:4px;border-radius:50%;background:#e879f9;opacity:.35;"></span></span></div>
+  </div>
+  <!-- LOCKED COMPOSER -->
+  <div style="flex-shrink:0;padding:12px 14px 24px;background:rgba(13,0,16,0.95);border-top:1px solid #330060;display:flex;align-items:center;gap:10px;">
+    <div class="field">Message…</div>
+    <div class="avatar grad send">➤</div>
+  </div>
+</div>
+<script>
+  document.querySelectorAll('.tab').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab').forEach(function (b) { b.classList.remove('on'); });
+      document.querySelectorAll('.phone').forEach(function (p) { p.classList.remove('on'); });
+      btn.classList.add('on');
+      document.getElementById(btn.dataset.t).classList.add('on');
+    });
+  });
+
+  function togglePopup() {
+    var popup = document.getElementById('homePopup');
+    popup.style.display = popup.style.display === 'flex' ? 'none' : 'flex';
+  }
+
+  function switchTab(tab) {
+    var joinTab = document.getElementById('joinTab');
+    var createTab = document.getElementById('createTab');
+    var joinForm = document.getElementById('joinForm');
+    var createForm = document.getElementById('createForm');
+    if (tab === 'join') {
+      joinTab.style.background = 'linear-gradient(135deg,#e879f9,#a855f7)';
+      joinTab.style.color = '#fff';
+      createTab.style.background = 'transparent';
+      createTab.style.color = '#9b7abd';
+      joinForm.style.display = 'flex';
+      createForm.style.display = 'none';
+    } else {
+      createTab.style.background = 'linear-gradient(135deg,#e879f9,#a855f7)';
+      createTab.style.color = '#fff';
+      joinTab.style.background = 'transparent';
+      joinTab.style.color = '#9b7abd';
+      createForm.style.display = 'flex';
+      joinForm.style.display = 'none';
+    }
+  }
+
+  // close popup when tapping backdrop
+  document.addEventListener('click', function(e) {
+    var popup = document.getElementById('homePopup');
+    if (popup && e.target === popup) popup.style.display = 'none';
+  });
+</script>
+</body>
+</html>

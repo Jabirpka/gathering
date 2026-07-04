@@ -11,22 +11,37 @@ router.get('/me', (req: Request, res: Response) => {
   res.json(req.user);
 });
 
-// Update my profile (name, nickname, avatar)
+// Update my profile (name, nickname, avatar, and v2 profile fields)
 router.patch('/me', async (req: Request, res: Response) => {
-  const { name, nickname, avatar } = req.body;
+  const { name, nickname, avatar, username, dateOfBirth, bio, interests, favoriteSong, favoriteMovie, city } = req.body;
   try {
     const data: any = {};
     if (name !== undefined) data.name = name;
     if (nickname !== undefined) data.nickname = nickname;
     if (avatar !== undefined) data.avatar = avatar;
+    if (username !== undefined) data.username = (typeof username === 'string' && username.trim()) ? username.trim() : null;
+    if (dateOfBirth !== undefined) data.dateOfBirth = dateOfBirth || null;
+    if (bio !== undefined) data.bio = bio || null;
+    if (interests !== undefined) data.interests = Array.isArray(interests) ? interests.slice(0, 5) : [];
+    if (favoriteSong !== undefined) data.favoriteSong = favoriteSong || null;
+    if (favoriteMovie !== undefined) data.favoriteMovie = favoriteMovie || null;
+    if (city !== undefined) data.city = city || null;
 
     const user = await prisma.user.update({
       where: { id: req.user!.id },
       data,
-      select: { id: true, name: true, nickname: true, email: true, avatar: true },
+      select: {
+        id: true, name: true, nickname: true, email: true, avatar: true,
+        username: true, dateOfBirth: true, bio: true, interests: true,
+        favoriteSong: true, favoriteMovie: true, city: true,
+      },
     });
     res.json(user);
-  } catch {
+  } catch (err: any) {
+    // Unique-constraint violation on username
+    if (err?.code === 'P2002') {
+      return res.status(409).json({ error: 'That username is taken' });
+    }
     res.status(500).json({ error: 'Failed to update profile' });
   }
 });

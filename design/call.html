@@ -1,0 +1,210 @@
+<!-- @dsCard group="Gathering — Screens" name="Call room" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gathering — Call room</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap');
+
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center; gap: 18px;
+    background: #08000c; padding: 28px 24px; font-family: 'Space Grotesk', system-ui, sans-serif;
+  }
+  .tabs { display: flex; gap: 6px; background: rgba(34,0,64,0.6); padding: 5px; border-radius: 22px; border: 1px solid rgba(232,121,249,0.18); }
+  .tab { border: none; cursor: pointer; padding: 7px 16px; border-radius: 18px; font-size: 13px; font-weight: 600; font-family: inherit; color: #9b7abd; background: transparent; transition: all .15s; }
+  .tab.on { background: linear-gradient(135deg, #e879f9, #a855f7); color: #fff; }
+  .phone {
+    width: 360px; height: 720px; border-radius: 36px; overflow: hidden; position: relative;
+    background: #0d0010;
+    background-image:
+      radial-gradient(28rem 16rem at 50% -8%, rgba(232,121,249,0.18), transparent 62%),
+      radial-gradient(20rem 20rem at 108% 6%, rgba(168,85,247,0.13), transparent 60%);
+    border: 1px solid #330060; box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+    color: #fff; display: none; flex-direction: column;
+  }
+  .phone.on { display: flex; }
+  .avatar { border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .grad { background: linear-gradient(135deg, #e879f9, #a855f7); }
+  .sub { color: #9b7abd; }
+  .cbtn { width: 36px; height: 36px; border-radius: 50%; background: rgba(232,121,249,0.12); color: #e879f9; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .hicon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #9b7abd; font-size: 15px; }
+  .head { height: 56px; border-bottom: 1px solid #330060; background: rgba(22,0,32,0.86); display: flex; align-items: center; padding: 0 8px; }
+  .composer { padding: 12px 14px 28px; background: rgba(22,0,32,0.86); border-top: 1px solid #330060; display: flex; align-items: center; gap: 10px; }
+  .field { flex: 1; background: #220040; border-radius: 10px; padding: 11px 16px; font-size: 13px; color: #9b7abd; }
+  .send { width: 40px; height: 40px; border-radius: 12px; font-size: 16px; }
+  .recv { background: rgba(232,121,249,0.08); border: 1px solid rgba(232,121,249,0.20); border-radius: 3px 18px 18px 18px; padding: 10px 14px; font-size: 14px; }
+  .mine { border-radius: 18px 3px 18px 18px; padding: 10px 14px; font-size: 14px; box-shadow: 0 4px 20px rgba(232,121,249,0.4); }
+  .stamp { color: #9b7abd; font-size: 10px; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="phone on" id="call">
+  <!-- LOCKED HEADER -->
+  <div style="flex-shrink:0;background:rgba(13,0,16,0.92);border-bottom:1px solid #330060;padding:10px 14px;display:flex;align-items:center;gap:10px;">
+    <div class="sub" style="font-size:18px;cursor:pointer;">‹</div>
+    <div style="flex:1;">
+      <div style="font-size:15px;font-weight:700;">Family 🏠</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:1px;">
+        <div style="width:6px;height:6px;border-radius:50%;background:#10b981;flex-shrink:0;"></div>
+        <span style="font-size:11px;color:#10b981;font-weight:600;">Live · 247 on call</span>
+        <span class="sub" style="font-size:11px;">/ 500</span>
+      </div>
+    </div>
+    <div style="background:rgba(232,121,249,0.12);border:1px solid rgba(232,121,249,0.3);border-radius:10px;padding:5px 12px;font-size:11px;font-weight:600;color:#e879f9;cursor:pointer;">+ Invite</div>
+    <div style="width:32px;height:32px;background:#220040;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;">💬</div>
+  </div>
+
+  <!-- ACTIVE SPEAKER — fills remaining space -->
+  <div style="flex:1;min-height:0;padding:10px 12px 6px;display:flex;flex-direction:column;gap:8px;">
+    <!-- Big active tile -->
+    <div style="flex:1;min-height:0;position:relative;background:linear-gradient(160deg,#1a0030,#0d0010);border-radius:20px;display:flex;align-items:center;justify-content:center;border:2px solid #e879f9;box-shadow:0 0 0 3px rgba(232,121,249,.18),0 8px 40px rgba(232,121,249,.25);overflow:hidden;">
+      <!-- bg glow -->
+      <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(232,121,249,.18),transparent 70%);pointer-events:none;"></div>
+      <div class="avatar grad" style="width:80px;height:80px;border-radius:50%;font-size:32px;box-shadow:0 4px 28px rgba(232,121,249,.5);position:relative;z-index:1;">J</div>
+      <!-- speaking badge -->
+      <div style="position:absolute;top:12px;left:12px;background:linear-gradient(135deg,#e879f9,#a855f7);padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:5px;">
+        <div style="display:flex;align-items:center;gap:1.5px;">
+          <div style="width:2px;height:8px;background:#fff;border-radius:1px;opacity:.7;"></div>
+          <div style="width:2px;height:14px;background:#fff;border-radius:1px;"></div>
+          <div style="width:2px;height:10px;background:#fff;border-radius:1px;opacity:.8;"></div>
+        </div>
+        Speaking
+      </div>
+      <!-- name + video -->
+      <div style="position:absolute;bottom:12px;left:12px;right:12px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="background:rgba(0,0,0,0.55);padding:4px 12px;border-radius:10px;font-size:12px;font-weight:600;backdrop-filter:blur(6px);">You</div>
+        <div style="display:flex;gap:6px;">
+          <div style="width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:14px;backdrop-filter:blur(6px);">📹</div>
+          <div style="width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:14px;backdrop-filter:blur(6px);">🎤</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OTHERS ROW label + count -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+      <span class="sub" style="font-size:10px;font-weight:700;letter-spacing:1.5px;">ON CALL</span>
+      <span style="font-size:10px;color:#e879f9;font-weight:600;cursor:pointer;">View all 247 →</span>
+    </div>
+
+    <!-- Participant strip -->
+    <div style="flex-shrink:0;display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;">
+      <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="position:relative;width:54px;height:54px;border-radius:14px;background:#160020;border:2px solid #a855f7;display:flex;align-items:center;justify-content:center;">
+          <div class="avatar" style="width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,#a855f7,#7c3aed);font-size:17px;">S</div>
+          <div style="position:absolute;bottom:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#10b981;border:2px solid #0d0010;"></div>
+        </div>
+        <span style="font-size:9px;color:#fff;font-weight:600;">Sana</span>
+      </div>
+      <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="position:relative;width:54px;height:54px;border-radius:14px;background:#160020;border:1.5px solid #330060;display:flex;align-items:center;justify-content:center;">
+          <div class="avatar" style="width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,#7c3aed,#e879f9);font-size:17px;">A</div>
+          <div style="position:absolute;bottom:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#330060;border:2px solid #0d0010;display:flex;align-items:center;justify-content:center;font-size:7px;">🔇</div>
+        </div>
+        <span style="font-size:9px;color:#9b7abd;">Adil</span>
+      </div>
+      <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="position:relative;width:54px;height:54px;border-radius:14px;background:#160020;border:1.5px solid #330060;display:flex;align-items:center;justify-content:center;">
+          <div class="avatar" style="width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,#e879f9,#a855f7);font-size:17px;">M</div>
+          <div style="position:absolute;bottom:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#10b981;border:2px solid #0d0010;"></div>
+        </div>
+        <span style="font-size:9px;color:#fff;font-weight:600;">Mishal</span>
+      </div>
+      <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="position:relative;width:54px;height:54px;border-radius:14px;background:#160020;border:1.5px solid #330060;display:flex;align-items:center;justify-content:center;">
+          <div class="avatar" style="width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,#4c1d95,#7c3aed);font-size:17px;">R</div>
+          <div style="position:absolute;bottom:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#10b981;border:2px solid #0d0010;"></div>
+        </div>
+        <span style="font-size:9px;color:#fff;font-weight:600;">Raza</span>
+      </div>
+      <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="width:54px;height:54px;border-radius:14px;background:#220040;border:1.5px dashed #440080;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+          <span style="font-size:12px;font-weight:700;color:#e879f9;">+243</span>
+        </div>
+        <span style="font-size:9px;color:#9b7abd;">more</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- REACTIONS -->
+  <div style="flex-shrink:0;display:flex;gap:6px;justify-content:center;padding:6px 0;">
+    <span style="font-size:22px;cursor:pointer;">👏</span>
+    <span style="font-size:22px;cursor:pointer;">🔥</span>
+    <span style="font-size:22px;cursor:pointer;">❤️</span>
+    <span style="font-size:22px;cursor:pointer;">😂</span>
+    <span style="font-size:22px;cursor:pointer;">😮</span>
+    <span style="font-size:22px;cursor:pointer;">🎉</span>
+  </div>
+
+  <!-- LOCKED CALL CONTROLS -->
+  <div style="flex-shrink:0;padding:8px 14px 26px;background:rgba(13,0,16,0.95);border-top:1px solid #330060;display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div style="width:46px;height:46px;border-radius:50%;background:#220040;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;">🎤</div>
+      <span class="sub" style="font-size:9px;">Mute</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div style="width:46px;height:46px;border-radius:50%;background:#220040;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;">📹</div>
+      <span class="sub" style="font-size:9px;">Video</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div style="width:46px;height:46px;border-radius:50%;background:#220040;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;">🖥️</div>
+      <span class="sub" style="font-size:9px;">Share</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div style="width:46px;height:46px;border-radius:50%;background:#220040;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;">✋</div>
+      <span class="sub" style="font-size:9px;">Raise</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div style="width:58px;height:46px;border-radius:23px;background:#ef4444;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;box-shadow:0 4px 18px rgba(239,68,68,.4);">📞</div>
+      <span style="font-size:9px;color:#ef4444;font-weight:600;">Leave</span>
+    </div>
+  </div>
+</div>
+<script>
+  document.querySelectorAll('.tab').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab').forEach(function (b) { b.classList.remove('on'); });
+      document.querySelectorAll('.phone').forEach(function (p) { p.classList.remove('on'); });
+      btn.classList.add('on');
+      document.getElementById(btn.dataset.t).classList.add('on');
+    });
+  });
+
+  function togglePopup() {
+    var popup = document.getElementById('homePopup');
+    popup.style.display = popup.style.display === 'flex' ? 'none' : 'flex';
+  }
+
+  function switchTab(tab) {
+    var joinTab = document.getElementById('joinTab');
+    var createTab = document.getElementById('createTab');
+    var joinForm = document.getElementById('joinForm');
+    var createForm = document.getElementById('createForm');
+    if (tab === 'join') {
+      joinTab.style.background = 'linear-gradient(135deg,#e879f9,#a855f7)';
+      joinTab.style.color = '#fff';
+      createTab.style.background = 'transparent';
+      createTab.style.color = '#9b7abd';
+      joinForm.style.display = 'flex';
+      createForm.style.display = 'none';
+    } else {
+      createTab.style.background = 'linear-gradient(135deg,#e879f9,#a855f7)';
+      createTab.style.color = '#fff';
+      joinTab.style.background = 'transparent';
+      joinTab.style.color = '#9b7abd';
+      createForm.style.display = 'flex';
+      joinForm.style.display = 'none';
+    }
+  }
+
+  // close popup when tapping backdrop
+  document.addEventListener('click', function(e) {
+    var popup = document.getElementById('homePopup');
+    if (popup && e.target === popup) popup.style.display = 'none';
+  });
+</script>
+</body>
+</html>

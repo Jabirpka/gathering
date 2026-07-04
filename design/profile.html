@@ -1,0 +1,204 @@
+<!-- @dsCard group="Gathering — Screens" name="Profile setup" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gathering — Profile setup</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap');
+
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center; gap: 18px;
+    background: #08000c; padding: 28px 24px; font-family: 'Space Grotesk', system-ui, sans-serif;
+  }
+  .tabs { display: flex; gap: 6px; background: rgba(34,0,64,0.6); padding: 5px; border-radius: 22px; border: 1px solid rgba(232,121,249,0.18); }
+  .tab { border: none; cursor: pointer; padding: 7px 16px; border-radius: 18px; font-size: 13px; font-weight: 600; font-family: inherit; color: #9b7abd; background: transparent; transition: all .15s; }
+  .tab.on { background: linear-gradient(135deg, #e879f9, #a855f7); color: #fff; }
+  .phone {
+    width: 360px; height: 720px; border-radius: 36px; overflow: hidden; position: relative;
+    background: #0d0010;
+    background-image:
+      radial-gradient(28rem 16rem at 50% -8%, rgba(232,121,249,0.18), transparent 62%),
+      radial-gradient(20rem 20rem at 108% 6%, rgba(168,85,247,0.13), transparent 60%);
+    border: 1px solid #330060; box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+    color: #fff; display: none; flex-direction: column;
+  }
+  .phone.on { display: flex; }
+  .avatar { border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .grad { background: linear-gradient(135deg, #e879f9, #a855f7); }
+  .sub { color: #9b7abd; }
+  .cbtn { width: 36px; height: 36px; border-radius: 50%; background: rgba(232,121,249,0.12); color: #e879f9; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .hicon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #9b7abd; font-size: 15px; }
+  .head { height: 56px; border-bottom: 1px solid #330060; background: rgba(22,0,32,0.86); display: flex; align-items: center; padding: 0 8px; }
+  .composer { padding: 12px 14px 28px; background: rgba(22,0,32,0.86); border-top: 1px solid #330060; display: flex; align-items: center; gap: 10px; }
+  .field { flex: 1; background: #220040; border-radius: 10px; padding: 11px 16px; font-size: 13px; color: #9b7abd; }
+  .send { width: 40px; height: 40px; border-radius: 12px; font-size: 16px; }
+  .recv { background: rgba(232,121,249,0.08); border: 1px solid rgba(232,121,249,0.20); border-radius: 3px 18px 18px 18px; padding: 10px 14px; font-size: 14px; }
+  .mine { border-radius: 18px 3px 18px 18px; padding: 10px 14px; font-size: 14px; box-shadow: 0 4px 20px rgba(232,121,249,0.4); }
+  .stamp { color: #9b7abd; font-size: 10px; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="phone on" id="profile" style="overflow-y:auto;">
+  <!-- Header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px 10px;flex-shrink:0;">
+    <div>
+      <div style="font-size:20px;font-weight:700;letter-spacing:-.5px;">Set up profile</div>
+      <div class="sub" style="font-size:12px;margin-top:2px;">Step 2 of 2</div>
+    </div>
+    <div style="display:flex;gap:4px;">
+      <div style="width:28px;height:4px;border-radius:2px;background:#330060;"></div>
+      <div style="width:28px;height:4px;border-radius:2px;background:linear-gradient(90deg,#e879f9,#a855f7);"></div>
+    </div>
+  </div>
+
+  <!-- Avatar picker -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 0 18px;">
+    <div style="position:relative;">
+      <div class="avatar grad" style="width:80px;height:80px;border-radius:24px;font-size:32px;box-shadow:0 6px 28px rgba(232,121,249,.45);">J</div>
+      <div style="position:absolute;bottom:-6px;right:-6px;width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#e879f9,#a855f7);display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid #0d0010;cursor:pointer;">✎</div>
+    </div>
+    <div style="font-size:11px;color:#e879f9;font-weight:600;cursor:pointer;">Change photo</div>
+  </div>
+
+  <div style="padding:0 20px;display:flex;flex-direction:column;gap:14px;">
+
+    <!-- Basic info section -->
+    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#9b7abd;">BASIC INFO</div>
+
+    <!-- Name -->
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <label style="font-size:12px;font-weight:600;color:#9b7abd;">Full name</label>
+      <div style="background:#220040;border:1px solid #440080;border-radius:12px;padding:12px 14px;font-size:14px;color:#fff;">Jabir Ahmed</div>
+    </div>
+
+    <!-- Username -->
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <label style="font-size:12px;font-weight:600;color:#9b7abd;">Username</label>
+      <div style="background:#220040;border:1px solid #440080;border-radius:12px;padding:12px 14px;font-size:14px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="color:#9b7abd;">@</span><input type="text" value="jabir.ahmed" style="flex:1;background:transparent;border:none;outline:none;font-size:14px;color:#fff;font-family:'Space Grotesk',sans-serif;margin-left:4px;">
+        <span style="font-size:11px;color:#10b981;font-weight:600;">✓ free</span>
+      </div>
+    </div>
+
+    <!-- Phone auto-fetched -->
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <label style="font-size:12px;font-weight:600;color:#9b7abd;">Phone <span style="font-size:10px;background:rgba(232,121,249,.15);color:#e879f9;padding:1px 6px;border-radius:4px;margin-left:4px;">auto-filled</span></label>
+      <div style="background:#160026;border:1px solid #330060;border-radius:12px;padding:12px 14px;font-size:14px;color:#9b7abd;display:flex;align-items:center;gap:8px;">
+        <span>🔒</span><span>+92 300 1234567</span>
+      </div>
+    </div>
+
+    <!-- Email -->
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <label style="font-size:12px;font-weight:600;color:#9b7abd;">Email <span style="font-size:10px;background:rgba(232,121,249,.15);color:#e879f9;padding:1px 6px;border-radius:4px;margin-left:4px;">auto-filled</span></label>
+      <div style="background:#160026;border:1px solid #330060;border-radius:12px;padding:12px 14px;font-size:14px;color:#9b7abd;display:flex;align-items:center;gap:8px;">
+        <span>🔒</span><span>jabir@gmail.com</span>
+      </div>
+    </div>
+
+    <!-- Date of birth -->
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <label style="font-size:12px;font-weight:600;color:#9b7abd;">Date of birth</label>
+      <div style="display:flex;gap:8px;">
+        <div style="flex:1;background:#220040;border:1px solid #440080;border-radius:12px;padding:12px 10px;font-size:14px;color:#fff;text-align:center;">15</div>
+        <div style="flex:1;background:#220040;border:1px solid #440080;border-radius:12px;padding:12px 10px;font-size:14px;color:#fff;text-align:center;">Mar</div>
+        <div style="flex:1.4;background:#220040;border:1px solid #440080;border-radius:12px;padding:12px 10px;font-size:14px;color:#fff;text-align:center;">2000</div>
+      </div>
+    </div>
+
+    <!-- Personal details section -->
+    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#9b7abd;margin-top:4px;">PERSONAL DETAILS</div>
+
+    <!-- Bio -->
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <label style="font-size:12px;font-weight:600;color:#9b7abd;">Bio</label>
+      <div style="background:#220040;border:1px solid #440080;border-radius:12px;padding:12px 14px;font-size:14px;color:#9b7abd;min-height:60px;">Just hanging out ✨</div>
+    </div>
+
+    <!-- Interests -->
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <label style="font-size:12px;font-weight:600;color:#9b7abd;">Interests <span class="sub" style="font-weight:400;font-size:11px;">(pick up to 5)</span></label>
+      <div style="display:flex;flex-wrap:wrap;gap:7px;">
+        <div style="padding:6px 14px;border-radius:20px;background:linear-gradient(135deg,#e879f9,#a855f7);font-size:12px;font-weight:600;cursor:pointer;">🎮 Gaming</div>
+        <div style="padding:6px 14px;border-radius:20px;background:linear-gradient(135deg,#e879f9,#a855f7);font-size:12px;font-weight:600;cursor:pointer;">🎵 Music</div>
+        <div style="padding:6px 14px;border-radius:20px;background:#220040;border:1px solid #440080;font-size:12px;color:#9b7abd;cursor:pointer;">📸 Photography</div>
+        <div style="padding:6px 14px;border-radius:20px;background:linear-gradient(135deg,#e879f9,#a855f7);font-size:12px;font-weight:600;cursor:pointer;">✈️ Travel</div>
+        <div style="padding:6px 14px;border-radius:20px;background:#220040;border:1px solid #440080;font-size:12px;color:#9b7abd;cursor:pointer;">🍕 Food</div>
+        <div style="padding:6px 14px;border-radius:20px;background:#220040;border:1px solid #440080;font-size:12px;color:#9b7abd;cursor:pointer;">📚 Books</div>
+        <div style="padding:6px 14px;border-radius:20px;background:#220040;border:1px solid #440080;font-size:12px;color:#9b7abd;cursor:pointer;">🎬 Movies</div>
+        <div style="padding:6px 14px;border-radius:20px;background:#220040;border:1px solid #440080;font-size:12px;color:#9b7abd;cursor:pointer;">⚽ Sports</div>
+      </div>
+    </div>
+
+    <!-- Favorites -->
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <label style="font-size:12px;font-weight:600;color:#9b7abd;">Favorite things</label>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:#220040;border:1px solid #440080;border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:16px;">🎵</span>
+          <div style="flex:1;"><div style="font-size:10px;color:#9b7abd;margin-bottom:2px;">Fav song</div><div style="font-size:13px;color:#fff;">Blinding Lights</div></div>
+        </div>
+        <div style="background:#220040;border:1px solid #440080;border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:16px;">🎬</span>
+          <div style="flex:1;"><div style="font-size:10px;color:#9b7abd;margin-bottom:2px;">Fav movie</div><div style="font-size:13px;color:#fff;">Interstellar</div></div>
+        </div>
+        <div style="background:#220040;border:1px solid #440080;border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:16px;">📍</span>
+          <div style="flex:1;"><div style="font-size:10px;color:#9b7abd;margin-bottom:2px;">City</div><div style="font-size:13px;color:#fff;">Karachi, Pakistan</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save button -->
+    <button style="width:100%;padding:14px;background:linear-gradient(135deg,#e879f9,#a855f7);border:none;border-radius:14px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 6px 24px rgba(232,121,249,.45);margin:8px 0 28px;">Let's go 🚀</button>
+  </div>
+</div>
+<script>
+  document.querySelectorAll('.tab').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab').forEach(function (b) { b.classList.remove('on'); });
+      document.querySelectorAll('.phone').forEach(function (p) { p.classList.remove('on'); });
+      btn.classList.add('on');
+      document.getElementById(btn.dataset.t).classList.add('on');
+    });
+  });
+
+  function togglePopup() {
+    var popup = document.getElementById('homePopup');
+    popup.style.display = popup.style.display === 'flex' ? 'none' : 'flex';
+  }
+
+  function switchTab(tab) {
+    var joinTab = document.getElementById('joinTab');
+    var createTab = document.getElementById('createTab');
+    var joinForm = document.getElementById('joinForm');
+    var createForm = document.getElementById('createForm');
+    if (tab === 'join') {
+      joinTab.style.background = 'linear-gradient(135deg,#e879f9,#a855f7)';
+      joinTab.style.color = '#fff';
+      createTab.style.background = 'transparent';
+      createTab.style.color = '#9b7abd';
+      joinForm.style.display = 'flex';
+      createForm.style.display = 'none';
+    } else {
+      createTab.style.background = 'linear-gradient(135deg,#e879f9,#a855f7)';
+      createTab.style.color = '#fff';
+      joinTab.style.background = 'transparent';
+      joinTab.style.color = '#9b7abd';
+      createForm.style.display = 'flex';
+      joinForm.style.display = 'none';
+    }
+  }
+
+  // close popup when tapping backdrop
+  document.addEventListener('click', function(e) {
+    var popup = document.getElementById('homePopup');
+    if (popup && e.target === popup) popup.style.display = 'none';
+  });
+</script>
+</body>
+</html>
