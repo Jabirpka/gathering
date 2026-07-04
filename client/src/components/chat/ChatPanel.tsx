@@ -15,31 +15,49 @@ interface Props {
   /** Show the left divider — on by default for the in-call side panel; turn off
    *  when the panel stands alone (e.g. the group Chat tab). */
   bordered?: boolean;
+  /** Hide the internal "Chat" header — used when a parent (group screen) already
+   *  provides the header and owns the search toggle. */
+  hideHeader?: boolean;
+  /** Controlled search state, so a parent header can own the search toggle. When
+   *  omitted, ChatPanel falls back to its own internal state. */
+  searchOpen?: boolean;
+  onSearchOpenChange?: (open: boolean) => void;
 }
 
 function SenderAvatar({ message }: { message: Message }) {
   return message.user.avatar ? (
-    <img src={message.user.avatar} className="w-6 h-6 rounded-full object-cover shrink-0 mb-0.5" alt={message.user.name} />
+    <img src={message.user.avatar} className="w-6 h-6 rounded-lg object-cover shrink-0 mb-0.5" alt={message.user.name} />
   ) : (
-    <div className="w-6 h-6 rounded-full bg-brand-dim flex items-center justify-center text-[10px] font-bold text-brand shrink-0 mb-0.5">
+    <div className="w-6 h-6 rounded-lg bg-brand-dim flex items-center justify-center text-[10px] font-bold text-brand shrink-0 mb-0.5">
       {message.user.name[0]}
     </div>
   );
 }
 
-export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
+export default function ChatPanel({ groupId, roomId, bordered = true, hideHeader = false, searchOpen: searchOpenProp, onSearchOpenChange }: Props) {
   const { messages } = useGroupStore();
   const activeGroup = useGroupStore((s) => s.activeGroup);
   const user = useAuthStore((s) => s.user);
   const [input, setInput] = useState('');
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const [typingUsers, setTypingUsers] = useState<Record<string, { name: string; at: number }>>({});
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchOpenInternal, setSearchOpenInternal] = useState(false);
+  // Search can be driven by a parent header (group screen) or fall back to local.
+  const searchOpen = searchOpenProp ?? searchOpenInternal;
+  const setSearchOpen = (open: boolean) => {
+    if (onSearchOpenChange) onSearchOpenChange(open);
+    else setSearchOpenInternal(open);
+  };
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Message[]>([]);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const socket = getSocket();
+
+  // Reset the query whenever search closes, wherever the toggle lives.
+  useEffect(() => {
+    if (!searchOpen) { setSearchQuery(''); setSearchResults([]); }
+  }, [searchOpen]);
 
   // Debounced in-conversation search (group chat only — room chat is ephemeral).
   const runSearch = (q: string) => {
@@ -132,20 +150,22 @@ export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
 
   return (
     <div className={clsx('flex flex-col h-full', bordered ? 'glass-panel border-l border-white/10' : 'bg-transparent')}>
-      {/* Header */}
-      <div className="px-4 py-3 border-b border-white/10 flex items-center gap-2 shrink-0">
-        <MessageSquare size={15} className="text-slate-400" />
-        <span className="text-sm font-medium text-slate-200 flex-1">Chat</span>
-        {!roomId && (
-          <button
-            onClick={() => { setSearchOpen((v) => !v); setSearchQuery(''); setSearchResults([]); }}
-            className={`p-1.5 rounded-lg transition-colors ${searchOpen ? 'bg-brand-dim text-brand' : 'text-slate-500 hover:text-slate-200'}`}
-            title="Search messages"
-          >
-            <Search size={14} />
-          </button>
-        )}
-      </div>
+      {/* Header (hidden when a parent screen provides its own) */}
+      {!hideHeader && (
+        <div className="px-4 py-3 border-b border-white/10 flex items-center gap-2 shrink-0">
+          <MessageSquare size={15} className="text-slate-400" />
+          <span className="text-sm font-medium text-slate-200 flex-1">Chat</span>
+          {!roomId && (
+            <button
+              onClick={() => setSearchOpen(!searchOpen)}
+              className={`p-1.5 rounded-lg transition-colors ${searchOpen ? 'bg-brand-dim text-brand' : 'text-slate-500 hover:text-slate-200'}`}
+              title="Search messages"
+            >
+              <Search size={14} />
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Search */}
       {searchOpen && (

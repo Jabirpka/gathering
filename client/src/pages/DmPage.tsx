@@ -139,9 +139,9 @@ export default function DmPage() {
       <div className="h-14 shrink-0 border-b border-white/10 glass-panel flex items-center px-3 gap-2">
         <Link to="/dashboard" className="btn-ghost p-1.5"><ArrowLeft size={16} /></Link>
         {thread?.partner.avatar ? (
-          <img src={thread.partner.avatar} className="w-9 h-9 rounded-full object-cover" alt={partnerName} />
+          <img src={thread.partner.avatar} className="w-9 h-9 rounded-xl object-cover" alt={partnerName} />
         ) : (
-          <div className="w-9 h-9 rounded-full bg-brand-dim flex items-center justify-center text-sm font-semibold text-brand">
+          <div className="w-9 h-9 rounded-xl bg-brand-dim flex items-center justify-center text-sm font-semibold text-brand">
             {partnerName[0]}
           </div>
         )}

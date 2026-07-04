@@ -4,8 +4,8 @@ import { useGroupStore } from '../store/groupStore';
 import { useDmStore } from '../store/dmStore';
 import { useAuthStore } from '../store/authStore';
 import { getSocket } from '../hooks/useSocket';
-import { Users, Video, Phone, Copy, Check, Settings, UserCheck, Zap, Share2, Camera, Loader2, Crown, Trash2, MessageSquare, LogOut } from 'lucide-react';
-import { GroupMember, Message } from '../types';
+import { ArrowLeft, Video, Phone, MoreVertical, Search, ChevronDown, ChevronUp, Copy, Check, UserCheck, Zap, Share2, UserPlus, Camera, Loader2, Crown, Trash2, MessageSquare, LogOut } from 'lucide-react';
+import { GroupMember } from '../types';
 import MemberApproval from '../components/groups/MemberApproval';
 import ChatPanel from '../components/chat/ChatPanel';
 import TransferOwnershipModal from '../components/groups/TransferOwnershipModal';
@@ -48,9 +48,9 @@ function MemberRow({ member, currentUserId, groupId }: { member: GroupMember; cu
   return (
     <div className="flex items-center gap-3 py-2.5">
       {member.user.avatar ? (
-        <img src={member.user.avatar} className="w-9 h-9 rounded-full object-cover shrink-0" alt={member.user.name} />
+        <img src={member.user.avatar} className="w-9 h-9 rounded-xl object-cover shrink-0" alt={member.user.name} />
       ) : (
-        <div className="w-9 h-9 rounded-full bg-brand-dim flex items-center justify-center text-sm font-semibold text-brand shrink-0">
+        <div className="w-9 h-9 rounded-xl bg-brand-dim flex items-center justify-center text-sm font-semibold text-brand shrink-0">
           {member.user.name[0]}
         </div>
       )}
@@ -81,16 +81,16 @@ export default function GroupPage() {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [showApproval, setShowApproval] = useState(false);
-  // Chat-first (WhatsApp-style): opening a group lands in its conversation.
-  const [tab, setTab] = useState<'chat' | 'members'>('chat');
+  // Chat-first (WhatsApp-style): a group opens straight into its conversation;
+  // the member list slides in from the header title.
+  const [showMembers, setShowMembers] = useState(false);
+  const [chatSearchOpen, setChatSearchOpen] = useState(false);
   const [callStarting, setCallStarting] = useState<'video' | 'audio' | null>(null);
   const [showOwnerMenu, setShowOwnerMenu] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [unreadChat, setUnreadChat] = useState(0);
   const avatarRef = useRef<HTMLInputElement>(null);
-  const tabRef = useRef(tab);
 
   useEffect(() => {
     if (groupId) {
@@ -101,45 +101,19 @@ export default function GroupPage() {
     }
   }, [groupId]);
 
-  // Keep the latest tab in a ref so the socket handler below reads it without
-  // needing to re-subscribe every time the active tab changes.
-  useEffect(() => { tabRef.current = tab; }, [tab]);
-
-  // Opening the Chat tab marks group chat as read — locally, in the sidebar
-  // badge store, and persisted on the server.
+  // Viewing a group means viewing its chat: mark it read locally, in the sidebar
+  // badge store, and on the server, and hold the active-chat lock (which mutes
+  // unread counting) for as long as the page is open.
   useEffect(() => {
     if (!groupId) return;
-    if (tab === 'chat') {
-      setUnreadChat(0);
-      clearUnread(groupId);
-      setActiveChatGroup(groupId);
-      groupsApi.markRead(groupId).catch(() => {});
-    } else {
-      setActiveChatGroup(null);
-    }
-  }, [tab, groupId]);
-
-  // Persist read state and release the active-chat lock when leaving the page.
-  useEffect(() => {
+    setActiveChatGroup(groupId);
+    clearUnread(groupId);
+    groupsApi.markRead(groupId).catch(() => {});
     return () => {
-      if (tabRef.current === 'chat' && groupId) groupsApi.markRead(groupId).catch(() => {});
+      groupsApi.markRead(groupId).catch(() => {});
       setActiveChatGroup(null);
     };
   }, [groupId]);
-
-  // Count group-level chat messages that arrive while the Chat tab isn't open,
-  // so we can badge it like a messaging app. Room-scoped messages are ignored.
-  useEffect(() => {
-    const socket = getSocket();
-    if (!socket || !groupId) return;
-    const onMessage = (msg: Message) => {
-      if (msg.roomId || msg.groupId !== groupId || msg.userId === user?.id) return;
-      if (tabRef.current === 'chat') return;
-      setUnreadChat((n) => n + 1);
-    };
-    socket.on('chat:message', onMessage);
-    return () => { socket.off('chat:message', onMessage); };
-  }, [groupId, user?.id]);
 
   const handleShare = async () => {
     const text = `Join "${activeGroup?.name}" on Gathering! Code: ${activeGroup?.code}\nhttps://gathering-client-six.vercel.app`;
@@ -207,9 +181,15 @@ export default function GroupPage() {
 
   if (loading || !activeGroup) {
     return (
-      <div className="p-4 sm:p-6 animate-pulse space-y-4">
-        <div className="flex gap-4"><div className="w-16 h-16 rounded-2xl bg-white/5" /><div className="flex-1 space-y-2"><div className="h-6 bg-white/5 rounded w-40" /><div className="h-4 bg-white/5 rounded w-24" /></div></div>
-        <div className="grid grid-cols-2 gap-3 mt-4">{[1,2].map((i)=><div key={i} className="h-16 bg-white/5 rounded-2xl" />)}</div>
+      <div className="h-full flex flex-col">
+        <div className="h-14 shrink-0 border-b border-white/10 glass-panel flex items-center px-3 gap-2 animate-pulse">
+          <div className="w-9 h-9 rounded-xl bg-white/5" />
+          <div className="flex-1 space-y-1.5">
+            <div className="h-3.5 bg-white/5 rounded w-32" />
+            <div className="h-2.5 bg-white/5 rounded w-20" />
+          </div>
+        </div>
+        <div className="flex-1" />
       </div>
     );
   }
@@ -221,147 +201,143 @@ export default function GroupPage() {
   const pendingCount = activeGroup.members.filter((m) => m.status === 'PENDING').length;
 
   return (
-    <div className="p-4 sm:p-6 max-w-4xl mx-auto animate-fade-in">
-      {/* Header */}
-      <div className="flex items-start gap-3 sm:gap-4 mb-5">
-        {/* Group avatar with upload */}
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* Compact chat header */}
+      <div className="h-14 shrink-0 border-b border-white/10 glass-panel flex items-center px-2 sm:px-3 gap-1.5 sm:gap-2">
+        <button onClick={() => navigate('/dashboard')} className="btn-ghost p-1.5" title="Back">
+          <ArrowLeft size={18} />
+        </button>
+
+        {/* Group avatar (squircle) with upload for admins */}
         <div className="relative shrink-0 group">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden">
+          <div className="w-9 h-9 rounded-xl overflow-hidden">
             {activeGroup.avatar ? (
               <img src={activeGroup.avatar} className="w-full h-full object-cover" alt={activeGroup.name} />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-brand to-accent flex items-center justify-center text-2xl font-bold text-white">
+              <div className="w-full h-full bg-gradient-to-br from-accent to-brand flex items-center justify-center text-sm font-bold text-white">
                 {activeGroup.name[0]}
               </div>
             )}
           </div>
           {isOwnerOrAdmin && (
             <button onClick={() => avatarRef.current?.click()}
-              className="absolute inset-0 rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-              {uploadingAvatar ? <Loader2 size={16} className="animate-spin text-white" /> : <Camera size={16} className="text-white" />}
+              className="absolute inset-0 rounded-xl bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+              {uploadingAvatar ? <Loader2 size={13} className="animate-spin text-white" /> : <Camera size={13} className="text-white" />}
             </button>
           )}
           <input ref={avatarRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
         </div>
 
-        <div className="flex-1 min-w-0">
-          <h1 className="text-xl sm:text-2xl font-bold text-white mb-1 truncate">{activeGroup.name}</h1>
-          {activeGroup.description && <p className="text-slate-400 text-xs sm:text-sm mb-2 line-clamp-2">{activeGroup.description}</p>}
-          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-            <span className="flex items-center gap-1"><Users size={11} />{approvedMembers.length} members</span>
-            <span className={`badge text-[10px] ${activeGroup.isPublic ? 'bg-emerald-500/15 text-emerald-300' : 'bg-white/10 text-slate-300'}`}>
-              {activeGroup.isPublic ? 'Public' : 'Private'}
-            </span>
-          </div>
-        </div>
-
-        {/* Action buttons — WhatsApp-style call buttons front and center */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          <button
-            onClick={() => startCall('video')}
-            disabled={!!callStarting}
-            className="w-10 h-10 rounded-full bg-brand-dim text-brand hover:bg-brand hover:text-white flex items-center justify-center transition-colors disabled:opacity-50 active:scale-90"
-            title="Video call"
-          >
-            {callStarting === 'video' ? <Loader2 size={17} className="animate-spin" /> : <Video size={17} />}
-          </button>
-          <button
-            onClick={() => startCall('audio')}
-            disabled={!!callStarting}
-            className="w-10 h-10 rounded-full bg-brand-dim text-brand hover:bg-brand hover:text-white flex items-center justify-center transition-colors disabled:opacity-50 active:scale-90"
-            title="Voice call"
-          >
-            {callStarting === 'audio' ? <Loader2 size={17} className="animate-spin" /> : <Phone size={16} />}
-          </button>
-          <button onClick={copyCode} className="btn-ghost p-2 hidden sm:flex" title={`Copy code ${activeGroup.code}`}>
-            {copied ? <Check size={15} /> : <Copy size={15} />}
-          </button>
-          <button onClick={handleShare} className="btn-ghost p-2" title="Share invite">
-            <Share2 size={15} />
-          </button>
-          <div className="relative">
-            <button onClick={() => setShowOwnerMenu((v) => !v)} className="btn-ghost p-2" title="Group options">
-              <Settings size={15} />
-            </button>
-            {showOwnerMenu && (
-              <>
-                <div className="fixed inset-0 z-10" onClick={() => setShowOwnerMenu(false)} />
-                <div className="absolute right-0 top-11 z-20 w-52 card shadow-xl overflow-hidden py-1">
-                  {isOwner ? (
-                    <>
-                      <button
-                        onClick={() => { setShowOwnerMenu(false); setShowTransfer(true); }}
-                        className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-slate-200 hover:bg-white/10 transition-colors text-left"
-                      >
-                        <Crown size={14} /> Transfer ownership
-                      </button>
-                      <button
-                        onClick={() => { setShowOwnerMenu(false); setShowDelete(true); }}
-                        className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors text-left"
-                      >
-                        <Trash2 size={14} /> Delete group
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      onClick={() => { setShowOwnerMenu(false); handleExitGroup(); }}
-                      className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors text-left"
-                    >
-                      <LogOut size={14} /> Exit group
-                    </button>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Pending approval banner */}
-      {isOwnerOrAdmin && pendingCount > 0 && (
-        <button onClick={() => setShowApproval(true)}
-          className="w-full card p-3 flex items-center gap-3 mb-4 border-amber-500/30 hover:border-amber-500/50 transition-colors active:scale-[0.99]">
-          <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
-            <UserCheck size={15} className="text-amber-300" />
-          </div>
-          <p className="text-sm text-slate-200 flex-1 text-left">
-            <span className="font-semibold text-amber-300">{pendingCount}</span> pending request{pendingCount !== 1 ? 's' : ''}
+        {/* Tappable title → toggles the member panel */}
+        <button onClick={() => setShowMembers((v) => !v)} className="flex-1 min-w-0 text-left">
+          <p className="text-sm font-semibold text-white truncate">{activeGroup.name}</p>
+          <p className="text-[11px] text-brand flex items-center gap-1">
+            {approvedMembers.length} member{approvedMembers.length !== 1 ? 's' : ''}
+            {showMembers ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
           </p>
-          <span className="text-xs text-slate-400">Review →</span>
         </button>
-      )}
 
-      {/* Tabs */}
-      <div className="flex gap-1 mb-4 glass p-1 rounded-xl w-fit">
-        {(['chat', 'members'] as const).map((t) => (
-          <button key={t} onClick={() => setTab(t)}
-            className={clsx('px-4 py-1.5 rounded-lg text-sm font-medium transition-all capitalize flex items-center gap-1.5', t === tab ? 'bg-brand text-white shadow' : 'text-slate-400 hover:text-white')}>
-            {t}
-            {t === 'chat' && unreadChat > 0 && (
-              <span className={clsx('text-[10px] font-bold leading-none min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center',
-                tab === 'chat' ? 'bg-white/25 text-white' : 'bg-brand text-white')}>
-                {unreadChat > 9 ? '9+' : unreadChat}
-              </span>
-            )}
+        {/* Search */}
+        <button
+          onClick={() => setChatSearchOpen((v) => !v)}
+          className={clsx('p-2 rounded-lg transition-colors shrink-0', chatSearchOpen ? 'bg-brand-dim text-brand' : 'text-slate-500 hover:text-slate-200')}
+          title="Search messages"
+        >
+          <Search size={16} />
+        </button>
+
+        {/* WhatsApp-style call buttons */}
+        <button onClick={() => startCall('video')} disabled={!!callStarting} title="Video call"
+          className="w-9 h-9 rounded-full bg-brand-dim text-brand hover:bg-brand hover:text-white flex items-center justify-center transition-colors disabled:opacity-50 active:scale-90 shrink-0">
+          {callStarting === 'video' ? <Loader2 size={16} className="animate-spin" /> : <Video size={16} />}
+        </button>
+        <button onClick={() => startCall('audio')} disabled={!!callStarting} title="Voice call"
+          className="w-9 h-9 rounded-full bg-brand-dim text-brand hover:bg-brand hover:text-white flex items-center justify-center transition-colors disabled:opacity-50 active:scale-90 shrink-0">
+          {callStarting === 'audio' ? <Loader2 size={16} className="animate-spin" /> : <Phone size={15} />}
+        </button>
+
+        {/* More menu */}
+        <div className="relative shrink-0">
+          <button onClick={() => setShowOwnerMenu((v) => !v)} className="btn-ghost p-2" title="Group options">
+            <MoreVertical size={16} />
           </button>
-        ))}
+          {showOwnerMenu && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setShowOwnerMenu(false)} />
+              <div className="absolute right-0 top-11 z-20 w-52 card shadow-xl overflow-hidden py-1">
+                <button onClick={() => { setShowOwnerMenu(false); copyCode(); }}
+                  className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-slate-200 hover:bg-white/10 transition-colors text-left">
+                  {copied ? <Check size={14} /> : <Copy size={14} />} Copy invite code
+                </button>
+                <button onClick={() => { setShowOwnerMenu(false); handleShare(); }}
+                  className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-slate-200 hover:bg-white/10 transition-colors text-left">
+                  <Share2 size={14} /> Share invite
+                </button>
+                <div className="my-1 border-t border-white/10" />
+                {isOwner ? (
+                  <>
+                    <button onClick={() => { setShowOwnerMenu(false); setShowTransfer(true); }}
+                      className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-slate-200 hover:bg-white/10 transition-colors text-left">
+                      <Crown size={14} /> Transfer ownership
+                    </button>
+                    <button onClick={() => { setShowOwnerMenu(false); setShowDelete(true); }}
+                      className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors text-left">
+                      <Trash2 size={14} /> Delete group
+                    </button>
+                  </>
+                ) : (
+                  <button onClick={() => { setShowOwnerMenu(false); handleExitGroup(); }}
+                    className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors text-left">
+                    <LogOut size={14} /> Exit group
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
-      {tab === 'chat' && (
-        <div className="card overflow-hidden h-[calc(100dvh-15rem)] min-h-[420px]">
-          <ChatPanel groupId={activeGroup.id} bordered={false} />
+      {/* Members panel — slides in from the header title */}
+      {showMembers && (
+        <div className="shrink-0 max-h-[45%] overflow-y-auto glass-panel border-b border-white/10 animate-slide-up">
+          {isOwnerOrAdmin && pendingCount > 0 && (
+            <button onClick={() => setShowApproval(true)}
+              className="w-full flex items-center gap-3 px-4 py-3 border-b border-white/10 hover:bg-white/5 transition-colors text-left">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/15 flex items-center justify-center shrink-0">
+                <UserCheck size={16} className="text-amber-300" />
+              </div>
+              <p className="text-sm text-slate-200 flex-1">
+                <span className="font-semibold text-amber-300">{pendingCount}</span> pending request{pendingCount !== 1 ? 's' : ''}
+              </p>
+              <span className="text-xs text-slate-400">Review →</span>
+            </button>
+          )}
+          <p className="px-4 pt-3 pb-1 text-[10px] font-semibold tracking-[0.2em] text-slate-500">MEMBERS</p>
+          <div className="px-4 pb-1 divide-y divide-white/5">
+            {approvedMembers.map((member) => (
+              <MemberRow key={member.id} member={member} currentUserId={user?.id} groupId={activeGroup.id} />
+            ))}
+          </div>
+          <button onClick={handleShare}
+            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-left">
+            <div className="w-9 h-9 rounded-xl bg-brand-dim border border-dashed border-brand/60 flex items-center justify-center shrink-0">
+              <UserPlus size={16} className="text-brand" />
+            </div>
+            <span className="text-sm text-brand font-medium">Add member</span>
+          </button>
         </div>
       )}
 
-      {tab === 'members' && (
-        <div className="card divide-y divide-white/10">
-          {approvedMembers.map((member) => (
-            <div key={member.id} className="px-4">
-              <MemberRow member={member} currentUserId={user?.id} groupId={activeGroup.id} />
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Conversation fills the rest; composer pins to the bottom */}
+      <div className="flex-1 overflow-hidden">
+        <ChatPanel
+          groupId={activeGroup.id}
+          bordered={false}
+          hideHeader
+          searchOpen={chatSearchOpen}
+          onSearchOpenChange={setChatSearchOpen}
+        />
+      </div>
 
       {showApproval && groupId && (
         <MemberApproval groupId={groupId} onClose={() => { setShowApproval(false); fetchGroup(groupId); }} />

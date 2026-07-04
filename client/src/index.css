@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -22,16 +22,16 @@
     margin: 0;
     padding: 0;
     height: 100%;
-    /* Dark neon backdrop: deep purple-black with a violet glow bleeding from
-       the top and soft magenta/indigo pools, so glass surfaces glow over it. */
-    background-color: #0a0510;
+    /* Synthwave backdrop: deep magenta-black with a magenta glow bleeding from
+       the top and soft violet pools, so surfaces glow over it. */
+    background-color: #0d0010;
     background-image:
-      radial-gradient(55rem 34rem at 50% -12%, rgba(168, 85, 247, 0.28), transparent 62%),
-      radial-gradient(40rem 40rem at 108% 8%, rgba(217, 70, 239, 0.14), transparent 60%),
-      radial-gradient(42rem 42rem at -8% 42%, rgba(139, 92, 246, 0.12), transparent 60%);
+      radial-gradient(55rem 34rem at 50% -12%, rgba(232, 121, 249, 0.22), transparent 62%),
+      radial-gradient(40rem 40rem at 108% 8%, rgba(168, 85, 247, 0.16), transparent 60%),
+      radial-gradient(42rem 42rem at -8% 45%, rgba(124, 58, 237, 0.12), transparent 60%);
     background-attachment: fixed;
-    color: #f5f3ff;
-    font-family: 'Inter', system-ui, sans-serif;
+    color: #ffffff;
+    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-size-adjust: 100%;
@@ -62,64 +62,60 @@
 }
 
 @layer components {
-  /* Frosted dark-glass sheet — modals, floating panels */
+  /* Synthwave surface sheet — modals, floating panels */
   .glass {
-    background: rgba(24, 16, 38, 0.66);
+    background: rgba(34, 0, 64, 0.82);
     backdrop-filter: blur(20px) saturate(150%);
     -webkit-backdrop-filter: blur(20px) saturate(150%);
-    border: 1px solid rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(232, 121, 249, 0.18);
   }
 
-  /* Structural glass — navbar, sidebar, headers, bottom bar */
+  /* Structural surface — navbar, sidebar, headers, bottom bar */
   .glass-panel {
-    background: rgba(14, 8, 24, 0.72);
+    background: rgba(22, 0, 32, 0.86);
     backdrop-filter: blur(24px) saturate(150%);
     -webkit-backdrop-filter: blur(24px) saturate(150%);
   }
 
   .btn-primary {
     @apply text-white font-medium px-4 py-2 rounded-xl transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed;
-    background: linear-gradient(135deg, #a855f7, #d946ef);
+    background: linear-gradient(135deg, #e879f9, #a855f7);
     border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    box-shadow: 0 6px 20px rgba(232, 121, 249, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
   }
 
   .btn-primary:hover {
-    background: linear-gradient(135deg, #b56cf9, #e15cf2);
+    background: linear-gradient(135deg, #ef8dfb, #b56cf9);
   }
 
   .btn-secondary {
     @apply text-slate-200 font-medium px-4 py-2 rounded-xl transition-all duration-200 flex items-center gap-2;
-    background: rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #220040;
+    border: 1px solid #330060;
   }
 
   .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: #2c0a52;
   }
 
   .btn-ghost {
     @apply hover:bg-white/10 text-slate-400 hover:text-white font-medium px-3 py-2 rounded-xl transition-all duration-200 flex items-center gap-2;
   }
 
-  /* Dark-glass card: subtle elevation lit from the top edge */
+  /* Synthwave card: solid deep-magenta surface with a neon edge */
   .card {
     @apply rounded-2xl;
-    background: rgba(255, 255, 255, 0.045);
-    backdrop-filter: blur(20px) saturate(150%);
-    -webkit-backdrop-filter: blur(20px) saturate(150%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #1c0333;
+    border: 1px solid #330060;
     box-shadow:
-      0 10px 34px rgba(0, 0, 0, 0.45),
-      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      0 10px 34px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(232, 121, 249, 0.08);
   }
 
   .input {
     @apply rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand/70 focus:ring-1 focus:ring-brand/40 transition-all w-full;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #220040;
+    border: 1px solid #330060;
   }
 
   .badge {

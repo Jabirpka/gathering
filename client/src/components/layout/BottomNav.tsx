@@ -37,9 +37,10 @@ export default function BottomNav({ onOpenGroups }: Props) {
     >
       <button
         onClick={() => navigate('/dashboard')}
-        className={clsx('relative flex flex-col items-center gap-0.5 w-14 py-1', isHome ? 'text-brand' : 'text-slate-400')}
+        className={clsx('relative flex flex-col items-center gap-1 w-14 py-1', isHome ? 'text-brand' : 'text-slate-400')}
       >
         <MessageSquare size={22} />
+        <span className={clsx('w-1 h-1 rounded-full', isHome ? 'bg-brand' : 'bg-transparent')} />
         {totalUnread > 0 && (
           <span className="absolute top-0 right-2 min-w-[16px] h-4 px-1 rounded-full bg-brand text-white text-[9px] font-bold flex items-center justify-center">
             {totalUnread > 9 ? '9+' : totalUnread}
@@ -47,8 +48,9 @@ export default function BottomNav({ onOpenGroups }: Props) {
         )}
       </button>
 
-      <button onClick={onOpenGroups} className="flex flex-col items-center gap-0.5 w-14 py-1 text-slate-400">
+      <button onClick={onOpenGroups} className="flex flex-col items-center gap-1 w-14 py-1 text-slate-400">
         <Users size={22} />
+        <span className="w-1 h-1 rounded-full bg-transparent" />
       </button>
 
       {/* Center FAB */}
@@ -66,9 +68,10 @@ export default function BottomNav({ onOpenGroups }: Props) {
 
       <button
         onClick={() => window.dispatchEvent(new CustomEvent('open-notifications'))}
-        className="relative flex flex-col items-center gap-0.5 w-14 py-1 text-slate-400"
+        className="relative flex flex-col items-center gap-1 w-14 py-1 text-slate-400"
       >
         <Bell size={22} />
+        <span className="w-1 h-1 rounded-full bg-transparent" />
         {notifUnread > 0 && (
           <span className="absolute top-0 right-2 w-2 h-2 rounded-full bg-brand" />
         )}
@@ -76,13 +79,14 @@ export default function BottomNav({ onOpenGroups }: Props) {
 
       <button
         onClick={() => navigate('/profile')}
-        className={clsx('flex flex-col items-center gap-0.5 w-14 py-1', isProfile ? 'text-brand' : 'text-slate-400')}
+        className={clsx('flex flex-col items-center gap-1 w-14 py-1', isProfile ? 'text-brand' : 'text-slate-400')}
       >
         {user?.avatar ? (
           <img src={user.avatar} className={clsx('w-6 h-6 rounded-lg object-cover', isProfile && 'ring-2 ring-brand')} alt="" />
         ) : (
           <User size={22} />
         )}
+        <span className={clsx('w-1 h-1 rounded-full', isProfile ? 'bg-brand' : 'bg-transparent')} />
       </button>
     </nav>
   );
