@@ -25,11 +25,11 @@ export default function StatusBar() {
 
   return (
     <>
-      <div className="flex gap-3 overflow-x-auto pb-1 mb-5 -mx-1 px-1">
-        {/* My status / add */}
-        <button onClick={() => (mine ? setViewing(mine) : setShowAdd(true))} className="flex flex-col items-center gap-1 shrink-0 w-16">
-          <div className={`relative w-14 h-14 rounded-full p-[2px] ${mine ? 'bg-gradient-to-tr from-brand to-accent' : 'bg-slate-300'}`}>
-            <div className="w-full h-full rounded-full overflow-hidden border-2 border-white">
+      <div className="flex gap-3.5 overflow-x-auto pb-1 mb-5 -mx-1 px-1">
+        {/* My status / add — dashed square when empty, gradient ring when posted */}
+        <button onClick={() => (mine ? setViewing(mine) : setShowAdd(true))} className="flex flex-col items-center gap-1.5 shrink-0 w-16">
+          <div className={`relative w-14 h-14 rounded-2xl p-[2px] ${mine ? 'bg-gradient-to-br from-brand to-accent' : 'border-2 border-dashed border-brand/50'}`}>
+            <div className="w-full h-full rounded-[13px] overflow-hidden">
               {user?.avatar ? (
                 <img src={user.avatar} className="w-full h-full object-cover" alt="Me" />
               ) : (
@@ -38,17 +38,17 @@ export default function StatusBar() {
                 </div>
               )}
             </div>
-            <span className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-brand text-white flex items-center justify-center border-2 border-white">
+            <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-lg bg-brand text-white flex items-center justify-center border-2 border-surface">
               <Plus size={11} />
             </span>
           </div>
-          <span className="text-[11px] text-slate-600 truncate w-full text-center">My status</span>
+          <span className="text-[11px] text-slate-300 truncate w-full text-center">My status</span>
         </button>
 
         {others.map((g) => (
-          <button key={g.user.id} onClick={() => setViewing(g)} className="flex flex-col items-center gap-1 shrink-0 w-16">
-            <div className="w-14 h-14 rounded-full p-[2px] bg-gradient-to-tr from-brand to-accent">
-              <div className="w-full h-full rounded-full overflow-hidden border-2 border-white">
+          <button key={g.user.id} onClick={() => setViewing(g)} className="flex flex-col items-center gap-1.5 shrink-0 w-16">
+            <div className="w-14 h-14 rounded-2xl p-[2px] bg-gradient-to-br from-brand to-accent">
+              <div className="w-full h-full rounded-[13px] overflow-hidden">
                 {g.user.avatar ? (
                   <img src={g.user.avatar} className="w-full h-full object-cover" alt={g.user.name} />
                 ) : (
@@ -58,7 +58,7 @@ export default function StatusBar() {
                 )}
               </div>
             </div>
-            <span className="text-[11px] text-slate-600 truncate w-full text-center">
+            <span className="text-[11px] text-slate-300 truncate w-full text-center">
               {(g.user.nickname || g.user.name).split(' ')[0]}
             </span>
           </button>

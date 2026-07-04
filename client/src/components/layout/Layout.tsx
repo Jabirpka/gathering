@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
+import BottomNav from './BottomNav';
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -30,6 +31,7 @@ export default function Layout() {
           <Outlet />
         </main>
       </div>
+      <BottomNav onOpenGroups={() => setSidebarOpen(true)} />
     </div>
   );
 }

@@ -49,15 +49,15 @@ export default function JoinGroupModal({ open, onClose }: Props) {
           <motion.div initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 60 }} className="relative card w-full sm:max-w-sm p-5 sm:p-6 shadow-2xl rounded-b-none sm:rounded-2xl">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="font-semibold text-slate-900 text-lg">Join a group</h2>
+              <h2 className="font-semibold text-white text-lg">Join a group</h2>
               <button onClick={onClose} className="btn-ghost p-1.5"><X size={16} /></button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-xs font-medium text-slate-500 mb-1.5 block">Group code</label>
+                <label className="text-xs font-medium text-slate-400 mb-1.5 block">Group code</label>
                 <div className="relative">
-                  <Hash size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <Hash size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     className="input pl-8 font-mono uppercase tracking-widest"
                     placeholder="XXXXXXXX"
@@ -68,7 +68,7 @@ export default function JoinGroupModal({ open, onClose }: Props) {
                     autoFocus
                   />
                 </div>
-                <p className="text-xs text-slate-500 mt-1.5">Ask the group owner for their 8-character code.</p>
+                <p className="text-xs text-slate-400 mt-1.5">Ask the group owner for their 8-character code.</p>
               </div>
 
               <div className="flex gap-2">

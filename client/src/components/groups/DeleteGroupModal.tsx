@@ -45,19 +45,19 @@ export default function DeleteGroupModal({ open, onClose, group }: Props) {
           <motion.div initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 60 }}
             className="relative card w-full sm:max-w-md p-5 sm:p-6 shadow-2xl rounded-b-none sm:rounded-2xl">
             <div className="flex items-center justify-between mb-1">
-              <h2 className="font-semibold text-slate-900 text-lg flex items-center gap-2">
-                <AlertTriangle size={18} className="text-red-500" />
+              <h2 className="font-semibold text-white text-lg flex items-center gap-2">
+                <AlertTriangle size={18} className="text-red-400" />
                 Delete group
               </h2>
               <button onClick={onClose} className="btn-ghost p-1.5"><X size={16} /></button>
             </div>
-            <p className="text-sm text-slate-600 mb-4">
-              This permanently deletes <span className="font-semibold text-slate-900">{group.name}</span> and all its
+            <p className="text-sm text-slate-300 mb-4">
+              This permanently deletes <span className="font-semibold text-white">{group.name}</span> and all its
               chats, calls, and messages. This can't be undone.
             </p>
 
-            <label className="text-xs font-medium text-slate-500 mb-1.5 block">
-              Type <span className="font-semibold text-slate-700">DELETE</span> to confirm
+            <label className="text-xs font-medium text-slate-400 mb-1.5 block">
+              Type <span className="font-semibold text-slate-200">DELETE</span> to confirm
             </label>
             <input
               className="input mb-5"

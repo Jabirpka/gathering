@@ -86,12 +86,12 @@ export default function VoiceRecorderButton({ onSend }: Props) {
   if (recording) {
     return (
       <div className="flex items-center gap-2 shrink-0">
-        <span className="flex items-center gap-1.5 text-xs font-medium text-red-500">
+        <span className="flex items-center gap-1.5 text-xs font-medium text-red-400">
           <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
           {Math.floor(seconds / 60)}:{(seconds % 60).toString().padStart(2, '0')}
         </span>
         <button onClick={cancel} title="Discard"
-          className="w-10 h-10 rounded-xl bg-surface-3 text-slate-500 hover:text-red-500 flex items-center justify-center transition-colors">
+          className="w-10 h-10 rounded-xl bg-surface-3 text-slate-400 hover:text-red-400 flex items-center justify-center transition-colors">
           <X size={16} />
         </button>
         <button onClick={stop} title="Send voice message"
@@ -104,7 +104,7 @@ export default function VoiceRecorderButton({ onSend }: Props) {
 
   return (
     <button onClick={start} title="Record voice message"
-      className="w-10 h-10 rounded-xl bg-surface-3 text-slate-500 hover:text-brand flex items-center justify-center transition-colors shrink-0">
+      className="w-10 h-10 rounded-xl bg-surface-3 text-slate-400 hover:text-brand flex items-center justify-center transition-colors shrink-0">
       <Mic size={17} />
     </button>
   );

@@ -131,15 +131,15 @@ export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
     : messages.filter((m) => !m.roomId);
 
   return (
-    <div className={clsx('flex flex-col h-full', bordered ? 'glass-panel border-l border-white/50' : 'bg-transparent')}>
+    <div className={clsx('flex flex-col h-full', bordered ? 'glass-panel border-l border-white/10' : 'bg-transparent')}>
       {/* Header */}
-      <div className="px-4 py-3 border-b border-black/5 flex items-center gap-2 shrink-0">
-        <MessageSquare size={15} className="text-slate-500" />
-        <span className="text-sm font-medium text-slate-700 flex-1">Chat</span>
+      <div className="px-4 py-3 border-b border-white/10 flex items-center gap-2 shrink-0">
+        <MessageSquare size={15} className="text-slate-400" />
+        <span className="text-sm font-medium text-slate-200 flex-1">Chat</span>
         {!roomId && (
           <button
             onClick={() => { setSearchOpen((v) => !v); setSearchQuery(''); setSearchResults([]); }}
-            className={`p-1.5 rounded-lg transition-colors ${searchOpen ? 'bg-brand-dim text-brand' : 'text-slate-400 hover:text-slate-700'}`}
+            className={`p-1.5 rounded-lg transition-colors ${searchOpen ? 'bg-brand-dim text-brand' : 'text-slate-500 hover:text-slate-200'}`}
             title="Search messages"
           >
             <Search size={14} />
@@ -149,7 +149,7 @@ export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
 
       {/* Search */}
       {searchOpen && (
-        <div className="px-3 py-2 border-b border-black/5 shrink-0 space-y-2">
+        <div className="px-3 py-2 border-b border-white/10 shrink-0 space-y-2">
           <input
             className="input text-sm"
             placeholder="Search messages…"
@@ -160,12 +160,12 @@ export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
           {searchQuery.trim() && (
             <div className="max-h-48 overflow-y-auto space-y-1">
               {searchResults.length === 0 ? (
-                <p className="text-xs text-slate-400 text-center py-2">No matches</p>
+                <p className="text-xs text-slate-500 text-center py-2">No matches</p>
               ) : (
                 searchResults.map((m) => (
                   <div key={m.id} className="px-2.5 py-1.5 rounded-lg bg-surface-2 text-xs">
                     <span className="font-semibold text-brand mr-1.5">{m.user.name.split(' ')[0]}</span>
-                    <span className="text-slate-700">{m.content}</span>
+                    <span className="text-slate-200">{m.content}</span>
                   </div>
                 ))
               )}
@@ -178,8 +178,8 @@ export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
         {roomMessages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center pt-8">
-            <MessageSquare size={28} className="text-slate-300 mb-2" />
-            <p className="text-slate-500 text-sm">No messages yet.<br />Say hello!</p>
+            <MessageSquare size={28} className="text-slate-600 mb-2" />
+            <p className="text-slate-400 text-sm">No messages yet.<br />Say hello!</p>
           </div>
         )}
         {roomMessages.map((msg) => {
@@ -218,7 +218,7 @@ export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
               <p className="text-[11px] font-semibold text-brand">
                 Replying to {replyingTo.userId === user?.id ? 'yourself' : replyingTo.user.name}
               </p>
-              <p className="text-xs text-slate-500 truncate">
+              <p className="text-xs text-slate-400 truncate">
                 {replyingTo.kind === 'VOICE' ? '🎤 Voice message' : replyingTo.content}
               </p>
             </div>
@@ -228,7 +228,7 @@ export default function ChatPanel({ groupId, roomId, bordered = true }: Props) {
       )}
 
       {/* Input */}
-      <div className="p-3 border-t border-black/5 shrink-0">
+      <div className="p-3 border-t border-white/10 shrink-0">
         <div className="flex gap-2 items-end">
           <textarea
             className="input resize-none text-sm min-h-[38px] max-h-24"

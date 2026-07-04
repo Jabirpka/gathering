@@ -31,7 +31,7 @@ function CallLoader() {
     return (
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[#0a0a0f] pointer-events-none z-20">
         <Loader2 size={24} className="animate-spin text-brand" />
-        <p className="text-slate-400 text-xs">Connecting…</p>
+        <p className="text-slate-500 text-xs">Connecting…</p>
       </div>
     );
   }
@@ -77,7 +77,7 @@ export default function CallManager() {
       <div className="flex flex-col items-center justify-center h-full gap-2 text-center px-4 bg-[#0a0a0f]">
         <AlertCircle size={24} className="text-red-400" />
         <p className="text-red-400 text-xs font-medium">{error}</p>
-        <button onClick={leaveCall} className="text-xs text-slate-400 hover:text-slate-200 underline">
+        <button onClick={leaveCall} className="text-xs text-slate-500 hover:text-slate-200 underline">
           Close
         </button>
       </div>
@@ -127,7 +127,7 @@ export default function CallManager() {
             e.stopPropagation();
             leaveCall();
           }}
-          className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/60 hover:bg-red-500/80 flex items-center justify-center text-white z-20"
+          className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/60 hover:bg-red-500/100/80 flex items-center justify-center text-white z-20"
           title="Leave call"
         >
           <PhoneOff size={11} />

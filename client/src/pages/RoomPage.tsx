@@ -116,16 +116,16 @@ export default function RoomPage() {
   }, [setMountNode]);
 
   if (!room || !groupId || !roomId) {
-    return <div className="flex items-center justify-center h-full"><p className="text-slate-500">Room not found</p></div>;
+    return <div className="flex items-center justify-center h-full"><p className="text-slate-400">Room not found</p></div>;
   }
 
   return (
     <div className="h-full flex flex-col overflow-hidden relative">
       {/* Header */}
-      <div className="h-12 shrink-0 border-b border-white/50 glass-panel flex items-center px-3 gap-2">
+      <div className="h-12 shrink-0 border-b border-white/10 glass-panel flex items-center px-3 gap-2">
         <Link to={`/groups/${groupId}`} className="btn-ghost p-1.5"><ArrowLeft size={15} /></Link>
-        <span className="text-sm font-medium text-slate-700 truncate">{room.name}</span>
-        <span className="badge bg-surface-3 text-slate-500 text-[10px] hidden sm:inline-flex">{activeGroup?.name}</span>
+        <span className="text-sm font-medium text-slate-200 truncate">{room.name}</span>
+        <span className="badge bg-surface-3 text-slate-400 text-[10px] hidden sm:inline-flex">{activeGroup?.name}</span>
         <div className="flex-1" />
         <div className="hidden sm:flex gap-1 bg-surface-2 p-0.5 rounded-lg">
           <button className="p-1.5 rounded-md transition-colors bg-brand-dim text-brand">
@@ -138,10 +138,10 @@ export default function RoomPage() {
       <AnimatePresence>
         {pttUsers.length > 0 && (
           <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }}
-            className="shrink-0 bg-emerald-100 border-b border-emerald-200 overflow-hidden">
+            className="shrink-0 bg-emerald-500/15 border-b border-emerald-200 overflow-hidden">
             <div className="px-4 py-1.5 flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs text-emerald-700">{pttUsers.map((u) => u.name).join(', ')} speaking…</span>
+              <span className="text-xs text-emerald-300">{pttUsers.map((u) => u.name).join(', ')} speaking…</span>
             </div>
           </motion.div>
         )}
@@ -183,7 +183,7 @@ export default function RoomPage() {
             <button
               onMouseDown={startPTT} onMouseUp={stopPTT} onMouseLeave={stopPTT}
               className={clsx('w-9 h-9 rounded-xl flex items-center justify-center transition-all select-none cursor-pointer',
-                pttActive ? 'bg-emerald-500 text-white scale-110 shadow-lg shadow-emerald-500/40' : 'bg-black/60 backdrop-blur text-slate-300 hover:bg-black/80'
+                pttActive ? 'bg-emerald-500 text-white scale-110 shadow-lg shadow-emerald-500/40' : 'bg-black/60 backdrop-blur text-slate-600 hover:bg-black/80'
               )}
               title="Hold to talk (walky-talky)"
             >
@@ -193,11 +193,11 @@ export default function RoomPage() {
         </div>
 
         {/* Mobile bottom bar: emoji + PTT + chat toggle */}
-        <div className="sm:hidden shrink-0 glass-panel border-t border-white/50 px-2 py-2 flex items-center gap-1.5">
+        <div className="sm:hidden shrink-0 glass-panel border-t border-white/10 px-2 py-2 flex items-center gap-1.5">
           <div className="flex gap-1 flex-1 overflow-x-auto">
             {EMOJIS.map((emoji) => (
               <button key={emoji} onClick={() => sendEmoji(emoji)}
-                className="text-xl w-9 h-9 rounded-xl bg-black/5 hover:bg-black/10 flex items-center justify-center shrink-0 active:scale-90">
+                className="text-xl w-9 h-9 rounded-xl bg-white/[0.06] hover:bg-white/10 flex items-center justify-center shrink-0 active:scale-90">
                 {emoji}
               </button>
             ))}
@@ -206,21 +206,21 @@ export default function RoomPage() {
             onTouchStart={startPTT} onTouchEnd={stopPTT}
             onMouseDown={startPTT} onMouseUp={stopPTT}
             className={clsx('w-10 h-10 rounded-xl flex items-center justify-center shrink-0 select-none transition-all',
-              pttActive ? 'bg-emerald-500 text-white scale-110' : 'bg-surface-3 text-slate-400'
+              pttActive ? 'bg-emerald-500 text-white scale-110' : 'bg-surface-3 text-slate-500'
             )}
           >
             {pttActive ? <Mic size={17} /> : <MicOff size={17} />}
           </button>
           <button onClick={() => setChatOpen((v) => !v)}
             className={clsx('w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors',
-              chatOpen ? 'bg-brand-dim text-brand' : 'bg-surface-3 text-slate-400'
+              chatOpen ? 'bg-brand-dim text-brand' : 'bg-surface-3 text-slate-500'
             )}>
             <MessageSquare size={16} />
           </button>
         </div>
 
         {/* Side panel */}
-        <div className={clsx('sm:w-72 sm:flex shrink-0 overflow-hidden flex-col border-t sm:border-t-0 sm:border-l border-black/5',
+        <div className={clsx('sm:w-72 sm:flex shrink-0 overflow-hidden flex-col border-t sm:border-t-0 sm:border-l border-white/10',
           chatOpen ? 'flex h-64' : 'hidden sm:flex'
         )}>
           <ChatPanel groupId={groupId} roomId={roomId} />

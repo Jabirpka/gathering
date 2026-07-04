@@ -35,7 +35,7 @@ export default function AuthCallback() {
     <div className="h-full flex items-center justify-center">
       <div className="flex flex-col items-center gap-3">
         <div className="w-10 h-10 rounded-full border-2 border-brand border-t-transparent animate-spin" />
-        <p className="text-slate-500 text-sm">Signing you in…</p>
+        <p className="text-slate-400 text-sm">Signing you in…</p>
       </div>
     </div>
   );

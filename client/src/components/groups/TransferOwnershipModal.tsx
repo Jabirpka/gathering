@@ -43,18 +43,18 @@ export default function TransferOwnershipModal({ open, onClose, groupId, members
           <motion.div initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 60 }}
             className="relative card w-full sm:max-w-md p-5 sm:p-6 shadow-2xl max-h-[85vh] overflow-y-auto rounded-b-none sm:rounded-2xl">
             <div className="flex items-center justify-between mb-1">
-              <h2 className="font-semibold text-slate-900 text-lg flex items-center gap-2">
+              <h2 className="font-semibold text-white text-lg flex items-center gap-2">
                 <Crown size={18} className="text-brand" />
                 Transfer ownership
               </h2>
               <button onClick={onClose} className="btn-ghost p-1.5"><X size={16} /></button>
             </div>
-            <p className="text-xs text-slate-500 mb-4">
+            <p className="text-xs text-slate-400 mb-4">
               The new owner gets full control. You'll be demoted to admin.
             </p>
 
             {members.length === 0 ? (
-              <p className="text-sm text-slate-500 text-center py-8">
+              <p className="text-sm text-slate-400 text-center py-8">
                 No other members to transfer to yet.
               </p>
             ) : (
@@ -65,7 +65,7 @@ export default function TransferOwnershipModal({ open, onClose, groupId, members
                     type="button"
                     onClick={() => setSelected(m.userId)}
                     className={`w-full flex items-center gap-3 p-2.5 rounded-xl border text-left transition-all ${
-                      selected === m.userId ? 'border-brand/60 bg-brand-dim' : 'border-black/10 bg-surface-2 hover:border-black/20'
+                      selected === m.userId ? 'border-brand/60 bg-brand-dim' : 'border-white/10 bg-surface-2 hover:border-white/20'
                     }`}
                   >
                     {m.user.avatar ? (
@@ -75,7 +75,7 @@ export default function TransferOwnershipModal({ open, onClose, groupId, members
                         {m.user.name[0]}
                       </div>
                     )}
-                    <span className="flex-1 text-sm font-medium text-slate-900 truncate">{m.user.name}</span>
+                    <span className="flex-1 text-sm font-medium text-white truncate">{m.user.name}</span>
                     {selected === m.userId && <Crown size={15} className="text-brand shrink-0" />}
                   </button>
                 ))}

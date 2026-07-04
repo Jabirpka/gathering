@@ -5,7 +5,7 @@
 
 @layer base {
   :root {
-    color-scheme: light;
+    color-scheme: dark;
   }
 
   * {
@@ -22,15 +22,15 @@
     margin: 0;
     padding: 0;
     height: 100%;
-    /* Liquid-glass ambient backdrop: soft color blobs that every translucent
-       surface blurs over. Fixed so panels feel like glass sliding above it. */
-    background-color: #eef0f6;
+    /* Dark neon backdrop: deep purple-black with a violet glow bleeding from
+       the top and soft magenta/indigo pools, so glass surfaces glow over it. */
+    background-color: #0a0510;
     background-image:
-      radial-gradient(50rem 50rem at 115% -15%, rgba(124, 58, 237, 0.16), transparent 60%),
-      radial-gradient(44rem 44rem at -15% 25%, rgba(37, 99, 235, 0.14), transparent 60%),
-      radial-gradient(40rem 40rem at 50% 115%, rgba(236, 72, 153, 0.10), transparent 60%);
+      radial-gradient(55rem 34rem at 50% -12%, rgba(168, 85, 247, 0.28), transparent 62%),
+      radial-gradient(40rem 40rem at 108% 8%, rgba(217, 70, 239, 0.14), transparent 60%),
+      radial-gradient(42rem 42rem at -8% 42%, rgba(139, 92, 246, 0.12), transparent 60%);
     background-attachment: fixed;
-    color: #18181b;
+    color: #f5f3ff;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -52,78 +52,74 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.12);
+    background: rgba(255, 255, 255, 0.14);
     border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.24);
   }
 }
 
 @layer components {
-  /* Frosted glass sheet — modals, floating panels */
+  /* Frosted dark-glass sheet — modals, floating panels */
   .glass {
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(20px) saturate(170%);
-    -webkit-backdrop-filter: blur(20px) saturate(170%);
-    border: 1px solid rgba(255, 255, 255, 0.65);
+    background: rgba(24, 16, 38, 0.66);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.09);
   }
 
-  /* Structural glass — navbar, sidebar, room headers/bars */
+  /* Structural glass — navbar, sidebar, headers, bottom bar */
   .glass-panel {
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    background: rgba(14, 8, 24, 0.72);
+    backdrop-filter: blur(24px) saturate(150%);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
   }
 
   .btn-primary {
     @apply text-white font-medium px-4 py-2 rounded-xl transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed;
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    background: linear-gradient(135deg, #a855f7, #d946ef);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
   }
 
   .btn-primary:hover {
-    background: linear-gradient(135deg, #9d70f8, #8b5cf6);
+    background: linear-gradient(135deg, #b56cf9, #e15cf2);
   }
 
   .btn-secondary {
-    @apply text-slate-700 font-medium px-4 py-2 rounded-xl transition-all duration-200 flex items-center gap-2;
-    background: rgba(255, 255, 255, 0.5);
+    @apply text-slate-200 font-medium px-4 py-2 rounded-xl transition-all duration-200 flex items-center gap-2;
+    background: rgba(255, 255, 255, 0.06);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.65);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.12);
   }
 
   .btn-ghost {
-    @apply hover:bg-white/50 text-slate-500 hover:text-slate-900 font-medium px-3 py-2 rounded-xl transition-all duration-200 flex items-center gap-2;
+    @apply hover:bg-white/10 text-slate-400 hover:text-white font-medium px-3 py-2 rounded-xl transition-all duration-200 flex items-center gap-2;
   }
 
-  /* Liquid-glass card: translucent, blurred, lit from the top edge */
+  /* Dark-glass card: subtle elevation lit from the top edge */
   .card {
     @apply rounded-2xl;
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(20px) saturate(170%);
-    -webkit-backdrop-filter: blur(20px) saturate(170%);
-    border: 1px solid rgba(255, 255, 255, 0.65);
+    background: rgba(255, 255, 255, 0.045);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow:
-      0 8px 32px rgba(31, 38, 135, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.75);
+      0 10px 34px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 
   .input {
-    @apply rounded-xl px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand/60 focus:ring-1 focus:ring-brand/30 transition-all w-full;
-    background: rgba(255, 255, 255, 0.45);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    box-shadow: inset 0 1px 2px rgba(31, 38, 135, 0.05);
+    @apply rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand/70 focus:ring-1 focus:ring-brand/40 transition-all w-full;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .badge {

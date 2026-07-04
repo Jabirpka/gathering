@@ -51,7 +51,7 @@ export default function LandingPage() {
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand to-accent flex items-center justify-center">
             <Video size={16} className="text-white" />
           </div>
-          <span className="font-semibold text-lg text-slate-900">Gathering</span>
+          <span className="font-semibold text-lg text-white">Gathering</span>
         </div>
         <button onClick={handleLogin} disabled={loading} className="btn-primary text-sm">
           {loading ? <Loader2 size={14} className="animate-spin" /> : 'Sign in'}
@@ -67,12 +67,12 @@ export default function LandingPage() {
             <Zap size={12} />Up to 1,000 simultaneous participants
           </span>
 
-          <h1 className="text-4xl sm:text-6xl font-bold text-slate-900 leading-tight tracking-tight mb-5">
+          <h1 className="text-4xl sm:text-6xl font-bold text-white leading-tight tracking-tight mb-5">
             Stay close.{' '}
             <span className="bg-gradient-to-r from-brand via-purple-500 to-accent bg-clip-text text-transparent">Anywhere.</span>
           </h1>
 
-          <p className="text-lg text-slate-500 max-w-xl mx-auto mb-8 leading-relaxed">
+          <p className="text-lg text-slate-400 max-w-xl mx-auto mb-8 leading-relaxed">
             Chats, voice notes, video calls, and 24h stories — hang out with your people no matter where they are.
           </p>
 
@@ -81,7 +81,7 @@ export default function LandingPage() {
             whileTap={{ scale: 0.97 }}
             onClick={handleLogin}
             disabled={loading}
-            className="inline-flex items-center gap-3 bg-white text-slate-900 font-semibold px-7 py-4 rounded-2xl text-base border border-black/5 shadow-xl hover:shadow-2xl transition-all disabled:opacity-70"
+            className="inline-flex items-center gap-3 bg-white text-slate-900 font-semibold px-7 py-4 rounded-2xl text-base border border-white/10 shadow-xl hover:shadow-2xl transition-all disabled:opacity-70"
           >
             {loading ? (
               <>
@@ -102,7 +102,7 @@ export default function LandingPage() {
           </motion.button>
 
           {loading && (
-            <p className="mt-4 text-xs text-slate-500">
+            <p className="mt-4 text-xs text-slate-400">
               Complete sign-in in the browser window that opened
             </p>
           )}
@@ -122,14 +122,14 @@ export default function LandingPage() {
               <div className="w-9 h-9 rounded-xl bg-brand-dim flex items-center justify-center mb-3">
                 <f.icon size={18} className="text-brand" />
               </div>
-              <h3 className="font-semibold text-slate-900 mb-1 text-sm">{f.title}</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">{f.desc}</p>
+              <h3 className="font-semibold text-white mb-1 text-sm">{f.title}</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">{f.desc}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      <footer className="border-t border-black/5 py-6 text-center text-slate-500 text-sm">
+      <footer className="border-t border-white/10 py-6 text-center text-slate-400 text-sm">
         <p>© {new Date().getFullYear()} Gathering · Watch together, anywhere</p>
       </footer>
     </div>

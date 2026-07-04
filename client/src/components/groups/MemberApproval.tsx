@@ -42,7 +42,7 @@ export default function MemberApproval({ groupId, onClose }: Props) {
       <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }}
         className="relative card w-full max-w-md p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-semibold text-slate-900 text-lg flex items-center gap-2">
+          <h2 className="font-semibold text-white text-lg flex items-center gap-2">
             <UserCheck size={18} className="text-brand" />
             Join Requests
           </h2>
@@ -52,7 +52,7 @@ export default function MemberApproval({ groupId, onClose }: Props) {
         {loading ? (
           <div className="py-8 flex justify-center"><Loader2 size={24} className="animate-spin text-brand" /></div>
         ) : pending.length === 0 ? (
-          <p className="text-center text-slate-500 py-8">No pending requests</p>
+          <p className="text-center text-slate-400 py-8">No pending requests</p>
         ) : (
           <div className="space-y-2">
             {pending.map((member) => (
@@ -65,21 +65,21 @@ export default function MemberApproval({ groupId, onClose }: Props) {
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900">{member.user.name}</p>
-                  <p className="text-xs text-slate-500">{(member.user as any).email}</p>
+                  <p className="text-sm font-medium text-white">{member.user.name}</p>
+                  <p className="text-xs text-slate-400">{(member.user as any).email}</p>
                 </div>
                 <div className="flex gap-1.5 shrink-0">
                   <button
                     onClick={() => handle(member.userId, 'approve')}
                     disabled={processing === member.userId}
-                    className="w-8 h-8 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-600 flex items-center justify-center transition-colors"
+                    className="w-8 h-8 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 flex items-center justify-center transition-colors"
                   >
                     {processing === member.userId ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
                   </button>
                   <button
                     onClick={() => handle(member.userId, 'ban')}
                     disabled={processing === member.userId}
-                    className="w-8 h-8 rounded-lg bg-red-100 hover:bg-red-200 text-red-500 flex items-center justify-center transition-colors"
+                    className="w-8 h-8 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-400 flex items-center justify-center transition-colors"
                   >
                     <Ban size={13} />
                   </button>

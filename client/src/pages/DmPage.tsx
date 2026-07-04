@@ -136,7 +136,7 @@ export default function DmPage() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="h-14 shrink-0 border-b border-white/50 glass-panel flex items-center px-3 gap-2">
+      <div className="h-14 shrink-0 border-b border-white/10 glass-panel flex items-center px-3 gap-2">
         <Link to="/dashboard" className="btn-ghost p-1.5"><ArrowLeft size={16} /></Link>
         {thread?.partner.avatar ? (
           <img src={thread.partner.avatar} className="w-9 h-9 rounded-full object-cover" alt={partnerName} />
@@ -146,12 +146,12 @@ export default function DmPage() {
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-slate-900 truncate">{partnerName}</p>
+          <p className="text-sm font-semibold text-white truncate">{partnerName}</p>
           {partnerTyping && <p className="text-[11px] text-brand animate-pulse">typing…</p>}
         </div>
         <button
           onClick={() => { setSearchOpen((v) => !v); setSearchQuery(''); setSearchResults([]); }}
-          className={`p-2 rounded-lg transition-colors ${searchOpen ? 'bg-brand-dim text-brand' : 'text-slate-400 hover:text-slate-700'}`}
+          className={`p-2 rounded-lg transition-colors ${searchOpen ? 'bg-brand-dim text-brand' : 'text-slate-500 hover:text-slate-200'}`}
           title="Search messages"
         >
           <Search size={16} />
@@ -166,7 +166,7 @@ export default function DmPage() {
               <div className="absolute right-0 top-11 z-20 w-44 card shadow-xl overflow-hidden py-1">
                 <button
                   onClick={() => { setShowMenu(false); deleteChat(); }}
-                  className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
+                  className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors text-left"
                 >
                   <Trash2 size={14} /> Delete chat
                 </button>
@@ -178,7 +178,7 @@ export default function DmPage() {
 
       {/* Search */}
       {searchOpen && (
-        <div className="px-3 py-2 border-b border-white/50 glass-panel shrink-0 space-y-2">
+        <div className="px-3 py-2 border-b border-white/10 glass-panel shrink-0 space-y-2">
           <input
             className="input text-sm"
             placeholder="Search messages…"
@@ -189,14 +189,14 @@ export default function DmPage() {
           {searchQuery.trim() && (
             <div className="max-h-48 overflow-y-auto space-y-1">
               {searchResults.length === 0 ? (
-                <p className="text-xs text-slate-400 text-center py-2">No matches</p>
+                <p className="text-xs text-slate-500 text-center py-2">No matches</p>
               ) : (
                 searchResults.map((m) => (
                   <div key={m.id} className="px-2.5 py-1.5 rounded-lg bg-surface-2 text-xs">
                     <span className="font-semibold text-brand mr-1.5">
                       {m.userId === user?.id ? 'You' : partnerName.split(' ')[0]}
                     </span>
-                    <span className="text-slate-700">{m.content}</span>
+                    <span className="text-slate-200">{m.content}</span>
                   </div>
                 ))
               )}
@@ -208,7 +208,7 @@ export default function DmPage() {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.length === 0 && (
-          <p className="text-center text-slate-400 text-sm pt-10">
+          <p className="text-center text-slate-500 text-sm pt-10">
             Say hi to {partnerName} 👋
           </p>
         )}
@@ -235,7 +235,7 @@ export default function DmPage() {
               <p className="text-[11px] font-semibold text-brand">
                 Replying to {replyingTo.userId === user?.id ? 'yourself' : partnerName}
               </p>
-              <p className="text-xs text-slate-500 truncate">
+              <p className="text-xs text-slate-400 truncate">
                 {replyingTo.kind === 'VOICE' ? '🎤 Voice message' : replyingTo.content}
               </p>
             </div>
@@ -245,7 +245,7 @@ export default function DmPage() {
       )}
 
       {/* Input */}
-      <div className="p-3 border-t border-white/50 glass-panel shrink-0">
+      <div className="p-3 border-t border-white/10 glass-panel shrink-0">
         <div className="flex gap-2 items-end max-w-3xl mx-auto">
           <textarea
             className="input resize-none text-sm min-h-[40px] max-h-28"

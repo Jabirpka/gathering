@@ -19,9 +19,9 @@ function MemberRow({ member, currentUserId, groupId }: { member: GroupMember; cu
   const navigate = useNavigate();
   const openThread = useDmStore((s) => s.openThread);
   const roleColors: Record<string, string> = {
-    OWNER: 'bg-amber-100 text-amber-700',
-    ADMIN: 'bg-blue-100 text-blue-600',
-    MEMBER: 'bg-slate-200 text-slate-600',
+    OWNER: 'bg-amber-500/15 text-amber-300',
+    ADMIN: 'bg-blue-500/15 text-blue-300',
+    MEMBER: 'bg-white/10 text-slate-300',
   };
 
   const handlePoke = async () => {
@@ -55,17 +55,17 @@ function MemberRow({ member, currentUserId, groupId }: { member: GroupMember; cu
         </div>
       )}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-slate-900 truncate">{member.user.name}</p>
+        <p className="text-sm font-medium text-white truncate">{member.user.name}</p>
       </div>
       <span className={`badge text-[10px] ${roleColors[member.role]}`}>{member.role}</span>
       {member.userId !== currentUserId && (
         <>
           <button onClick={handleMessage} title="Message"
-            className="p-2 rounded-lg hover:bg-brand-dim text-slate-400 hover:text-brand transition-colors active:scale-90">
+            className="p-2 rounded-lg hover:bg-brand-dim text-slate-500 hover:text-brand transition-colors active:scale-90">
             <MessageSquare size={14} />
           </button>
           <button onClick={handlePoke} disabled={poking} title="Poke"
-            className="p-2 rounded-lg hover:bg-amber-100 text-slate-400 hover:text-amber-600 transition-colors disabled:opacity-50 active:scale-90">
+            className="p-2 rounded-lg hover:bg-amber-500/15 text-slate-500 hover:text-amber-300 transition-colors disabled:opacity-50 active:scale-90">
             <Zap size={14} />
           </button>
         </>
@@ -208,8 +208,8 @@ export default function GroupPage() {
   if (loading || !activeGroup) {
     return (
       <div className="p-4 sm:p-6 animate-pulse space-y-4">
-        <div className="flex gap-4"><div className="w-16 h-16 rounded-2xl bg-slate-100" /><div className="flex-1 space-y-2"><div className="h-6 bg-slate-100 rounded w-40" /><div className="h-4 bg-slate-100 rounded w-24" /></div></div>
-        <div className="grid grid-cols-2 gap-3 mt-4">{[1,2].map((i)=><div key={i} className="h-16 bg-slate-100 rounded-2xl" />)}</div>
+        <div className="flex gap-4"><div className="w-16 h-16 rounded-2xl bg-white/5" /><div className="flex-1 space-y-2"><div className="h-6 bg-white/5 rounded w-40" /><div className="h-4 bg-white/5 rounded w-24" /></div></div>
+        <div className="grid grid-cols-2 gap-3 mt-4">{[1,2].map((i)=><div key={i} className="h-16 bg-white/5 rounded-2xl" />)}</div>
       </div>
     );
   }
@@ -245,11 +245,11 @@ export default function GroupPage() {
         </div>
 
         <div className="flex-1 min-w-0">
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1 truncate">{activeGroup.name}</h1>
-          {activeGroup.description && <p className="text-slate-500 text-xs sm:text-sm mb-2 line-clamp-2">{activeGroup.description}</p>}
-          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+          <h1 className="text-xl sm:text-2xl font-bold text-white mb-1 truncate">{activeGroup.name}</h1>
+          {activeGroup.description && <p className="text-slate-400 text-xs sm:text-sm mb-2 line-clamp-2">{activeGroup.description}</p>}
+          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
             <span className="flex items-center gap-1"><Users size={11} />{approvedMembers.length} members</span>
-            <span className={`badge text-[10px] ${activeGroup.isPublic ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}>
+            <span className={`badge text-[10px] ${activeGroup.isPublic ? 'bg-emerald-500/15 text-emerald-300' : 'bg-white/10 text-slate-300'}`}>
               {activeGroup.isPublic ? 'Public' : 'Private'}
             </span>
           </div>
@@ -291,13 +291,13 @@ export default function GroupPage() {
                     <>
                       <button
                         onClick={() => { setShowOwnerMenu(false); setShowTransfer(true); }}
-                        className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-slate-700 hover:bg-black/5 transition-colors text-left"
+                        className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-slate-200 hover:bg-white/10 transition-colors text-left"
                       >
                         <Crown size={14} /> Transfer ownership
                       </button>
                       <button
                         onClick={() => { setShowOwnerMenu(false); setShowDelete(true); }}
-                        className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
+                        className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors text-left"
                       >
                         <Trash2 size={14} /> Delete group
                       </button>
@@ -305,7 +305,7 @@ export default function GroupPage() {
                   ) : (
                     <button
                       onClick={() => { setShowOwnerMenu(false); handleExitGroup(); }}
-                      className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
+                      className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors text-left"
                     >
                       <LogOut size={14} /> Exit group
                     </button>
@@ -320,14 +320,14 @@ export default function GroupPage() {
       {/* Pending approval banner */}
       {isOwnerOrAdmin && pendingCount > 0 && (
         <button onClick={() => setShowApproval(true)}
-          className="w-full card p-3 flex items-center gap-3 mb-4 border-amber-300 hover:border-amber-400 transition-colors active:scale-[0.99]">
-          <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
-            <UserCheck size={15} className="text-amber-600" />
+          className="w-full card p-3 flex items-center gap-3 mb-4 border-amber-500/30 hover:border-amber-500/50 transition-colors active:scale-[0.99]">
+          <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
+            <UserCheck size={15} className="text-amber-300" />
           </div>
-          <p className="text-sm text-slate-700 flex-1 text-left">
-            <span className="font-semibold text-amber-600">{pendingCount}</span> pending request{pendingCount !== 1 ? 's' : ''}
+          <p className="text-sm text-slate-200 flex-1 text-left">
+            <span className="font-semibold text-amber-300">{pendingCount}</span> pending request{pendingCount !== 1 ? 's' : ''}
           </p>
-          <span className="text-xs text-slate-500">Review →</span>
+          <span className="text-xs text-slate-400">Review →</span>
         </button>
       )}
 
@@ -335,7 +335,7 @@ export default function GroupPage() {
       <div className="flex gap-1 mb-4 glass p-1 rounded-xl w-fit">
         {(['chat', 'members'] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)}
-            className={clsx('px-4 py-1.5 rounded-lg text-sm font-medium transition-all capitalize flex items-center gap-1.5', t === tab ? 'bg-brand text-white shadow' : 'text-slate-500 hover:text-slate-900')}>
+            className={clsx('px-4 py-1.5 rounded-lg text-sm font-medium transition-all capitalize flex items-center gap-1.5', t === tab ? 'bg-brand text-white shadow' : 'text-slate-400 hover:text-white')}>
             {t}
             {t === 'chat' && unreadChat > 0 && (
               <span className={clsx('text-[10px] font-bold leading-none min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center',
@@ -354,7 +354,7 @@ export default function GroupPage() {
       )}
 
       {tab === 'members' && (
-        <div className="card divide-y divide-black/5">
+        <div className="card divide-y divide-white/10">
           {approvedMembers.map((member) => (
             <div key={member.id} className="px-4">
               <MemberRow member={member} currentUserId={user?.id} groupId={activeGroup.id} />

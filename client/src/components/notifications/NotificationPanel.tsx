@@ -12,8 +12,8 @@ interface Props {
 }
 
 function NotifIcon({ type }: { type: AppNotification['type'] }) {
-  if (type === 'poke') return <Zap size={14} className="text-amber-600" />;
-  if (type === 'approved') return <CheckCircle size={14} className="text-emerald-600" />;
+  if (type === 'poke') return <Zap size={14} className="text-amber-300" />;
+  if (type === 'approved') return <CheckCircle size={14} className="text-emerald-300" />;
   return <Bell size={14} className="text-brand" />;
 }
 
@@ -45,11 +45,11 @@ export default function NotificationPanel({ open, onClose }: Props) {
           transition={{ duration: 0.15 }}
           className="absolute top-12 right-0 w-80 card shadow-2xl z-50 overflow-hidden"
         >
-          <div className="flex items-center justify-between px-4 py-3 border-b border-black/5">
-            <span className="text-sm font-semibold text-slate-900">Notifications</span>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+            <span className="text-sm font-semibold text-white">Notifications</span>
             <div className="flex items-center gap-1">
               {notifications.length > 0 && (
-                <button onClick={clear} className="text-xs text-slate-500 hover:text-slate-900 px-2 py-1 rounded">
+                <button onClick={clear} className="text-xs text-slate-400 hover:text-white px-2 py-1 rounded">
                   Clear all
                 </button>
               )}
@@ -62,8 +62,8 @@ export default function NotificationPanel({ open, onClose }: Props) {
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="py-10 text-center">
-                <Bell size={28} className="text-slate-300 mx-auto mb-2" />
-                <p className="text-sm text-slate-500">No notifications yet</p>
+                <Bell size={28} className="text-slate-600 mx-auto mb-2" />
+                <p className="text-sm text-slate-400">No notifications yet</p>
               </div>
             ) : (
               notifications.map((n) => (
@@ -72,7 +72,7 @@ export default function NotificationPanel({ open, onClose }: Props) {
                   onClick={() => {
                     if (n.groupId) { navigate(`/groups/${n.groupId}`); onClose(); }
                   }}
-                  className={`flex items-start gap-3 px-4 py-3 border-b border-black/5 last:border-0 transition-colors ${n.groupId ? 'cursor-pointer hover:bg-black/5' : ''} ${!n.read ? 'bg-brand/5' : ''}`}
+                  className={`flex items-start gap-3 px-4 py-3 border-b border-white/10 last:border-0 transition-colors ${n.groupId ? 'cursor-pointer hover:bg-white/10' : ''} ${!n.read ? 'bg-brand/5' : ''}`}
                 >
                   <div className="w-8 h-8 rounded-full bg-surface-3 flex items-center justify-center shrink-0 mt-0.5">
                     {n.from?.avatar ? (
@@ -82,13 +82,13 @@ export default function NotificationPanel({ open, onClose }: Props) {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-slate-700">{n.message}</p>
+                    <p className="text-sm text-slate-200">{n.message}</p>
                     {n.type === 'poke' && n.strikePoints !== undefined && (
-                      <p className="text-xs text-amber-600 mt-0.5">
+                      <p className="text-xs text-amber-300 mt-0.5">
                         You now have {n.strikePoints} strike point{n.strikePoints !== 1 ? 's' : ''}
                       </p>
                     )}
-                    <p className="text-xs text-slate-400 mt-0.5">
+                    <p className="text-xs text-slate-500 mt-0.5">
                       {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
                     </p>
                   </div>

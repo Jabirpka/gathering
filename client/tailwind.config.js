@@ -4,21 +4,22 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Liquid glass: surfaces are translucent whites layered over the
-        // ambient gradient backdrop (see body background in index.css).
+        // Dark neon: surfaces are translucent whites layered over the deep
+        // purple-black backdrop (see body background in index.css).
         surface: {
-          DEFAULT: '#eef0f6',
-          1: 'rgba(255,255,255,0.65)',
-          2: 'rgba(255,255,255,0.5)',
-          3: 'rgba(127,138,160,0.16)',
+          DEFAULT: '#0a0510',
+          1: 'rgba(255,255,255,0.05)',
+          2: 'rgba(255,255,255,0.08)',
+          3: 'rgba(255,255,255,0.12)',
         },
         brand: {
-          DEFAULT: '#7c3aed',
-          light: '#8b5cf6',
-          dim: 'rgba(124,58,237,0.12)',
+          DEFAULT: '#a855f7',
+          light: '#c084fc',
+          dim: 'rgba(168,85,247,0.16)',
         },
-        accent: '#2563eb',
-        border: 'rgba(255,255,255,0.55)',
+        // Gradient partner — magenta, so from-brand→accent runs violet→magenta.
+        accent: '#d946ef',
+        border: 'rgba(255,255,255,0.08)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
