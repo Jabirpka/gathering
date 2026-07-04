@@ -89,53 +89,68 @@ export default function CallControlBar({ onMinimize, onLeave }: Props) {
           </span>
         </div>
       )}
-      <div className="absolute bottom-0 inset-x-0 flex justify-center pb-[max(env(safe-area-inset-bottom),0.75rem)] pt-8 bg-gradient-to-t from-black/85 to-transparent pointer-events-none z-10">
-        <div className="flex items-center gap-3 pointer-events-auto">
-        <button
-          onClick={toggleMic}
-          className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
-            isMicrophoneEnabled ? 'bg-white/15 hover:bg-white/25 text-white' : 'bg-white text-black'
-          }`}
-          title={isMicrophoneEnabled ? 'Mute' : 'Unmute'}
-        >
-          {isMicrophoneEnabled ? <Mic size={20} /> : <MicOff size={20} />}
-        </button>
+      <div className="absolute bottom-0 inset-x-0 flex justify-center pb-[max(env(safe-area-inset-bottom),1rem)] pt-8 bg-gradient-to-t from-black/85 to-transparent pointer-events-none z-10">
+        <div className="flex items-end gap-3.5 sm:gap-4 pointer-events-auto">
+          {/* Mute */}
+          <div className="flex flex-col items-center gap-1.5">
+            <button
+              onClick={toggleMic}
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
+                isMicrophoneEnabled ? 'bg-white/15 hover:bg-white/25 text-white' : 'bg-white text-black'
+              }`}
+            >
+              {isMicrophoneEnabled ? <Mic size={20} /> : <MicOff size={20} />}
+            </button>
+            <span className="text-[10px] text-white/70">{isMicrophoneEnabled ? 'Mute' : 'Unmute'}</span>
+          </div>
 
-        <button
-          onClick={flipCamera}
-          disabled={!isCameraEnabled || flipping}
-          className="w-12 h-12 rounded-full bg-white/15 hover:bg-white/25 disabled:opacity-40 flex items-center justify-center text-white transition-colors"
-          title="Switch camera"
-        >
-          <SwitchCamera size={20} />
-        </button>
+          {/* Flip camera */}
+          <div className="flex flex-col items-center gap-1.5">
+            <button
+              onClick={flipCamera}
+              disabled={!isCameraEnabled || flipping}
+              className="w-12 h-12 rounded-full bg-white/15 hover:bg-white/25 disabled:opacity-40 flex items-center justify-center text-white transition-colors"
+            >
+              <SwitchCamera size={20} />
+            </button>
+            <span className="text-[10px] text-white/70">Flip</span>
+          </div>
 
-        <button
-          onClick={toggleScreenShare}
-          disabled={sharing}
-          className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors disabled:opacity-40 ${
-            isScreenShareEnabled ? 'bg-brand text-white' : 'bg-white/15 hover:bg-white/25 text-white'
-          }`}
-          title={isScreenShareEnabled ? 'Stop sharing screen' : 'Share screen'}
-        >
-          {isScreenShareEnabled ? <ScreenShareOff size={20} /> : <ScreenShare size={20} />}
-        </button>
+          {/* Screen share */}
+          <div className="flex flex-col items-center gap-1.5">
+            <button
+              onClick={toggleScreenShare}
+              disabled={sharing}
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors disabled:opacity-40 ${
+                isScreenShareEnabled ? 'bg-gradient-to-br from-brand to-accent text-white' : 'bg-white/15 hover:bg-white/25 text-white'
+              }`}
+            >
+              {isScreenShareEnabled ? <ScreenShareOff size={20} /> : <ScreenShare size={20} />}
+            </button>
+            <span className="text-[10px] text-white/70">Share</span>
+          </div>
 
-        <button
-          onClick={onMinimize}
-          className="w-12 h-12 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-colors"
-          title="Minimize (stay in call)"
-        >
-          <Minimize2 size={18} />
-        </button>
+          {/* Minimize */}
+          <div className="flex flex-col items-center gap-1.5">
+            <button
+              onClick={onMinimize}
+              className="w-12 h-12 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-colors"
+            >
+              <Minimize2 size={18} />
+            </button>
+            <span className="text-[10px] text-white/70">Minimize</span>
+          </div>
 
-        <button
-          onClick={onLeave}
-          className="w-12 h-12 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center text-white transition-colors"
-          title="Leave call"
-        >
-          <PhoneOff size={20} />
-        </button>
+          {/* Leave */}
+          <div className="flex flex-col items-center gap-1.5">
+            <button
+              onClick={onLeave}
+              className="w-[58px] h-12 rounded-[24px] bg-red-500 hover:bg-red-600 flex items-center justify-center text-white transition-colors shadow-lg shadow-red-500/40"
+            >
+              <PhoneOff size={20} />
+            </button>
+            <span className="text-[10px] font-semibold text-red-400">Leave</span>
+          </div>
         </div>
       </div>
     </>

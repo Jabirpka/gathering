@@ -5,7 +5,8 @@ import { useAuthStore } from '../store/authStore';
 import { useCallStore } from '../store/callStore';
 import { getSocket } from '../hooks/useSocket';
 import ChatPanel from '../components/chat/ChatPanel';
-import { ArrowLeft, MessageSquare, Mic, MicOff } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Mic, MicOff, UserPlus } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 
@@ -71,6 +72,14 @@ export default function RoomPage() {
 
   const sendEmoji = (emoji: string) => socket?.emit('room:emoji', { roomId, emoji });
 
+  // Invite others into the call: copy the group's invite code to share.
+  const inviteToCall = () => {
+    const code = activeGroup?.code;
+    if (!code) return;
+    navigator.clipboard?.writeText(code).catch(() => {});
+    toast.success('Invite code copied — share it to bring people in');
+  };
+
   const startPTT = useCallback(async () => {
     if (pttActive) return;
     try {
@@ -122,16 +131,25 @@ export default function RoomPage() {
   return (
     <div className="h-full flex flex-col overflow-hidden relative">
       {/* Header */}
-      <div className="h-12 shrink-0 border-b border-white/10 glass-panel flex items-center px-3 gap-2">
-        <Link to={`/groups/${groupId}`} className="btn-ghost p-1.5"><ArrowLeft size={15} /></Link>
-        <span className="text-sm font-medium text-slate-200 truncate">{room.name}</span>
-        <span className="badge bg-surface-3 text-slate-400 text-[10px] hidden sm:inline-flex">{activeGroup?.name}</span>
-        <div className="flex-1" />
-        <div className="hidden sm:flex gap-1 bg-surface-2 p-0.5 rounded-lg">
-          <button className="p-1.5 rounded-md transition-colors bg-brand-dim text-brand">
-            <MessageSquare size={14} />
-          </button>
+      <div className="h-14 shrink-0 border-b border-white/10 glass-panel flex items-center px-3 gap-2">
+        <Link to={`/groups/${groupId}`} className="btn-ghost p-1.5"><ArrowLeft size={16} /></Link>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-semibold text-white truncate">{activeGroup?.name ?? room.name}</div>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[11px] font-medium text-emerald-400">Live</span>
+            <span className="text-[11px] text-slate-500">· {room.type === 'AUDIO_CALL' ? 'Voice' : 'Video'} call</span>
+          </div>
         </div>
+        <button onClick={inviteToCall}
+          className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[11px] font-semibold text-brand bg-brand-dim border border-brand/30 active:scale-95 transition-transform">
+          <UserPlus size={13} /> Invite
+        </button>
+        <button onClick={() => setChatOpen((v) => !v)}
+          className={clsx('w-9 h-9 rounded-xl flex items-center justify-center transition-colors shrink-0',
+            chatOpen ? 'bg-brand-dim text-brand' : 'bg-surface-2 text-slate-400')}>
+          <MessageSquare size={16} />
+        </button>
       </div>
 
       {/* PTT speaking indicator */}
