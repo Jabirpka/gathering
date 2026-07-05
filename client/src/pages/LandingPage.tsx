@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Video, Loader2, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
+import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
 import toast from 'react-hot-toast';
 import { authApi } from '../services/api';
 import { useAuthStore } from '../store/authStore';
+import { firebaseAuth } from '../services/firebase';
 
 const BASE = import.meta.env.VITE_API_URL ?? '';
 
@@ -19,6 +21,8 @@ export default function LandingPage() {
   const [code, setCode] = useState('');
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const verifierRef = useRef<RecaptchaVerifier | null>(null);
+  const confirmationRef = useRef<ConfirmationResult | null>(null);
 
   const fullPhone = () => `+92${phone.replace(/\D/g, '')}`;
 
@@ -40,30 +44,39 @@ export default function LandingPage() {
   const requestOtp = async () => {
     const digits = phone.replace(/\D/g, '');
     if (digits.length < 7) { toast.error('Enter a valid phone number'); return; }
+    if (!firebaseAuth) { toast.error('Phone sign-in isn’t configured yet — use Google'); return; }
     setSending(true);
     try {
-      const res = await authApi.requestPhoneOtp(fullPhone());
+      // Invisible reCAPTCHA is required by Firebase Phone Auth on the web.
+      if (!verifierRef.current) {
+        verifierRef.current = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', { size: 'invisible' });
+      }
+      confirmationRef.current = await signInWithPhoneNumber(firebaseAuth, fullPhone(), verifierRef.current);
       setPhase('otp');
       setCode('');
-      if (res.data?.devCode) toast(`Dev code: ${res.data.devCode}`, { icon: '🔑', duration: 8000 });
-      else toast.success('Code sent');
+      toast.success('Code sent');
     } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Could not send code');
+      toast.error(err?.message || 'Could not send code');
+      try { verifierRef.current?.clear(); } catch { /* noop */ }
+      verifierRef.current = null;
     } finally {
       setSending(false);
     }
   };
 
   const verifyOtp = async () => {
+    if (!confirmationRef.current) { toast.error('Request a code first'); return; }
     if (code.trim().length < 4) { toast.error('Enter the code'); return; }
     setVerifying(true);
     try {
-      const res = await authApi.verifyPhoneOtp(fullPhone(), code.trim());
+      const cred = await confirmationRef.current.confirm(code.trim());
+      const idToken = await cred.user.getIdToken();
+      const res = await authApi.firebaseLogin(idToken);
       await setToken(res.data.token);
       await fetchUser();
       navigate('/dashboard');
     } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Verification failed');
+      toast.error(err?.response?.data?.error || err?.message || 'Verification failed');
     } finally {
       setVerifying(false);
     }
@@ -157,6 +170,9 @@ export default function LandingPage() {
           By continuing you agree to our <span className="text-brand">Terms</span> &amp; <span className="text-brand">Privacy</span>
         </p>
       </motion.div>
+
+      {/* Firebase invisible reCAPTCHA mounts here */}
+      <div id="recaptcha-container" />
     </div>
   );
 }

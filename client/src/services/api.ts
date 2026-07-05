@@ -27,8 +27,7 @@ api.interceptors.response.use(
 export const authApi = {
   me: () => api.get('/auth/me'),
   logout: () => api.post('/auth/logout'),
-  requestPhoneOtp: (phone: string) => api.post('/auth/phone/request', { phone }),
-  verifyPhoneOtp: (phone: string, code: string) => api.post('/auth/phone/verify', { phone, code }),
+  firebaseLogin: (idToken: string) => api.post('/auth/firebase', { idToken }),
 };
 
 export const usersApi = {
