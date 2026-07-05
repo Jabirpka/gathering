@@ -41,24 +41,33 @@ export default function LandingPage() {
     }
   };
 
+  // Tear down any existing reCAPTCHA and empty its container. Reusing the same
+  // element throws "reCAPTCHA has already been rendered in this element", so we
+  // start clean before every send/resend.
+  const resetRecaptcha = () => {
+    try { verifierRef.current?.clear(); } catch { /* noop */ }
+    verifierRef.current = null;
+    const el = document.getElementById('recaptcha-container');
+    if (el) el.innerHTML = '';
+  };
+
   const requestOtp = async () => {
     const digits = phone.replace(/\D/g, '');
     if (digits.length < 7) { toast.error('Enter a valid phone number'); return; }
     if (!firebaseAuth) { toast.error('Phone sign-in isn’t configured yet — use Google'); return; }
     setSending(true);
     try {
-      // Invisible reCAPTCHA is required by Firebase Phone Auth on the web.
-      if (!verifierRef.current) {
-        verifierRef.current = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', { size: 'invisible' });
-      }
+      // Invisible reCAPTCHA is required by Firebase Phone Auth on the web —
+      // create a fresh one each attempt.
+      resetRecaptcha();
+      verifierRef.current = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', { size: 'invisible' });
       confirmationRef.current = await signInWithPhoneNumber(firebaseAuth, fullPhone(), verifierRef.current);
       setPhase('otp');
       setCode('');
       toast.success('Code sent');
     } catch (err: any) {
       toast.error(err?.message || 'Could not send code');
-      try { verifierRef.current?.clear(); } catch { /* noop */ }
-      verifierRef.current = null;
+      resetRecaptcha();
     } finally {
       setSending(false);
     }
