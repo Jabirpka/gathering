@@ -1,26 +1,33 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Video, Loader2 } from 'lucide-react';
+import { Video, Loader2, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
 import toast from 'react-hot-toast';
+import { authApi } from '../services/api';
+import { useAuthStore } from '../store/authStore';
 
 const BASE = import.meta.env.VITE_API_URL ?? '';
 
 export default function LandingPage() {
+  const navigate = useNavigate();
+  const { setToken, fetchUser } = useAuthStore();
   const [loading, setLoading] = useState(false);
+  const [phase, setPhase] = useState<'phone' | 'otp'>('phone');
   const [phone, setPhone] = useState('');
+  const [code, setCode] = useState('');
+  const [sending, setSending] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+
+  const fullPhone = () => `+92${phone.replace(/\D/g, '')}`;
 
   const handleLogin = async () => {
     if (Capacitor.isNativePlatform()) {
-      // Native app: open Google OAuth in Chrome Custom Tab.
-      // Server redirects to gathering://auth?token=xxx on success, which
-      // Android intercepts and App.tsx handles via appUrlOpen.
       setLoading(true);
       const pollId = 'native_' + Date.now().toString(36);
       try {
         await Browser.open({ url: `${BASE}/api/auth/google?pollId=${pollId}`, windowName: '_self' });
-        // Loading stays true — appUrlOpen in App.tsx will navigate us away
       } catch {
         setLoading(false);
         toast.error('Failed to open sign-in. Please try again.');
@@ -30,27 +37,43 @@ export default function LandingPage() {
     }
   };
 
-  // Phone sign-in is a designed entry point; the OTP backend isn't wired yet,
-  // so we guide users to Google until it lands.
-  const handlePhoneContinue = () => {
-    if (phone.replace(/\D/g, '').length < 7) {
-      toast.error('Enter a valid phone number');
-      return;
+  const requestOtp = async () => {
+    const digits = phone.replace(/\D/g, '');
+    if (digits.length < 7) { toast.error('Enter a valid phone number'); return; }
+    setSending(true);
+    try {
+      const res = await authApi.requestPhoneOtp(fullPhone());
+      setPhase('otp');
+      setCode('');
+      if (res.data?.devCode) toast(`Dev code: ${res.data.devCode}`, { icon: '🔑', duration: 8000 });
+      else toast.success('Code sent');
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Could not send code');
+    } finally {
+      setSending(false);
     }
-    toast('Phone sign-in is coming soon — continue with Google for now', { icon: '📱', duration: 4000 });
+  };
+
+  const verifyOtp = async () => {
+    if (code.trim().length < 4) { toast.error('Enter the code'); return; }
+    setVerifying(true);
+    try {
+      const res = await authApi.verifyPhoneOtp(fullPhone(), code.trim());
+      await setToken(res.data.token);
+      await fetchUser();
+      navigate('/dashboard');
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Verification failed');
+    } finally {
+      setVerifying(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-5 py-10 relative overflow-hidden">
-      {/* Ambient glow */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] h-[320px] rounded-full bg-brand/12 blur-[90px] pointer-events-none" />
 
-      <motion.div
-        initial={{ opacity: 0, y: 18 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative w-full max-w-sm"
-      >
+      <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="relative w-full max-w-sm">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2.5 mb-5">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-brand flex items-center justify-center">
@@ -68,26 +91,42 @@ export default function LandingPage() {
           <p className="text-sm text-slate-400 mt-3">Your people. One place.</p>
         </div>
 
-        {/* Phone sign-in */}
-        <div className="space-y-2.5">
-          <div className="flex items-stretch bg-surface-2 border border-white/10 rounded-2xl overflow-hidden focus-within:border-brand/60 transition-colors">
-            <div className="flex items-center gap-1.5 px-3.5 text-sm font-semibold text-brand border-r border-white/10 whitespace-nowrap select-none">
-              🇵🇰 +92
+        {phase === 'phone' ? (
+          /* Phone entry */
+          <div className="space-y-2.5">
+            <div className="flex items-stretch bg-surface-2 border border-white/10 rounded-2xl overflow-hidden focus-within:border-brand/60 transition-colors">
+              <div className="flex items-center gap-1.5 px-3.5 text-sm font-semibold text-brand border-r border-white/10 whitespace-nowrap select-none">🇵🇰 +92</div>
+              <input
+                type="tel" inputMode="tel" placeholder="Phone number" value={phone}
+                onChange={(e) => setPhone(e.target.value.replace(/[^\d\s]/g, '').slice(0, 12))}
+                onKeyDown={(e) => e.key === 'Enter' && requestOtp()}
+                className="flex-1 bg-transparent outline-none px-3.5 py-3.5 text-sm text-white placeholder-slate-500"
+              />
             </div>
-            <input
-              type="tel"
-              inputMode="tel"
-              placeholder="Phone number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value.replace(/[^\d\s]/g, '').slice(0, 12))}
-              onKeyDown={(e) => e.key === 'Enter' && handlePhoneContinue()}
-              className="flex-1 bg-transparent outline-none px-3.5 py-3.5 text-sm text-white placeholder-slate-500"
-            />
+            <button onClick={requestOtp} disabled={sending} className="btn-primary w-full justify-center py-3.5 text-[15px]">
+              {sending ? <Loader2 size={18} className="animate-spin" /> : <>Continue <span aria-hidden>→</span></>}
+            </button>
           </div>
-          <button onClick={handlePhoneContinue} className="btn-primary w-full justify-center py-3.5 text-[15px]">
-            Continue <span aria-hidden>→</span>
-          </button>
-        </div>
+        ) : (
+          /* OTP entry */
+          <div className="space-y-2.5">
+            <button onClick={() => setPhase('phone')} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors">
+              <ArrowLeft size={13} /> {fullPhone()}
+            </button>
+            <input
+              type="tel" inputMode="numeric" placeholder="6-digit code" value={code} autoFocus
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              onKeyDown={(e) => e.key === 'Enter' && verifyOtp()}
+              className="w-full bg-surface-2 border border-white/10 rounded-2xl outline-none focus:border-brand/60 px-4 py-3.5 text-center text-lg font-semibold tracking-[0.4em] text-white placeholder-slate-600 placeholder:tracking-normal placeholder:text-sm placeholder:font-normal transition-colors"
+            />
+            <button onClick={verifyOtp} disabled={verifying} className="btn-primary w-full justify-center py-3.5 text-[15px]">
+              {verifying ? <Loader2 size={18} className="animate-spin" /> : 'Verify & sign in'}
+            </button>
+            <button onClick={requestOtp} disabled={sending} className="w-full text-center text-xs text-brand hover:underline disabled:opacity-50">
+              {sending ? 'Sending…' : 'Resend code'}
+            </button>
+          </div>
+        )}
 
         {/* Divider */}
         <div className="flex items-center gap-2.5 my-5">
@@ -97,16 +136,10 @@ export default function LandingPage() {
         </div>
 
         {/* Google */}
-        <button
-          onClick={handleLogin}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-2.5 bg-white text-slate-900 font-semibold px-6 py-3.5 rounded-2xl text-sm shadow-xl hover:shadow-2xl transition-all disabled:opacity-70"
-        >
+        <button onClick={handleLogin} disabled={loading}
+          className="w-full flex items-center justify-center gap-2.5 bg-white text-slate-900 font-semibold px-6 py-3.5 rounded-2xl text-sm shadow-xl hover:shadow-2xl transition-all disabled:opacity-70">
           {loading ? (
-            <>
-              <Loader2 size={18} className="animate-spin" />
-              Waiting for sign-in…
-            </>
+            <><Loader2 size={18} className="animate-spin" /> Waiting for sign-in…</>
           ) : (
             <>
               <svg viewBox="0 0 24 24" className="w-[18px] h-[18px]" aria-hidden>
@@ -120,15 +153,10 @@ export default function LandingPage() {
           )}
         </button>
 
-        {/* Terms */}
         <p className="text-center text-xs text-slate-500 leading-relaxed mt-6">
           By continuing you agree to our <span className="text-brand">Terms</span> &amp; <span className="text-brand">Privacy</span>
         </p>
       </motion.div>
-
-      {loading && (
-        <p className="relative mt-5 text-xs text-slate-400">Complete sign-in in the browser window that opened</p>
-      )}
     </div>
   );
 }

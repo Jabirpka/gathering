@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import passport from 'passport';
 import { generateToken, authMiddleware } from '../middleware/auth';
 import { config } from '../config';
+import { prisma } from '../index';
 
 const router = Router();
 
@@ -71,6 +72,67 @@ router.get('/me', authMiddleware, (req: Request, res: Response) => {
 
 router.post('/logout', (_req: Request, res: Response) => {
   res.json({ message: 'Logged out' });
+});
+
+// ---- Phone OTP sign-in -------------------------------------------------
+// In-memory code store (phone → code). Fine for a single long-running server;
+// swap for Redis/DB if you scale to multiple instances.
+const otpStore = new Map<string, { code: string; expiresAt: number; attempts: number }>();
+setInterval(() => {
+  const now = Date.now();
+  for (const [k, v] of otpStore.entries()) if (v.expiresAt < now) otpStore.delete(k);
+}, 60_000);
+
+// Normalize to "+<digits>". Returns null when the number is too short/long.
+function normalizePhone(raw: unknown): string | null {
+  if (typeof raw !== 'string') return null;
+  const digits = raw.replace(/\D/g, '');
+  if (digits.length < 8 || digits.length > 15) return null;
+  return '+' + digits;
+}
+
+// Deliver the code. No SMS provider is wired yet — we log it. Plug Twilio (or
+// similar) in here for production delivery.
+async function sendSms(phone: string, message: string): Promise<void> {
+  console.log(`[OTP] SMS to ${phone}: ${message}`);
+}
+
+// In dev (no SMS provider) the code is returned so the flow is testable.
+const OTP_DEV = process.env.NODE_ENV !== 'production';
+
+router.post('/phone/request', async (req: Request, res: Response) => {
+  const phone = normalizePhone(req.body?.phone);
+  if (!phone) return res.status(400).json({ error: 'Enter a valid phone number' });
+  const code = String(Math.floor(100000 + Math.random() * 900000));
+  otpStore.set(phone, { code, expiresAt: Date.now() + 5 * 60_000, attempts: 0 });
+  try { await sendSms(phone, `Your Gathering code is ${code}`); } catch {}
+  res.json({ sent: true, ...(OTP_DEV ? { devCode: code } : {}) });
+});
+
+router.post('/phone/verify', async (req: Request, res: Response) => {
+  const phone = normalizePhone(req.body?.phone);
+  const code = String(req.body?.code ?? '').trim();
+  if (!phone) return res.status(400).json({ error: 'Enter a valid phone number' });
+
+  const entry = otpStore.get(phone);
+  if (!entry || entry.expiresAt < Date.now()) {
+    otpStore.delete(phone);
+    return res.status(400).json({ error: 'Code expired — request a new one' });
+  }
+  entry.attempts += 1;
+  if (entry.attempts > 5) {
+    otpStore.delete(phone);
+    return res.status(429).json({ error: 'Too many attempts — request a new code' });
+  }
+  if (entry.code !== code) return res.status(400).json({ error: 'Incorrect code' });
+  otpStore.delete(phone);
+
+  let user = await prisma.user.findUnique({ where: { phone } });
+  if (!user) {
+    user = await prisma.user.create({ data: { phone, name: phone } });
+  }
+  const token = generateToken(user.id);
+  res.json({ token, user: { id: user.id, name: user.name, phone: user.phone, avatar: user.avatar } });
 });
 
 export default router;
