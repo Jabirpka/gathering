@@ -1,9 +1,8 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { MessageSquare, Users, Plus, Bell, User } from 'lucide-react';
+import { MessageSquare, Users, Plus, User } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useGroupStore } from '../../store/groupStore';
 import { useDmStore } from '../../store/dmStore';
-import { useNotificationStore } from '../../store/notificationStore';
 import clsx from 'clsx';
 
 interface Props {
@@ -22,7 +21,6 @@ export default function BottomNav({ onOpenGroups }: Props) {
   const chatUnread = useGroupStore((s) => Object.values(s.unreadByGroup).reduce((a, b) => a + b, 0));
   const dmUnread = useDmStore((s) => Object.values(s.unreadByThread).reduce((a, b) => a + b, 0));
   const totalUnread = chatUnread + dmUnread;
-  const notifUnread = useNotificationStore((s) => s.unreadCount);
 
   // Only the top-level hub screens get the tab bar.
   if (pathname !== '/dashboard' && pathname !== '/profile') return null;
@@ -67,14 +65,17 @@ export default function BottomNav({ onOpenGroups }: Props) {
       </button>
 
       <button
-        onClick={() => window.dispatchEvent(new CustomEvent('open-notifications'))}
-        className="relative flex flex-col items-center gap-1 w-14 py-1 text-slate-400"
+        onClick={() => {
+          if (pathname === '/dashboard') window.dispatchEvent(new CustomEvent('open-add-status'));
+          else navigate('/dashboard');
+        }}
+        className="flex flex-col items-center gap-1 w-14 py-1 text-slate-400"
+        title="Status"
       >
-        <Bell size={22} />
+        <div className="w-[22px] h-[22px] rounded-full border-2 border-dashed border-slate-400 flex items-center justify-center">
+          <User size={11} />
+        </div>
         <span className="w-1 h-1 rounded-full bg-transparent" />
-        {notifUnread > 0 && (
-          <span className="absolute top-0 right-2 w-2 h-2 rounded-full bg-brand" />
-        )}
       </button>
 
       <button

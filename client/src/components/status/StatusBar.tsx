@@ -20,6 +20,16 @@ export default function StatusBar() {
 
   useEffect(() => { refresh(); }, []);
 
+  // Bottom-nav "Status" button opens the composer (or my story if I have one).
+  useEffect(() => {
+    const open = () => {
+      const m = groups.find((g) => g.user.id === user?.id);
+      if (m) setViewing(m); else setShowAdd(true);
+    };
+    window.addEventListener('open-add-status', open);
+    return () => window.removeEventListener('open-add-status', open);
+  }, [groups, user?.id]);
+
   const mine = groups.find((g) => g.user.id === user?.id);
   const others = groups.filter((g) => g.user.id !== user?.id);
 
