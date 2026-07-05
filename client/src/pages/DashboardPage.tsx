@@ -7,7 +7,6 @@ import { Users, Plus } from 'lucide-react';
 import { format, isToday } from 'date-fns';
 import { Group, DmThread } from '../types';
 import GroupSheet from '../components/groups/GroupSheet';
-import StatusBar from '../components/status/StatusBar';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
 
@@ -125,10 +124,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Status / stories */}
-      <StatusBar />
-
-      {/* Home / Group / DM segmented filter */}
+      {/* Group / DM segmented filter */}
       <div className="flex gap-1 p-1 rounded-2xl glass mb-4">
         {([['group', 'Groups'], ['dm', 'DMs']] as const).map(([key, label]) => (
           <button key={key} onClick={() => setFilter(key)}

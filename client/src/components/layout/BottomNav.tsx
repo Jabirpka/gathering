@@ -68,10 +68,7 @@ export default function BottomNav({ onOpenGroups }: Props) {
       </button>
 
       <button
-        onClick={() => {
-          if (pathname === '/dashboard') window.dispatchEvent(new CustomEvent('open-add-status'));
-          else navigate('/dashboard');
-        }}
+        onClick={() => window.dispatchEvent(new CustomEvent('open-status'))}
         className="flex flex-col items-center gap-1 w-14 py-1 text-slate-400"
         title="Status"
       >
