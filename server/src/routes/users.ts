@@ -13,7 +13,7 @@ router.get('/me', (req: Request, res: Response) => {
 
 // Update my profile (name, nickname, avatar, and v2 profile fields)
 router.patch('/me', async (req: Request, res: Response) => {
-  const { name, nickname, avatar, username, dateOfBirth, bio, interests, favoriteSong, favoriteMovie, city } = req.body;
+  const { name, nickname, avatar, username, dateOfBirth, bio, interests, favoriteSong, favoriteMovie, city, onboarded } = req.body;
   try {
     const data: any = {};
     if (name !== undefined) data.name = name;
@@ -26,6 +26,7 @@ router.patch('/me', async (req: Request, res: Response) => {
     if (favoriteSong !== undefined) data.favoriteSong = favoriteSong || null;
     if (favoriteMovie !== undefined) data.favoriteMovie = favoriteMovie || null;
     if (city !== undefined) data.city = city || null;
+    if (onboarded !== undefined) data.onboarded = !!onboarded;
 
     const user = await prisma.user.update({
       where: { id: req.user!.id },
@@ -33,7 +34,7 @@ router.patch('/me', async (req: Request, res: Response) => {
       select: {
         id: true, name: true, nickname: true, email: true, avatar: true,
         username: true, dateOfBirth: true, bio: true, interests: true,
-        favoriteSong: true, favoriteMovie: true, city: true,
+        favoriteSong: true, favoriteMovie: true, city: true, onboarded: true,
       },
     });
     res.json(user);

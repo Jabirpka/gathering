@@ -27,6 +27,7 @@ export function configurePassport() {
                 email,
                 name: profile.displayName,
                 avatar: profile.photos?.[0]?.value,
+                onboarded: false,
               },
             });
           } else {

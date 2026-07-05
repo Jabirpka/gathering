@@ -16,6 +16,7 @@ import GroupPage from './pages/GroupPage';
 import RoomPage from './pages/RoomPage';
 import DmPage from './pages/DmPage';
 import ProfilePage from './pages/ProfilePage';
+import ProfileSetup from './pages/ProfileSetup';
 import AuthCallback from './pages/AuthCallback';
 import Layout from './components/layout/Layout';
 import CallRingNotification from './components/call/CallRingNotification';
@@ -137,16 +138,23 @@ function AppRoutes() {
       <CallRingNotification ring={incomingCall} onDismiss={() => setIncomingCall(null)} />
       {user && <CallManager />}
       <Routes>
-        <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
+        <Route path="/" element={user ? <Navigate to={user.onboarded === false ? '/setup' : '/dashboard'} replace /> : <LandingPage />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         {user ? (
-          <Route element={<Layout />}>
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/groups/:groupId" element={<GroupPage />} />
-            <Route path="/groups/:groupId/rooms/:roomId" element={<RoomPage />} />
-            <Route path="/dm/:threadId" element={<DmPage />} />
-          </Route>
+          user.onboarded === false ? (
+            <>
+              <Route path="/setup" element={<ProfileSetup />} />
+              <Route path="*" element={<Navigate to="/setup" replace />} />
+            </>
+          ) : (
+            <Route element={<Layout />}>
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/groups/:groupId" element={<GroupPage />} />
+              <Route path="/groups/:groupId/rooms/:roomId" element={<RoomPage />} />
+              <Route path="/dm/:threadId" element={<DmPage />} />
+            </Route>
+          )
         ) : (
           <Route path="*" element={<Navigate to="/" replace />} />
         )}

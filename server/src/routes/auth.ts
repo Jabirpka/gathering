@@ -96,7 +96,7 @@ router.post('/firebase', async (req: Request, res: Response) => {
 
     let user = await prisma.user.findUnique({ where: { phone } });
     if (!user) {
-      user = await prisma.user.create({ data: { phone, name: phone } });
+      user = await prisma.user.create({ data: { phone, name: phone, onboarded: false } });
     }
     const token = generateToken(user.id);
     res.json({ token, user: { id: user.id, name: user.name, phone: user.phone, avatar: user.avatar } });

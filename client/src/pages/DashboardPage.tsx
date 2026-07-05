@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useGroupStore } from '../store/groupStore';
 import { useDmStore } from '../store/dmStore';
 import { useAuthStore } from '../store/authStore';
-import { Users, Plus, LogIn } from 'lucide-react';
+import { Users, Plus } from 'lucide-react';
 import { format, isToday } from 'date-fns';
 import { Group, DmThread } from '../types';
 import GroupSheet from '../components/groups/GroupSheet';
@@ -75,7 +75,7 @@ function DmRow({ thread, onClick }: { thread: DmThread; onClick: () => void }) {
   );
 }
 
-type Filter = 'all' | 'group' | 'dm';
+type Filter = 'group' | 'dm';
 
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
@@ -84,54 +84,53 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sheetTab, setSheetTab] = useState<'join' | 'create'>('join');
-  const [filter, setFilter] = useState<Filter>('all');
+  const [filter, setFilter] = useState<Filter>('group');
   const openSheet = (t: 'join' | 'create') => { setSheetTab(t); setSheetOpen(true); };
 
   useEffect(() => { fetchThreads(); }, []);
+
+  // The bottom-nav center + button opens the Join/Create sheet (v2).
+  useEffect(() => {
+    const open = () => openSheet('join');
+    window.addEventListener('open-group-sheet', open);
+    return () => window.removeEventListener('open-group-sheet', open);
+  }, []);
 
   // Merge groups and DMs into one list, newest activity first, then filter.
   const chatItems = [
     ...groups.map((g) => ({ kind: 'group' as const, id: `g-${g.id}`, at: +new Date(g.lastMessage?.createdAt ?? g.updatedAt), group: g })),
     ...threads.map((t) => ({ kind: 'dm' as const, id: `d-${t.id}`, at: +new Date(t.lastMessage?.createdAt ?? t.updatedAt), thread: t })),
   ]
-    .filter((i) => filter === 'all' || i.kind === filter)
+    .filter((i) => i.kind === filter)
     .sort((a, b) => b.at - a.at);
 
   const firstName = user?.nickname || user?.name?.split(' ')[0];
 
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto animate-fade-in pb-28 lg:pb-8">
-      {/* Wordmark + quick buttons */}
-      <div className="flex items-start justify-between mb-4">
+      {/* Compact header (v2): wordmark + inline greeting */}
+      <div className="flex items-center justify-between mb-5">
         <div>
           <h2 className="text-lg font-extrabold tracking-wide text-white leading-none">GATHERING</h2>
           <p className="text-[10px] font-semibold tracking-[0.25em] text-brand/70 mt-1">YOUR PEOPLE</p>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={() => openSheet('join')} title="Join with code"
-            className="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/10 text-slate-300 hover:text-white flex items-center justify-center transition-colors">
-            <LogIn size={16} />
-          </button>
-          <button onClick={() => openSheet('create')} title="New group"
-            className="w-9 h-9 rounded-xl flex items-center justify-center text-white"
-            style={{ background: 'linear-gradient(135deg, #a855f7, #d946ef)', boxShadow: '0 4px 14px rgba(168,85,247,0.5)' }}>
+        <div className="flex items-center gap-2.5">
+          <span className="text-sm font-semibold text-white">Hey, {firstName} <span className="text-brand">✦</span></span>
+          {/* Desktop create/join (mobile uses the bottom-nav + button) */}
+          <button onClick={() => openSheet('create')} title="New / join group"
+            className="hidden lg:flex w-9 h-9 rounded-xl items-center justify-center text-white shrink-0"
+            style={{ background: 'linear-gradient(135deg, #e879f9, #a855f7)', boxShadow: '0 4px 14px rgba(232,121,249,0.5)' }}>
             <Plus size={18} />
-          </button>
-          <button onClick={() => navigate('/profile')}
-            className="w-9 h-9 rounded-xl overflow-hidden bg-brand-dim flex items-center justify-center text-sm font-bold text-brand">
-            {user?.avatar ? <img src={user.avatar} className="w-full h-full object-cover" alt="" /> : (firstName?.[0] ?? 'J')}
           </button>
         </div>
       </div>
-
-      <h1 className="text-2xl font-bold text-white mb-4">Hey, {firstName} <span className="text-brand">✦</span></h1>
 
       {/* Status / stories */}
       <StatusBar />
 
       {/* Home / Group / DM segmented filter */}
       <div className="flex gap-1 p-1 rounded-2xl glass mb-4">
-        {([['all', 'Home'], ['group', 'Groups'], ['dm', 'DMs']] as const).map(([key, label]) => (
+        {([['group', 'Groups'], ['dm', 'DMs']] as const).map(([key, label]) => (
           <button key={key} onClick={() => setFilter(key)}
             className={clsx('flex-1 py-1.5 rounded-xl text-sm font-medium transition-all',
               filter === key ? 'bg-gradient-to-br from-brand to-accent text-white shadow-lg shadow-brand/30' : 'text-slate-400 hover:text-white')}>

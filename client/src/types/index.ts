@@ -12,6 +12,7 @@ export interface User {
   favoriteSong?: string | null;
   favoriteMovie?: string | null;
   city?: string | null;
+  onboarded?: boolean;
   strikePoints?: number;
   createdAt?: string;
 }

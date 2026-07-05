@@ -51,15 +51,18 @@ export default function BottomNav({ onOpenGroups }: Props) {
         <span className="w-1 h-1 rounded-full bg-transparent" />
       </button>
 
-      {/* Center FAB */}
+      {/* Center FAB — opens the Join/Create sheet (v2) */}
       <button
-        onClick={onOpenGroups}
+        onClick={() => {
+          if (pathname === '/dashboard') window.dispatchEvent(new CustomEvent('open-group-sheet'));
+          else navigate('/dashboard');
+        }}
         className="w-14 h-14 -mt-6 rounded-2xl flex items-center justify-center text-white shrink-0"
         style={{
-          background: 'linear-gradient(135deg, #a855f7, #d946ef)',
-          boxShadow: '0 8px 24px rgba(168,85,247,0.5)',
+          background: 'linear-gradient(135deg, #e879f9, #a855f7)',
+          boxShadow: '0 8px 24px rgba(232,121,249,0.5)',
         }}
-        title="New chat / group"
+        title="Join or create a group"
       >
         <Plus size={26} />
       </button>
