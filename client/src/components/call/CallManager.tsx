@@ -4,11 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import {
   LiveKitRoom,
   RoomAudioRenderer,
-  GridLayout,
   ParticipantTile,
   useTracks,
+  useSpeakingParticipants,
   useConnectionState,
 } from '@livekit/components-react';
+import type { TrackReferenceOrPlaceholder } from '@livekit/components-react';
 import '@livekit/components-styles';
 import { ConnectionState, Track } from 'livekit-client';
 import { Loader2, AlertCircle, Maximize2, PhoneOff } from 'lucide-react';
@@ -16,12 +17,67 @@ import { livekitApi } from '../../services/api';
 import { useCallStore } from '../../store/callStore';
 import CallControlBar from './CallControlBar';
 
+const trackKey = (t: TrackReferenceOrPlaceholder) =>
+  `${t.participant.identity}:${t.source}:${t.publication?.trackSid ?? 'ph'}`;
+
+/**
+ * v2 active-speaker layout: the screen share (or current speaker, else the
+ * first participant) fills the stage, and everyone else sits in a horizontal
+ * strip below. Falls back gracefully to a single tile for 1:1 calls.
+ */
 function CallStage() {
-  const tracks = useTracks([Track.Source.Camera, Track.Source.ScreenShare], { onlySubscribed: false });
+  const tracks = useTracks(
+    [
+      { source: Track.Source.Camera, withPlaceholder: true },
+      { source: Track.Source.ScreenShare, withPlaceholder: false },
+    ],
+    { onlySubscribed: false }
+  );
+  const speakers = useSpeakingParticipants();
+  const topSpeakerId = speakers[0]?.identity;
+
+  const screenShare = tracks.find((t) => t.source === Track.Source.ScreenShare);
+  const speakerCam = tracks.find(
+    (t) => t.source === Track.Source.Camera && t.participant.identity === topSpeakerId
+  );
+  const focus = screenShare ?? speakerCam ?? tracks[0];
+  if (!focus) return null;
+
+  const focusKey = trackKey(focus);
+  const others = tracks.filter((t) => trackKey(t) !== focusKey);
+  const focusIsSpeaker = !screenShare && focus.participant.identity === topSpeakerId;
+
   return (
-    <GridLayout tracks={tracks} style={{ height: '100%' }}>
-      <ParticipantTile />
-    </GridLayout>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 8, padding: 8, boxSizing: 'border-box' }}>
+      <div
+        style={{
+          flex: 1, minHeight: 0, borderRadius: 16, overflow: 'hidden', position: 'relative',
+          border: focusIsSpeaker ? '2px solid #e879f9' : '1px solid #330060',
+          boxShadow: focusIsSpeaker ? '0 0 0 3px rgba(232,121,249,0.18)' : 'none',
+        }}
+      >
+        <ParticipantTile trackRef={focus} style={{ height: '100%', width: '100%' }} />
+      </div>
+
+      {others.length > 0 && (
+        <div style={{ flexShrink: 0, display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2 }}>
+          {others.map((t) => {
+            const isSpeaking = t.participant.identity === topSpeakerId;
+            return (
+              <div
+                key={trackKey(t)}
+                style={{
+                  flexShrink: 0, width: 96, height: 72, borderRadius: 12, overflow: 'hidden',
+                  border: isSpeaking ? '2px solid #a855f7' : '1px solid #330060',
+                }}
+              >
+                <ParticipantTile trackRef={t} style={{ width: '100%', height: '100%' }} />
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }
 
