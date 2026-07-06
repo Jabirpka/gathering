@@ -72,11 +72,11 @@ export default function Navbar({ onMenuClick }: Props) {
         <NotificationPanel open={showNotifs} onClose={() => setShowNotifs(false)} />
       </div>
 
-      {/* Avatar → profile page */}
+      {/* Avatar → profile page (desktop only; mobile uses the bottom-nav Profile) */}
       {user && (
         <button
           onClick={() => navigate('/profile')}
-          className="flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded-xl transition-colors"
+          className="hidden lg:flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded-xl transition-colors"
           title="Profile"
         >
           {user.avatar ? (
