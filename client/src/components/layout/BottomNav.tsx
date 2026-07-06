@@ -30,7 +30,7 @@ export default function BottomNav({ onOpenGroups }: Props) {
 
   return (
     <nav
-      className="lg:hidden fixed bottom-0 inset-x-0 z-30 glass-panel border-t border-white/10 flex items-center justify-around px-2"
+      className="fixed bottom-0 inset-x-0 z-30 glass-panel border-t border-white/10 flex items-center justify-around px-2"
       style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0.5rem)', paddingTop: '0.5rem' }}
     >
       <button

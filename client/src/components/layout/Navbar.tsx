@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Video, Bell, Menu } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { Link } from 'react-router-dom';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useGroupStore } from '../../store/groupStore';
 import { useDmStore } from '../../store/dmStore';
@@ -12,8 +11,6 @@ interface Props {
 }
 
 export default function Navbar({ onMenuClick }: Props) {
-  const { user } = useAuth();
-  const navigate = useNavigate();
   const { unreadCount } = useNotificationStore();
   const groupUnread = useGroupStore((s) => Object.values(s.unreadByGroup).reduce((a, b) => a + b, 0));
   const dmUnread = useDmStore((s) => Object.values(s.unreadByThread).reduce((a, b) => a + b, 0));
@@ -35,7 +32,7 @@ export default function Navbar({ onMenuClick }: Props) {
       {/* Mobile menu button */}
       <button
         onClick={onMenuClick}
-        className="lg:hidden btn-ghost p-2 -ml-1 relative"
+        className="btn-ghost p-2 -ml-1 relative"
         aria-label="Open menu"
       >
         <Menu size={18} />
@@ -72,25 +69,6 @@ export default function Navbar({ onMenuClick }: Props) {
         <NotificationPanel open={showNotifs} onClose={() => setShowNotifs(false)} />
       </div>
 
-      {/* Avatar → profile page (desktop only; mobile uses the bottom-nav Profile) */}
-      {user && (
-        <button
-          onClick={() => navigate('/profile')}
-          className="hidden lg:flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded-xl transition-colors"
-          title="Profile"
-        >
-          {user.avatar ? (
-            <img src={user.avatar} className="w-7 h-7 rounded-full object-cover" alt={user.name} />
-          ) : (
-            <div className="w-7 h-7 rounded-full bg-brand-dim flex items-center justify-center text-xs font-semibold text-brand">
-              {(user.nickname || user.name)[0]}
-            </div>
-          )}
-          <span className="text-sm text-slate-200 hidden sm:block max-w-[120px] truncate">
-            {user.nickname || user.name}
-          </span>
-        </button>
-      )}
     </header>
   );
 }

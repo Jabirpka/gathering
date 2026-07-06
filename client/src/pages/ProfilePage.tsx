@@ -76,7 +76,7 @@ export default function ProfilePage() {
   const displayName = user?.nickname || user?.name || '';
 
   return (
-    <div className="p-6 max-w-lg mx-auto animate-fade-in pb-28 lg:pb-8">
+    <div className="p-6 max-w-lg mx-auto animate-fade-in pb-28">
       <h1 className="text-xl font-bold text-white mb-6">Profile</h1>
 
       {/* Avatar */}

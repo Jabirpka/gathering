@@ -106,7 +106,7 @@ export default function DashboardPage() {
   const firstName = user?.nickname || user?.name?.split(' ')[0];
 
   return (
-    <div className="p-4 sm:p-6 max-w-3xl mx-auto animate-fade-in pb-28 lg:pb-8">
+    <div className="p-4 sm:p-6 max-w-3xl mx-auto animate-fade-in pb-28">
       {/* Compact header (v2): wordmark + inline greeting */}
       <div className="flex items-center justify-between mb-5">
         <div>

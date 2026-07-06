@@ -12,18 +12,18 @@ export default function Layout() {
     <div className="h-screen flex flex-col overflow-hidden">
       <Navbar onMenuClick={() => setSidebarOpen(true)} />
       <div className="flex flex-1 overflow-hidden relative">
-        {/* Mobile overlay */}
+        {/* Overlay */}
         {sidebarOpen && (
           <div
-            className="fixed inset-0 bg-black/60 z-30 lg:hidden"
+            className="fixed inset-0 bg-black/60 z-30"
             onClick={() => setSidebarOpen(false)}
           />
         )}
-        {/* Sidebar — drawer on mobile, static on desktop */}
+        {/* Sidebar — drawer on all sizes (mobile-style layout everywhere) */}
         <div className={`
-          fixed lg:static inset-y-0 left-0 z-40 lg:z-auto
+          fixed inset-y-0 left-0 z-40
           transform transition-transform duration-300 ease-in-out
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
           flex-shrink-0
         `}>
           <Sidebar onClose={() => setSidebarOpen(false)} />
