@@ -71,8 +71,9 @@ router.get('/', async (req: Request, res: Response) => {
   res.json(shaped.filter((t) => !t.cleared));
 });
 
-// Open (find or create) a DM thread with another user. Restricted to people
-// who share at least one approved group with me, so strangers can't DM.
+// Open (find or create) a DM thread with another registered user. Contacts-based
+// app: you can message anyone on Gathering (e.g. a phone contact you found),
+// not only people from your groups.
 router.post('/open', async (req: Request, res: Response) => {
   const myId = req.user!.id;
   const { userId } = req.body as { userId?: string };
@@ -81,15 +82,9 @@ router.post('/open', async (req: Request, res: Response) => {
     return;
   }
 
-  const sharesGroup = await prisma.groupMember.findFirst({
-    where: {
-      userId,
-      status: 'APPROVED',
-      group: { members: { some: { userId: myId, status: 'APPROVED' } } },
-    },
-  });
-  if (!sharesGroup) {
-    res.status(403).json({ error: 'You can only message people from your groups' });
+  const target = await prisma.user.findUnique({ where: { id: userId }, select: { id: true } });
+  if (!target) {
+    res.status(404).json({ error: 'User not found' });
     return;
   }
 
