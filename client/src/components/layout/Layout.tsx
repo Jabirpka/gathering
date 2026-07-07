@@ -10,7 +10,7 @@ export default function Layout() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
-      <Navbar onMenuClick={() => setSidebarOpen(true)} />
+      <Navbar />
       <div className="flex flex-1 overflow-hidden relative">
         {/* Overlay */}
         {sidebarOpen && (

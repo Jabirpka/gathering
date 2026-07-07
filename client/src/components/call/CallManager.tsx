@@ -4,8 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import {
   LiveKitRoom,
   RoomAudioRenderer,
+  GridLayout,
   ParticipantTile,
   useTracks,
+  useParticipants,
   useSpeakingParticipants,
   useConnectionState,
 } from '@livekit/components-react';
@@ -20,12 +22,44 @@ import CallControlBar from './CallControlBar';
 const trackKey = (t: TrackReferenceOrPlaceholder) =>
   `${t.participant.identity}:${t.source}:${t.publication?.trackSid ?? 'ph'}`;
 
+/** Audio-only call: avatar tiles with a speaking ring — no video, no switching. */
+function AudioStage() {
+  const participants = useParticipants();
+  const speakers = useSpeakingParticipants();
+  const speakingIds = new Set(speakers.map((p) => p.identity));
+  const n = participants.length;
+  const size = n <= 2 ? 116 : n <= 4 ? 92 : 72;
+  return (
+    <div style={{ height: '100%', width: '100%', display: 'flex', flexWrap: 'wrap', alignItems: 'center', alignContent: 'center', justifyContent: 'center', gap: 22, padding: 16 }}>
+      {participants.map((p) => {
+        const speaking = speakingIds.has(p.identity);
+        const label = p.name || p.identity || 'Guest';
+        return (
+          <div key={p.identity} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+            <div style={{
+              width: size, height: size, borderRadius: '50%',
+              background: 'linear-gradient(135deg, #e879f9, #a855f7)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: Math.round(size * 0.4), fontWeight: 700, color: '#fff',
+              boxShadow: speaking ? '0 0 0 3px #e879f9, 0 0 30px rgba(232,121,249,0.6)' : '0 4px 20px rgba(0,0,0,0.4)',
+              transition: 'box-shadow .15s ease',
+            }}>
+              {label[0]?.toUpperCase()}
+            </div>
+            <span style={{ fontSize: 13, color: '#fff', fontWeight: 500, maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 /**
- * v2 active-speaker layout: the screen share (or current speaker, else the
- * first participant) fills the stage, and everyone else sits in a horizontal
- * strip below. Falls back gracefully to a single tile for 1:1 calls.
+ * Video call layout. Small groups (≤4, no screen share) get a calm even grid —
+ * no active-speaker switching, which flickers jarringly on 2-4 person calls.
+ * Larger calls (or a screen share) switch to a focus + participant strip.
  */
-function CallStage() {
+function VideoStage() {
   const tracks = useTracks(
     [
       { source: Track.Source.Camera, withPlaceholder: true },
@@ -35,8 +69,16 @@ function CallStage() {
   );
   const speakers = useSpeakingParticipants();
   const topSpeakerId = speakers[0]?.identity;
-
   const screenShare = tracks.find((t) => t.source === Track.Source.ScreenShare);
+
+  if (!screenShare && tracks.length <= 4) {
+    return (
+      <GridLayout tracks={tracks} style={{ height: '100%' }}>
+        <ParticipantTile />
+      </GridLayout>
+    );
+  }
+
   const speakerCam = tracks.find(
     (t) => t.source === Track.Source.Camera && t.participant.identity === topSpeakerId
   );
@@ -79,6 +121,10 @@ function CallStage() {
       )}
     </div>
   );
+}
+
+function CallStage({ audioOnly }: { audioOnly: boolean }) {
+  return audioOnly ? <AudioStage /> : <VideoStage />;
 }
 
 function CallLoader() {
@@ -156,7 +202,7 @@ export default function CallManager() {
         style={{ height: '100%', width: '100%', background: '#0a0a0f', position: 'relative' }}
         onDisconnected={leaveCall}
       >
-        <CallStage />
+        <CallStage audioOnly={!!call.audioOnly} />
         <RoomAudioRenderer />
         <CallLoader />
         {minimized ? (
@@ -164,7 +210,7 @@ export default function CallManager() {
             <Maximize2 size={18} className="text-white drop-shadow" />
           </div>
         ) : (
-          <CallControlBar onMinimize={handleMinimize} onLeave={leaveCall} />
+          <CallControlBar audioOnly={!!call.audioOnly} onMinimize={handleMinimize} onLeave={leaveCall} />
         )}
       </LiveKitRoom>
     );

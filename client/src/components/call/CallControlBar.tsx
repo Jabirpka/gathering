@@ -6,6 +6,7 @@ import { Capacitor } from '@capacitor/core';
 import toast from 'react-hot-toast';
 
 interface Props {
+  audioOnly?: boolean;
   onMinimize: () => void;
   onLeave: () => void;
 }
@@ -16,7 +17,7 @@ interface Props {
  * leave. Intentionally avoids LiveKit's default ControlBar (chat, settings,
  * etc.) per user request for a simpler call UI.
  */
-export default function CallControlBar({ onMinimize, onLeave }: Props) {
+export default function CallControlBar({ audioOnly = false, onMinimize, onLeave }: Props) {
   const { localParticipant, isMicrophoneEnabled, isCameraEnabled, isScreenShareEnabled } = useLocalParticipant();
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [flipping, setFlipping] = useState(false);
@@ -104,31 +105,34 @@ export default function CallControlBar({ onMinimize, onLeave }: Props) {
             <span className="text-[10px] text-white/70">{isMicrophoneEnabled ? 'Mute' : 'Unmute'}</span>
           </div>
 
-          {/* Flip camera */}
-          <div className="flex flex-col items-center gap-1.5">
-            <button
-              onClick={flipCamera}
-              disabled={!isCameraEnabled || flipping}
-              className="w-12 h-12 rounded-full bg-white/15 hover:bg-white/25 disabled:opacity-40 flex items-center justify-center text-white transition-colors"
-            >
-              <SwitchCamera size={20} />
-            </button>
-            <span className="text-[10px] text-white/70">Flip</span>
-          </div>
+          {/* Flip camera + screen share — video calls only */}
+          {!audioOnly && (
+            <>
+              <div className="flex flex-col items-center gap-1.5">
+                <button
+                  onClick={flipCamera}
+                  disabled={!isCameraEnabled || flipping}
+                  className="w-12 h-12 rounded-full bg-white/15 hover:bg-white/25 disabled:opacity-40 flex items-center justify-center text-white transition-colors"
+                >
+                  <SwitchCamera size={20} />
+                </button>
+                <span className="text-[10px] text-white/70">Flip</span>
+              </div>
 
-          {/* Screen share */}
-          <div className="flex flex-col items-center gap-1.5">
-            <button
-              onClick={toggleScreenShare}
-              disabled={sharing}
-              className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors disabled:opacity-40 ${
-                isScreenShareEnabled ? 'bg-gradient-to-br from-brand to-accent text-white' : 'bg-white/15 hover:bg-white/25 text-white'
-              }`}
-            >
-              {isScreenShareEnabled ? <ScreenShareOff size={20} /> : <ScreenShare size={20} />}
-            </button>
-            <span className="text-[10px] text-white/70">Share</span>
-          </div>
+              <div className="flex flex-col items-center gap-1.5">
+                <button
+                  onClick={toggleScreenShare}
+                  disabled={sharing}
+                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors disabled:opacity-40 ${
+                    isScreenShareEnabled ? 'bg-gradient-to-br from-brand to-accent text-white' : 'bg-white/15 hover:bg-white/25 text-white'
+                  }`}
+                >
+                  {isScreenShareEnabled ? <ScreenShareOff size={20} /> : <ScreenShare size={20} />}
+                </button>
+                <span className="text-[10px] text-white/70">Share</span>
+              </div>
+            </>
+          )}
 
           {/* Minimize */}
           <div className="flex flex-col items-center gap-1.5">

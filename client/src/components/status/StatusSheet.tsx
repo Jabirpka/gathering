@@ -35,13 +35,12 @@ export default function StatusSheet() {
     <>
       <AnimatePresence>
         {open && (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={close} />
-            <motion.div initial={{ opacity: 0, y: 80 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 80 }}
-              transition={{ type: 'spring', damping: 30, stiffness: 320 }}
-              className="relative w-full sm:max-w-md glass-panel border-t border-white/10 sm:border sm:rounded-2xl rounded-t-[28px] p-5 pb-9 sm:pb-5 shadow-2xl max-h-[80vh] overflow-y-auto">
-              <div className="w-9 h-1 rounded-full bg-white/20 mx-auto mb-4 sm:hidden" />
+            <motion.div initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.94 }}
+              transition={{ type: 'spring', damping: 26, stiffness: 340 }}
+              className="relative w-full max-w-sm glass-panel border border-white/10 rounded-2xl p-5 shadow-2xl max-h-[80vh] overflow-y-auto">
               <h2 className="text-base font-bold text-white mb-4">Status</h2>
 
               {/* My status */}
