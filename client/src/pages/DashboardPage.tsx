@@ -107,22 +107,8 @@ export default function DashboardPage() {
 
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto animate-fade-in pb-28">
-      {/* Compact header (v2): wordmark + inline greeting */}
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h2 className="text-lg font-extrabold tracking-wide text-white leading-none">GATHERING</h2>
-          <p className="text-[10px] font-semibold tracking-[0.25em] text-brand/70 mt-1">YOUR PEOPLE</p>
-        </div>
-        <div className="flex items-center gap-2.5">
-          <span className="text-sm font-semibold text-white">Hey, {firstName} <span className="text-brand">✦</span></span>
-          {/* Desktop create/join (mobile uses the bottom-nav + button) */}
-          <button onClick={() => openSheet('create')} title="New / join group"
-            className="hidden lg:flex w-9 h-9 rounded-xl items-center justify-center text-white shrink-0"
-            style={{ background: 'linear-gradient(135deg, #e879f9, #a855f7)', boxShadow: '0 4px 14px rgba(232,121,249,0.5)' }}>
-            <Plus size={18} />
-          </button>
-        </div>
-      </div>
+      {/* Greeting (the GATHERING wordmark lives in the top bar now) */}
+      <h1 className="text-2xl font-bold text-white mb-4">Hey, {firstName} <span className="text-brand">✦</span></h1>
 
       {/* Group / DM segmented filter */}
       <div className="flex gap-1 p-1 rounded-2xl glass mb-4">

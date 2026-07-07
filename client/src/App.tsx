@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
 import { App as CapApp } from '@capacitor/app';
+import { StatusBar, Style } from '@capacitor/status-bar';
 import { useAuth } from './hooks/useAuth';
 import { useAuthStore } from './store/authStore';
 import { useCallStore } from './store/callStore';
@@ -39,6 +40,15 @@ function AppRoutes() {
   useEffect(() => {
     if (!user) leaveCall();
   }, [user, leaveCall]);
+
+  // Make the Android status bar a solid, matching bar that sits ABOVE the
+  // WebView (no overlay), so there's no large empty gap under the notch.
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {});
+    StatusBar.setBackgroundColor({ color: '#0d0010' }).catch(() => {});
+    StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
+  }, []);
 
   // Track the current path in a ref so the back-button handler below can be
   // registered exactly once. Re-registering it on every navigation used to

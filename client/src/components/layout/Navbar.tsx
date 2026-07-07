@@ -20,11 +20,14 @@ export default function Navbar() {
       className="border-b border-white/10 glass-panel flex items-center px-4 gap-3 shrink-0 z-20"
       style={{ paddingTop: 'env(safe-area-inset-top)', height: 'calc(3.5rem + env(safe-area-inset-top))' }}
     >
-      <Link to="/dashboard" className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand to-accent flex items-center justify-center">
-          <Video size={14} className="text-white" />
+      <Link to="/dashboard" className="flex items-center gap-2.5">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand to-accent flex items-center justify-center shrink-0">
+          <Video size={15} className="text-white" />
         </div>
-        <span className="font-semibold text-white text-sm">Gathering</span>
+        <div className="leading-none">
+          <div className="text-base font-extrabold tracking-wide text-white leading-none">GATHERING</div>
+          <div className="text-[9px] font-semibold tracking-[0.22em] text-brand/70 mt-0.5">YOUR PEOPLE</div>
+        </div>
       </Link>
 
       <div className="flex-1" />
