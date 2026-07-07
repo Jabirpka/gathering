@@ -86,6 +86,8 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Find friends from the People screen by matching phone contacts -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
     <!-- Ring like a real call while the device is locked/asleep -->
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />

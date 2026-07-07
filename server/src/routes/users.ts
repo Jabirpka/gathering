@@ -57,6 +57,29 @@ router.get('/me/strikes', async (req: Request, res: Response) => {
   }
 });
 
+// Match a list of phone contacts against registered users (People/Contacts
+// screen). Compares by the last 10 digits so formatting differences don't
+// matter. Only returns the contacts that are on Gathering — never other users.
+router.post('/contacts', async (req: Request, res: Response) => {
+  const phones: unknown = req.body?.phones;
+  if (!Array.isArray(phones) || phones.length === 0) {
+    res.json({ matches: [] });
+    return;
+  }
+  const norm = (p: unknown) => String(p).replace(/\D/g, '').slice(-10);
+  const wanted = new Set(phones.map(norm).filter((d) => d.length >= 7));
+  if (wanted.size === 0) {
+    res.json({ matches: [] });
+    return;
+  }
+  const users = await prisma.user.findMany({
+    where: { phone: { not: null }, id: { not: req.user!.id } },
+    select: { id: true, name: true, nickname: true, avatar: true, phone: true, username: true },
+  });
+  const matches = users.filter((u) => u.phone && wanted.has(norm(u.phone)));
+  res.json({ matches });
+});
+
 // Get user profile by id (with strike/poke count)
 router.get('/:id', async (req: Request, res: Response) => {
   try {

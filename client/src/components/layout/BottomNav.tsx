@@ -5,15 +5,11 @@ import { useGroupStore } from '../../store/groupStore';
 import { useDmStore } from '../../store/dmStore';
 import clsx from 'clsx';
 
-interface Props {
-  onOpenGroups: () => void;
-}
-
 /**
- * Mobile bottom tab bar (dark neon). Shown only on the hub screens — hidden
- * inside conversations/calls where a composer or controls own the bottom edge.
+ * Bottom tab bar (dark neon). Shown only on the hub screens — hidden inside
+ * conversations/calls where a composer or controls own the bottom edge.
  */
-export default function BottomNav({ onOpenGroups }: Props) {
+export default function BottomNav() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -46,7 +42,8 @@ export default function BottomNav({ onOpenGroups }: Props) {
         )}
       </button>
 
-      <button onClick={onOpenGroups} className="flex flex-col items-center gap-1 w-14 py-1 text-slate-400">
+      <button onClick={() => window.dispatchEvent(new CustomEvent('open-contacts'))}
+        className="flex flex-col items-center gap-1 w-14 py-1 text-slate-400" title="People">
         <Users size={22} />
         <span className="w-1 h-1 rounded-full bg-transparent" />
       </button>

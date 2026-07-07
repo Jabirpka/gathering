@@ -40,6 +40,7 @@ export const usersApi = {
   }) => api.patch('/users/me', data),
   getUser: (id: string) => api.get(`/users/${id}`),
   poke: (id: string) => api.post(`/users/${id}/poke`),
+  matchContacts: (phones: string[]) => api.post('/users/contacts', { phones }),
 };
 
 export const groupsApi = {
