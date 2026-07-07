@@ -105,6 +105,40 @@ async function setupRedis() {
 setupRedis();
 setupSocketHandlers(io);
 
-httpServer.listen(config.port, () => {
-  console.log(`Server running on port ${config.port}`);
-});
+// Idempotent, safe self-migration so the app works without a manual
+// `prisma db push`. Adds the profile/phone/onboarded columns and relaxes
+// googleId/email to nullable (phone-only accounts). Every statement is
+// "IF NOT EXISTS"/no-op, so it's safe to run on every boot.
+async function ensureSchema() {
+  const statements = [
+    `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "username" TEXT`,
+    `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "dateOfBirth" TEXT`,
+    `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "bio" TEXT`,
+    `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "interests" TEXT[] NOT NULL DEFAULT '{}'`,
+    `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "favoriteSong" TEXT`,
+    `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "favoriteMovie" TEXT`,
+    `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "city" TEXT`,
+    `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "onboarded" BOOLEAN NOT NULL DEFAULT true`,
+    `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "phone" TEXT`,
+    `ALTER TABLE "User" ALTER COLUMN "googleId" DROP NOT NULL`,
+    `ALTER TABLE "User" ALTER COLUMN "email" DROP NOT NULL`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS "User_phone_key" ON "User"("phone")`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS "User_username_key" ON "User"("username")`,
+  ];
+  for (const sql of statements) {
+    try {
+      await prisma.$executeRawUnsafe(sql);
+    } catch (err) {
+      console.warn('ensureSchema step skipped:', err instanceof Error ? err.message : err);
+    }
+  }
+  console.log('Schema ensured (profile / phone / onboarded columns present)');
+}
+
+ensureSchema()
+  .catch((err) => console.error('ensureSchema failed', err))
+  .finally(() => {
+    httpServer.listen(config.port, () => {
+      console.log(`Server running on port ${config.port}`);
+    });
+  });
