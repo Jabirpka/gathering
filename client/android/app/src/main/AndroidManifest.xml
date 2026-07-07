@@ -86,8 +86,12 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <!-- Find friends from the People screen by matching phone contacts -->
+    <!-- Find friends from the People screen by matching phone contacts. The
+         contacts plugin's permission alias covers read+write, so both must be
+         declared for the alias to resolve to "granted" (Android shows a single
+         "access your contacts" prompt for the group). -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <!-- Ring like a real call while the device is locked/asleep -->
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />

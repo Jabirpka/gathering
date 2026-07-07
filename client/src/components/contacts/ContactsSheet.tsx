@@ -36,7 +36,8 @@ export default function ContactsSheet() {
     }
     setLoading(true);
     try {
-      const perm = await Contacts.requestPermissions();
+      let perm = await Contacts.checkPermissions();
+      if (perm.contacts !== 'granted') perm = await Contacts.requestPermissions();
       if (perm.contacts !== 'granted') {
         setMessage('Allow contacts access to find friends on Gathering.');
         return;
@@ -71,9 +72,10 @@ export default function ContactsSheet() {
       }
       setInvitees(invite);
       if (matches.length === 0 && invite.length === 0) setMessage('No contacts found.');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Contacts load failed', err);
-      setMessage('Could not read contacts. Check contacts permission in Settings.');
+      const detail = err?.message || err?.errorMessage || (typeof err === 'string' ? err : JSON.stringify(err));
+      setMessage('Contacts error: ' + detail);
     } finally {
       setLoading(false);
     }
