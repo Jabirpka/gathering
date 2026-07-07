@@ -5,10 +5,12 @@
   "scripts": {
     "dev": "concurrently \"npm run dev --workspace=server\" \"npm run dev --workspace=client\"",
     "build": "npm run build --workspace=server && npm run build --workspace=client",
-    "setup": "npm install && cd server && npm install && cd ../client && npm install"
+    "setup": "npm install && cd server && npm install && cd ../client && npm install",
+    "postinstall": "patch-package"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "patch-package": "^8.0.1"
   },
   "workspaces": [
     "client",
