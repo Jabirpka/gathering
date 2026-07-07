@@ -78,7 +78,7 @@ type Filter = 'group' | 'dm';
 
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
-  const { groups, loading } = useGroupStore();
+  const { groups, loading, fetchGroups } = useGroupStore();
   const { threads, fetchThreads } = useDmStore();
   const navigate = useNavigate();
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -86,7 +86,7 @@ export default function DashboardPage() {
   const [filter, setFilter] = useState<Filter>('group');
   const openSheet = (t: 'join' | 'create') => { setSheetTab(t); setSheetOpen(true); };
 
-  useEffect(() => { fetchThreads(); }, []);
+  useEffect(() => { fetchGroups(); fetchThreads(); }, []);
 
   // The bottom-nav center + button opens the Join/Create sheet (v2).
   useEffect(() => {

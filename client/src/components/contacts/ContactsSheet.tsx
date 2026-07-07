@@ -51,8 +51,13 @@ export default function ContactsSheet() {
       }
       if (list.length === 0) { setMessage('No contacts with phone numbers found.'); return; }
 
-      const res = await usersApi.matchContacts(list.map((c) => c.phone));
-      const matches: User[] = res.data.matches ?? [];
+      // Match against registered users, but don't lose the contact list if the
+      // match endpoint is unavailable — still show everyone under "Invite".
+      let matches: User[] = [];
+      try {
+        const res = await usersApi.matchContacts(list.map((c) => c.phone));
+        matches = res.data.matches ?? [];
+      } catch { /* matching unavailable */ }
       setRegistered(matches);
 
       const registeredNums = new Set(matches.map((m) => norm(m.phone ?? '')));
@@ -66,8 +71,9 @@ export default function ContactsSheet() {
       }
       setInvitees(invite);
       if (matches.length === 0 && invite.length === 0) setMessage('No contacts found.');
-    } catch {
-      setMessage('Could not read contacts.');
+    } catch (err) {
+      console.error('Contacts load failed', err);
+      setMessage('Could not read contacts. Check contacts permission in Settings.');
     } finally {
       setLoading(false);
     }
