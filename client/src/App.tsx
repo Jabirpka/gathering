@@ -15,6 +15,7 @@ import DashboardPage from './pages/DashboardPage';
 import GroupPage from './pages/GroupPage';
 import RoomPage from './pages/RoomPage';
 import DmPage from './pages/DmPage';
+import DmCallPage from './pages/DmCallPage';
 import ProfilePage from './pages/ProfilePage';
 import ProfileSetup from './pages/ProfileSetup';
 import AuthCallback from './pages/AuthCallback';
@@ -153,6 +154,7 @@ function AppRoutes() {
               <Route path="/groups/:groupId" element={<GroupPage />} />
               <Route path="/groups/:groupId/rooms/:roomId" element={<RoomPage />} />
               <Route path="/dm/:threadId" element={<DmPage />} />
+              <Route path="/dm/:threadId/call" element={<DmCallPage />} />
             </Route>
           )
         ) : (

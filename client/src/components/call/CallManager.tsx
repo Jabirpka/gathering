@@ -158,20 +158,26 @@ export default function CallManager() {
     if (!call) return;
     setToken(null);
     setError(null);
-    livekitApi
-      .getToken(call.roomName, call.groupId)
+    const req = call.threadId
+      ? livekitApi.getDmToken(call.threadId)
+      : livekitApi.getToken(call.roomName, call.groupId!);
+    req
       .then((res) => {
         setToken(res.data.token);
         setWsUrl(res.data.wsUrl);
       })
       .catch(() => setError('Could not connect to the call.'));
-  }, [call?.roomName, call?.groupId]);
+  }, [call?.roomName, call?.groupId, call?.threadId]);
 
   if (!call) return null;
 
   const minimized = !mountNode;
-  const handleMaximize = () => navigate(`/groups/${call.groupId}/rooms/${call.roomId}`);
-  const handleMinimize = () => navigate(`/groups/${call.groupId}`);
+  const handleMaximize = () => navigate(
+    call.threadId
+      ? `/dm/${call.threadId}/call?type=${call.audioOnly ? 'audio' : 'video'}`
+      : `/groups/${call.groupId}/rooms/${call.roomId}`
+  );
+  const handleMinimize = () => navigate(call.threadId ? `/dm/${call.threadId}` : `/groups/${call.groupId}`);
 
   let body: ReactNode;
   if (error) {

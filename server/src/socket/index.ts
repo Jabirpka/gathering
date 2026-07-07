@@ -159,6 +159,42 @@ export function setupSocketHandlers(io: Server) {
       cancelCallIfEmpty(io, roomId).catch(() => {});
     });
 
+    // DM (1:1) calls — a LiveKit room scoped to the thread. The first joiner is
+    // the caller and rings the other participant; hanging up empties the room.
+    socket.on('dmcall:join', async ({ threadId, type }: { threadId: string; type?: string }) => {
+      const thread = await prisma.dmThread.findUnique({ where: { id: threadId } });
+      if (!thread || (thread.userAId !== socket.user.id && thread.userBId !== socket.user.id)) return;
+      const roomId = `dm-${threadId}`;
+      const wasEmpty = socketsInRoom(io, roomId) === 0;
+      socket.join(`room:${roomId}`);
+      if (wasEmpty) {
+        const otherId = thread.userAId === socket.user.id ? thread.userBId : thread.userAId;
+        io.to(`user:${otherId}`).emit('call:ring', {
+          roomId,
+          threadId,
+          type: type === 'audio' ? 'AUDIO_CALL' : 'VIDEO_CALL',
+          roomName: type === 'audio' ? 'Voice call' : 'Video call',
+          groupName: socket.user.name,
+          caller: { id: socket.user.id, name: socket.user.name, avatar: socket.user.avatar },
+        });
+      }
+    });
+
+    socket.on('dmcall:leave', async ({ threadId }: { threadId: string }) => {
+      const roomId = `dm-${threadId}`;
+      socket.leave(`room:${roomId}`);
+      socket.to(`room:${roomId}`).emit('room:user-left', { userId: socket.user.id });
+      setImmediate(async () => {
+        if (socketsInRoom(io, roomId) > 0) return;
+        try {
+          const thread = await prisma.dmThread.findUnique({ where: { id: threadId } });
+          if (!thread) return;
+          io.to(`user:${thread.userAId}`).emit('call:cancel', { roomId });
+          io.to(`user:${thread.userBId}`).emit('call:cancel', { roomId });
+        } catch {}
+      });
+    });
+
     // Emoji reactions
     socket.on('room:emoji', ({ roomId, emoji }: { roomId: string; emoji: string }) => {
       io.to(`room:${roomId}`).emit('room:emoji', {

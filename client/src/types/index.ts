@@ -54,7 +54,10 @@ export interface GroupMember {
 
 export interface CallRing {
   roomId: string;
-  groupId: string;
+  /** Group call. */
+  groupId?: string;
+  /** DM call — set instead of groupId. */
+  threadId?: string;
   roomName: string;
   groupName: string;
   caller: Pick<User, 'id' | 'name' | 'avatar'>;

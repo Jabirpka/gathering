@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Send, X, Search, MoreVertical, Trash2 } from 'lucide-react';
+import { ArrowLeft, Send, X, Search, MoreVertical, Trash2, Video, Phone } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useDmStore } from '../store/dmStore';
 import { useAuthStore } from '../store/authStore';
@@ -149,6 +149,14 @@ export default function DmPage() {
           <p className="text-sm font-semibold text-white truncate">{partnerName}</p>
           {partnerTyping && <p className="text-[11px] text-brand animate-pulse">typing…</p>}
         </div>
+        <button onClick={() => navigate(`/dm/${threadId}/call?type=video`)} title="Video call"
+          className="w-9 h-9 rounded-full bg-brand-dim text-brand hover:bg-brand hover:text-white flex items-center justify-center transition-colors active:scale-90 shrink-0">
+          <Video size={17} />
+        </button>
+        <button onClick={() => navigate(`/dm/${threadId}/call?type=audio`)} title="Voice call"
+          className="w-9 h-9 rounded-full bg-brand-dim text-brand hover:bg-brand hover:text-white flex items-center justify-center transition-colors active:scale-90 shrink-0">
+          <Phone size={15} />
+        </button>
         <button
           onClick={() => { setSearchOpen((v) => !v); setSearchQuery(''); setSearchResults([]); }}
           className={`p-2 rounded-lg transition-colors ${searchOpen ? 'bg-brand-dim text-brand' : 'text-slate-500 hover:text-slate-200'}`}

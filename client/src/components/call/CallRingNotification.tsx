@@ -43,7 +43,11 @@ export default function CallRingNotification({ ring, onDismiss }: Props) {
   }, [ring]);
 
   const handleAccept = () => {
-    navigate(`/groups/${ring!.groupId}/rooms/${ring!.roomId}`);
+    if (ring!.threadId) {
+      navigate(`/dm/${ring!.threadId}/call?type=${ring!.type === 'AUDIO_CALL' ? 'audio' : 'video'}`);
+    } else {
+      navigate(`/groups/${ring!.groupId}/rooms/${ring!.roomId}`);
+    }
     onDismiss();
   };
 
@@ -71,8 +75,8 @@ export default function CallRingNotification({ ring, onDismiss }: Props) {
 
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-slate-400">Incoming {isVideo ? 'video' : 'audio'} call</p>
-                <p className="text-sm font-semibold text-white truncate">{ring.roomName}</p>
-                <p className="text-xs text-slate-400 truncate">{ring.caller.name} · {ring.groupName}</p>
+                <p className="text-sm font-semibold text-white truncate">{ring.caller.name}</p>
+                {!ring.threadId && <p className="text-xs text-slate-400 truncate">{ring.groupName}</p>}
               </div>
             </div>
 

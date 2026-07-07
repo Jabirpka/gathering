@@ -78,6 +78,8 @@ export const dmsApi = {
 export const livekitApi = {
   getToken: (roomName: string, groupId: string) =>
     api.post('/livekit/token', { roomName, groupId }),
+  getDmToken: (threadId: string) =>
+    api.post('/livekit/dm-token', { threadId }),
 };
 
 export const pushApi = {

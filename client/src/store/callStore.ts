@@ -2,7 +2,10 @@ import { create } from 'zustand';
 
 export interface ActiveCallInfo {
   roomName: string;
-  groupId: string;
+  /** Group call membership (token via group). */
+  groupId?: string;
+  /** DM call — token is scoped to the thread instead of a group. */
+  threadId?: string;
   roomId: string;
   roomLabel: string;
   displayName: string;
