@@ -92,6 +92,7 @@ router.get('/:id', async (req: Request, res: Response) => {
         nickname: true,
         avatar: true,
         username: true,
+        dateOfBirth: true,
         bio: true,
         interests: true,
         favoriteSong: true,

@@ -4,10 +4,21 @@ import { usersApi } from '../services/api';
 import { useAuthStore } from '../store/authStore';
 import { useDmStore } from '../store/dmStore';
 import { User } from '../types';
-import { ArrowLeft, Loader2, Zap, MessageSquare, Music, Film, MapPin } from 'lucide-react';
+import { ArrowLeft, Loader2, Zap, MessageSquare, Music, Film, MapPin, User as UserIcon, Cake } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
+
+/** Whole years between a date of birth and today. */
+function ageFrom(dob: string): number | null {
+  const d = new Date(dob);
+  if (isNaN(d.getTime())) return null;
+  const now = new Date();
+  let age = now.getFullYear() - d.getFullYear();
+  const m = now.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+  return age >= 0 && age < 130 ? age : null;
+}
 
 /**
  * Read-only profile of another user, opened from a DM avatar / member list.
@@ -118,6 +129,28 @@ export default function UserProfilePage() {
               Message
             </button>
           </div>
+
+          {/* Basic info — real name (when a nickname is shown) + date of birth */}
+          {((u.nickname && u.name && u.nickname !== u.name) || u.dateOfBirth) && (
+            <div className="card p-5 space-y-3 mb-4">
+              <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500">BASIC INFO</p>
+              {u.nickname && u.name && u.nickname !== u.name && (
+                <div className="flex items-center gap-3">
+                  <UserIcon size={15} className="text-brand shrink-0" />
+                  <span className="text-sm text-slate-200">{u.name}</span>
+                </div>
+              )}
+              {u.dateOfBirth && (
+                <div className="flex items-center gap-3">
+                  <Cake size={15} className="text-brand shrink-0" />
+                  <span className="text-sm text-slate-200">
+                    {format(new Date(u.dateOfBirth), 'MMMM d, yyyy')}
+                    {ageFrom(u.dateOfBirth) !== null && <span className="text-slate-400"> · {ageFrom(u.dateOfBirth)} yrs</span>}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Interests */}
           {u.interests && u.interests.length > 0 && (
