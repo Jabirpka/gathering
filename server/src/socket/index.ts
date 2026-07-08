@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../index';
 import { config } from '../config';
 import { setupChatHandlers } from './chat';
-import { sendCallPush, sendCallCancelPush } from '../services/push';
+import { sendCallPush, sendCallCancelPush, sendDmCallPush } from '../services/push';
 
 export interface SocketUser {
   id: string;
@@ -29,8 +29,24 @@ export function getIO(): Server {
 // before anyone answered, or the last participant left.
 const activeCallRooms = new Map<string, string>();
 
+// Same idea for 1:1 DM calls, but keyed by roomId → [userAId, userBId] so we can
+// cancel the ring on both people's devices the moment the DM call empties out.
+const dmCallRooms = new Map<string, [string, string]>();
+
 function socketsInRoom(io: Server, roomId: string): number {
   return io.sockets.adapter.rooms.get(`room:${roomId}`)?.size ?? 0;
+}
+
+/** Stop both DM participants' rings (in-app + push) once the DM call empties. */
+async function cancelDmCallIfEmpty(io: Server, roomId: string) {
+  const pair = dmCallRooms.get(roomId);
+  if (!pair) return;
+  if (socketsInRoom(io, roomId) > 0) return;
+
+  dmCallRooms.delete(roomId);
+  io.to(`user:${pair[0]}`).emit('call:cancel', { roomId });
+  io.to(`user:${pair[1]}`).emit('call:cancel', { roomId });
+  sendCallCancelPush(pair, roomId).catch(() => {});
 }
 
 /**
@@ -169,14 +185,24 @@ export function setupSocketHandlers(io: Server) {
       socket.join(`room:${roomId}`);
       if (wasEmpty) {
         const otherId = thread.userAId === socket.user.id ? thread.userBId : thread.userAId;
+        const callType = type === 'audio' ? 'AUDIO_CALL' : 'VIDEO_CALL';
+        // Remember the pair so we can cancel the ring on both devices if it empties.
+        dmCallRooms.set(roomId, [thread.userAId, thread.userBId]);
         io.to(`user:${otherId}`).emit('call:ring', {
           roomId,
           threadId,
-          type: type === 'audio' ? 'AUDIO_CALL' : 'VIDEO_CALL',
+          type: callType,
           roomName: type === 'audio' ? 'Voice call' : 'Video call',
           groupName: socket.user.name,
           caller: { id: socket.user.id, name: socket.user.name, avatar: socket.user.avatar },
         });
+        // Ring the other person's device even if the app is closed/backgrounded.
+        sendDmCallPush([otherId], {
+          threadId,
+          roomId,
+          callerName: socket.user.name,
+          callType,
+        }).catch(() => {});
       }
     });
 
@@ -184,15 +210,7 @@ export function setupSocketHandlers(io: Server) {
       const roomId = `dm-${threadId}`;
       socket.leave(`room:${roomId}`);
       socket.to(`room:${roomId}`).emit('room:user-left', { userId: socket.user.id });
-      setImmediate(async () => {
-        if (socketsInRoom(io, roomId) > 0) return;
-        try {
-          const thread = await prisma.dmThread.findUnique({ where: { id: threadId } });
-          if (!thread) return;
-          io.to(`user:${thread.userAId}`).emit('call:cancel', { roomId });
-          io.to(`user:${thread.userBId}`).emit('call:cancel', { roomId });
-        } catch {}
-      });
+      setImmediate(() => { cancelDmCallIfEmpty(io, roomId).catch(() => {}); });
     });
 
     // Emoji reactions
@@ -232,12 +250,15 @@ export function setupSocketHandlers(io: Server) {
       const callRooms = [...socket.rooms]
         .filter((r) => r.startsWith('room:'))
         .map((r) => r.slice('room:'.length))
-        .filter((roomId) => activeCallRooms.has(roomId));
+        .filter((roomId) => activeCallRooms.has(roomId) || dmCallRooms.has(roomId));
       if (callRooms.length === 0) return;
       // Defer until after socket.io has removed this socket from the rooms,
       // so the emptiness check reflects the disconnect.
       setImmediate(() => {
-        callRooms.forEach((roomId) => cancelCallIfEmpty(io, roomId).catch(() => {}));
+        callRooms.forEach((roomId) => {
+          cancelCallIfEmpty(io, roomId).catch(() => {});
+          cancelDmCallIfEmpty(io, roomId).catch(() => {});
+        });
       });
     });
 

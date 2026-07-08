@@ -69,6 +69,68 @@ export async function sendCallPush(userIds: string[], payload: CallPushPayload) 
   }
 }
 
+interface DmCallPushPayload {
+  threadId: string;
+  /** LiveKit/room id for this DM call — `dm-${threadId}`. */
+  roomId: string;
+  callerName: string;
+  callType: 'VIDEO_CALL' | 'AUDIO_CALL';
+}
+
+/**
+ * Same as sendCallPush but for a 1:1 DM call: rings the other participant's
+ * device (even when the app is closed). Carries a threadId instead of a
+ * groupId so the Android side's "Answer" deep-links straight into the DM call.
+ */
+export async function sendDmCallPush(userIds: string[], payload: DmCallPushPayload) {
+  const fbApp = getFirebaseApp();
+  if (!fbApp || userIds.length === 0) return;
+
+  const tokens = await prisma.pushToken.findMany({
+    where: { userId: { in: userIds } },
+  });
+  if (tokens.length === 0) {
+    console.log(`sendDmCallPush: no push tokens registered for ${userIds.length} user(s)`);
+    return;
+  }
+
+  const isVideo = payload.callType === 'VIDEO_CALL';
+  const title = `Incoming ${isVideo ? 'video' : 'audio'} call`;
+  const body = `${payload.callerName} is calling`;
+
+  const message: MulticastMessage = {
+    tokens: tokens.map((t) => t.token),
+    data: {
+      type: 'call_ring',
+      title,
+      body,
+      threadId: payload.threadId,
+      roomId: payload.roomId,
+      callerName: payload.callerName,
+      callType: payload.callType,
+    },
+    android: {
+      priority: 'high',
+    },
+    apns: {
+      payload: {
+        aps: {
+          sound: 'default',
+          contentAvailable: true,
+        },
+      },
+    },
+  };
+
+  try {
+    const res = await getMessaging(fbApp).sendEachForMulticast(message);
+    console.log(`sendDmCallPush: sent to ${res.successCount}/${tokens.length} device(s), ${res.failureCount} failed`);
+    await pruneInvalidTokens(res.responses, tokens.map((t) => t.token));
+  } catch (err) {
+    console.error('Failed to send DM call push notifications', err);
+  }
+}
+
 /**
  * Sends a data-only "call_cancel" push so the callees' devices stop ringing the
  * moment the call ends (caller hung up before anyone answered, or the room

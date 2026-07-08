@@ -91,7 +91,11 @@ function AppRoutes() {
         } else if (url.hostname === 'call') {
           const groupId = url.searchParams.get('groupId');
           const roomId = url.searchParams.get('roomId');
-          if (groupId && roomId) {
+          const threadId = url.searchParams.get('threadId');
+          const type = url.searchParams.get('type') === 'audio' ? 'audio' : 'video';
+          if (threadId) {
+            navigate(`/dm/${threadId}/call?type=${type}`);
+          } else if (groupId && roomId) {
             navigate(`/groups/${groupId}/rooms/${roomId}`);
           }
         }

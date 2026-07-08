@@ -74,15 +74,23 @@ public final class CallNotificationHelper {
      */
     public static void showIncomingCall(Context context, Map<String, String> data) {
         String groupId = data.get("groupId");
+        String threadId = data.get("threadId");
         String roomId = data.get("roomId");
         String title = data.get("title");
         String body = data.get("body");
-        if (roomId == null || groupId == null) return;
+        // Group calls carry a groupId; 1:1 DM calls carry a threadId instead.
+        if (roomId == null || (groupId == null && threadId == null)) return;
 
         int notificationId = roomId.hashCode();
 
-        // "Answer" → deep-link straight into the call room.
-        Uri callUri = Uri.parse("gathering://call?groupId=" + groupId + "&roomId=" + roomId);
+        // "Answer" → deep-link straight into the call (DM or group room).
+        Uri callUri;
+        if (threadId != null) {
+            String type = "AUDIO_CALL".equals(data.get("callType")) ? "audio" : "video";
+            callUri = Uri.parse("gathering://call?threadId=" + threadId + "&type=" + type);
+        } else {
+            callUri = Uri.parse("gathering://call?groupId=" + groupId + "&roomId=" + roomId);
+        }
         Intent answerIntent = new Intent(Intent.ACTION_VIEW, callUri);
         answerIntent.setPackage(context.getPackageName());
         answerIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);

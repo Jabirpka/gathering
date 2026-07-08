@@ -37,7 +37,9 @@ public class IncomingCallActivity extends AppCompatActivity {
 
     private int notificationId = -1;
     private String groupId;
+    private String threadId;
     private String roomId;
+    private String callType;
 
     private final Handler timeoutHandler = new Handler(Looper.getMainLooper());
     private final Runnable autoDismiss = this::declineCall;
@@ -63,7 +65,9 @@ public class IncomingCallActivity extends AppCompatActivity {
         if (extras != null) {
             notificationId = extras.getInt(CallNotificationHelper.EXTRA_NOTIFICATION_ID, -1);
             groupId = extras.getString("groupId");
+            threadId = extras.getString("threadId");
             roomId = extras.getString("roomId");
+            callType = extras.getString("callType");
         }
 
         String title = extras != null ? extras.getString("title") : null;
@@ -109,7 +113,9 @@ public class IncomingCallActivity extends AppCompatActivity {
         if (extras != null) {
             notificationId = extras.getInt(CallNotificationHelper.EXTRA_NOTIFICATION_ID, notificationId);
             groupId = extras.getString("groupId");
+            threadId = extras.getString("threadId");
             roomId = extras.getString("roomId");
+            callType = extras.getString("callType");
         }
     }
 
@@ -202,8 +208,14 @@ public class IncomingCallActivity extends AppCompatActivity {
 
     private void answerCall() {
         cancelRing();
-        if (groupId != null && roomId != null) {
-            Uri callUri = Uri.parse("gathering://call?groupId=" + groupId + "&roomId=" + roomId);
+        Uri callUri = null;
+        if (threadId != null) {
+            String type = "AUDIO_CALL".equals(callType) ? "audio" : "video";
+            callUri = Uri.parse("gathering://call?threadId=" + threadId + "&type=" + type);
+        } else if (groupId != null && roomId != null) {
+            callUri = Uri.parse("gathering://call?groupId=" + groupId + "&roomId=" + roomId);
+        }
+        if (callUri != null) {
             Intent intent = new Intent(Intent.ACTION_VIEW, callUri);
             intent.setPackage(getPackageName());
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
