@@ -47,15 +47,17 @@ function MemberRow({ member, currentUserId, groupId }: { member: GroupMember; cu
 
   return (
     <div className="flex items-center gap-3 py-2.5">
-      {member.user.avatar ? (
-        <img src={member.user.avatar} className="w-9 h-9 rounded-xl object-cover shrink-0" alt={member.user.name} />
-      ) : (
-        <div className="w-9 h-9 rounded-xl bg-brand-dim flex items-center justify-center text-sm font-semibold text-brand shrink-0">
-          {member.user.name[0]}
+      <div onClick={() => navigate(`/u/${member.userId}`)} className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer">
+        {member.user.avatar ? (
+          <img src={member.user.avatar} className="w-9 h-9 rounded-xl object-cover shrink-0" alt={member.user.name} />
+        ) : (
+          <div className="w-9 h-9 rounded-xl bg-brand-dim flex items-center justify-center text-sm font-semibold text-brand shrink-0">
+            {member.user.name[0]}
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-white truncate">{member.user.name}</p>
         </div>
-      )}
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-white truncate">{member.user.name}</p>
       </div>
       <span className={`badge text-[10px] ${roleColors[member.role]}`}>{member.role}</span>
       {member.userId !== currentUserId && (

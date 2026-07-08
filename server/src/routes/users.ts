@@ -80,7 +80,8 @@ router.post('/contacts', async (req: Request, res: Response) => {
   res.json({ matches });
 });
 
-// Get user profile by id (with strike/poke count)
+// Get a user's public profile by id (with strike/poke count). Email is
+// intentionally omitted — it's private and only returned for /me.
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const user = await prisma.user.findUnique({
@@ -89,8 +90,13 @@ router.get('/:id', async (req: Request, res: Response) => {
         id: true,
         name: true,
         nickname: true,
-        email: true,
         avatar: true,
+        username: true,
+        bio: true,
+        interests: true,
+        favoriteSong: true,
+        favoriteMovie: true,
+        city: true,
         createdAt: true,
         _count: { select: { pokesReceived: true } },
       },

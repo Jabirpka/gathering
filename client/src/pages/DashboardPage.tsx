@@ -16,14 +16,18 @@ function chatTime(iso: string) {
   return isToday(d) ? format(d, 'h:mm a') : format(d, 'MMM d');
 }
 
-/** Flat conversation row (dark neon): rounded-square gradient avatar. */
-function Row({ name, avatar, gradient, preview, time, unread, onClick }: {
-  name: string; avatar?: string | null; gradient: boolean; preview: string; time: string; unread: number; onClick: () => void;
+/** Flat conversation row (dark neon): rounded-square gradient avatar.
+ *  onAvatarClick (DMs) opens the other person's profile instead of the chat. */
+function Row({ name, avatar, gradient, preview, time, unread, onClick, onAvatarClick }: {
+  name: string; avatar?: string | null; gradient: boolean; preview: string; time: string; unread: number; onClick: () => void; onAvatarClick?: () => void;
 }) {
   return (
     <motion.div whileTap={{ scale: 0.98 }} onClick={onClick}
       className="px-2 py-2.5 rounded-2xl cursor-pointer hover:bg-white/5 transition-colors flex items-center gap-3">
-      <div className="w-12 h-12 rounded-2xl overflow-hidden shrink-0">
+      <div
+        onClick={onAvatarClick ? (e) => { e.stopPropagation(); onAvatarClick(); } : undefined}
+        className={clsx('w-12 h-12 rounded-2xl overflow-hidden shrink-0', onAvatarClick && 'cursor-pointer')}
+      >
         {avatar ? (
           <img src={avatar} className="w-full h-full object-cover" alt={name} />
         ) : (
@@ -62,7 +66,7 @@ function ChatRow({ group, onClick }: { group: Group; onClick: () => void }) {
   );
 }
 
-function DmRow({ thread, onClick }: { thread: DmThread; onClick: () => void }) {
+function DmRow({ thread, onClick, onAvatarClick }: { thread: DmThread; onClick: () => void; onAvatarClick: () => void }) {
   const unread = useDmStore((s) => s.unreadByThread[thread.id] ?? 0);
   const myId = useAuthStore((s) => s.user?.id);
   const name = thread.partner.nickname || thread.partner.name;
@@ -70,7 +74,7 @@ function DmRow({ thread, onClick }: { thread: DmThread; onClick: () => void }) {
   return (
     <Row name={name} avatar={thread.partner.avatar} gradient={false}
       preview={last ? `${last.userId === myId ? 'You: ' : ''}${last.content}` : 'New conversation'}
-      time={last ? chatTime(last.createdAt) : ''} unread={unread} onClick={onClick} />
+      time={last ? chatTime(last.createdAt) : ''} unread={unread} onClick={onClick} onAvatarClick={onAvatarClick} />
   );
 }
 
@@ -150,7 +154,9 @@ export default function DashboardPage() {
             item.kind === 'group' ? (
               <ChatRow key={item.id} group={item.group} onClick={() => navigate(`/groups/${item.group.id}`)} />
             ) : (
-              <DmRow key={item.id} thread={item.thread} onClick={() => navigate(`/dm/${item.thread.id}`)} />
+              <DmRow key={item.id} thread={item.thread}
+                onClick={() => navigate(`/dm/${item.thread.id}`)}
+                onAvatarClick={() => navigate(`/u/${item.thread.partner.id}`)} />
             )
           )}
         </div>
