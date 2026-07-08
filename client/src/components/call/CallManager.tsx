@@ -142,6 +142,23 @@ function CallStage({ audioOnly }: { audioOnly: boolean }) {
   return audioOnly ? <AudioStage /> : <VideoStage />;
 }
 
+/**
+ * 1:1 DM call: end the call automatically once the other person hangs up.
+ * LiveKit's onDisconnected only fires for our OWN disconnect, so without this
+ * the window would sit open (alone) after the peer leaves. Once we've seen the
+ * remote join, their leaving drops the remote count to 0 and we end the call.
+ */
+function DmAutoLeave({ onEnd }: { onEnd: () => void }) {
+  const participants = useParticipants();
+  const remotes = participants.filter((p) => !p.isLocal).length;
+  const hadRemote = useRef(false);
+  useEffect(() => {
+    if (remotes > 0) hadRemote.current = true;
+    else if (hadRemote.current) onEnd();
+  }, [remotes, onEnd]);
+  return null;
+}
+
 function CallLoader() {
   const state = useConnectionState();
   if (state === ConnectionState.Connecting || state === ConnectionState.Reconnecting) {
@@ -235,6 +252,7 @@ export default function CallManager() {
         onDisconnected={leaveCall}
       >
         <CallStage audioOnly={!!call.audioOnly} />
+        {call.threadId && <DmAutoLeave onEnd={leaveCall} />}
         <RoomAudioRenderer />
         <CallLoader />
         {minimized ? (
