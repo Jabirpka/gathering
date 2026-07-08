@@ -1,6 +1,7 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   LiveKitRoom,
   RoomAudioRenderer,
@@ -14,7 +15,7 @@ import {
 import type { TrackReferenceOrPlaceholder } from '@livekit/components-react';
 import '@livekit/components-styles';
 import { ConnectionState, Track } from 'livekit-client';
-import { Loader2, AlertCircle, Maximize2, PhoneOff } from 'lucide-react';
+import { Loader2, AlertCircle, Maximize2, Minimize2, PhoneOff } from 'lucide-react';
 import { livekitApi } from '../../services/api';
 import { useCallStore } from '../../store/callStore';
 import CallControlBar from './CallControlBar';
@@ -55,9 +56,41 @@ function AudioStage() {
 }
 
 /**
- * Video call layout. Small groups (≤4, no screen share) get a calm even grid —
- * no active-speaker switching, which flickers jarringly on 2-4 person calls.
- * Larger calls (or a screen share) switch to a focus + participant strip.
+ * 1:1 video: the other person fills the screen, and our own camera sits in a
+ * small draggable picture-in-picture that can be moved anywhere on the video.
+ */
+function OneOnOneStage({ remote, selfTrack }: { remote: TrackReferenceOrPlaceholder; selfTrack?: TrackReferenceOrPlaceholder }) {
+  const boundsRef = useRef<HTMLDivElement>(null);
+  return (
+    <div ref={boundsRef} style={{ position: 'relative', height: '100%', width: '100%', overflow: 'hidden', background: '#0a0a0f' }}>
+      <ParticipantTile trackRef={remote} style={{ height: '100%', width: '100%' }} />
+      {selfTrack && (
+        <motion.div
+          drag
+          dragConstraints={boundsRef}
+          dragMomentum={false}
+          dragElastic={0}
+          whileDrag={{ scale: 1.04 }}
+          style={{
+            position: 'absolute', top: 14, right: 14, width: 104, height: 152,
+            borderRadius: 16, overflow: 'hidden', zIndex: 15,
+            border: '2px solid rgba(232,121,249,0.7)',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.55)',
+            cursor: 'grab', touchAction: 'none',
+          }}
+        >
+          <ParticipantTile trackRef={selfTrack} style={{ height: '100%', width: '100%' }} />
+        </motion.div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Video call layout:
+ *  - 1:1 → the other person full-screen with our own camera as a draggable PiP.
+ *  - group → a calm even grid (no active-speaker switching, which flickered).
+ *  - screen share → the shared screen focused with a camera strip below.
  */
 function VideoStage() {
   const tracks = useTracks(
@@ -67,56 +100,38 @@ function VideoStage() {
     ],
     { onlySubscribed: false }
   );
-  const speakers = useSpeakingParticipants();
-  const topSpeakerId = speakers[0]?.identity;
+  const cameras = tracks.filter((t) => t.source === Track.Source.Camera);
   const screenShare = tracks.find((t) => t.source === Track.Source.ScreenShare);
+  const remoteCams = cameras.filter((t) => !t.participant.isLocal);
+  const localCam = cameras.find((t) => t.participant.isLocal);
 
-  if (!screenShare && tracks.length <= 4) {
+  // 1:1 — the other person full-screen, us as a draggable PiP.
+  if (!screenShare && remoteCams.length === 1) {
+    return <OneOnOneStage remote={remoteCams[0]} selfTrack={localCam} />;
+  }
+
+  // Group (or waiting alone) — even grid.
+  if (!screenShare) {
     return (
-      <GridLayout tracks={tracks} style={{ height: '100%' }}>
+      <GridLayout tracks={cameras} style={{ height: '100%' }}>
         <ParticipantTile />
       </GridLayout>
     );
   }
 
-  const speakerCam = tracks.find(
-    (t) => t.source === Track.Source.Camera && t.participant.identity === topSpeakerId
-  );
-  const focus = screenShare ?? speakerCam ?? tracks[0];
-  if (!focus) return null;
-
-  const focusKey = trackKey(focus);
-  const others = tracks.filter((t) => trackKey(t) !== focusKey);
-  const focusIsSpeaker = !screenShare && focus.participant.identity === topSpeakerId;
-
+  // Screen share — big shared screen with a strip of the cameras.
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 8, padding: 8, boxSizing: 'border-box' }}>
-      <div
-        style={{
-          flex: 1, minHeight: 0, borderRadius: 16, overflow: 'hidden', position: 'relative',
-          border: focusIsSpeaker ? '2px solid #e879f9' : '1px solid #330060',
-          boxShadow: focusIsSpeaker ? '0 0 0 3px rgba(232,121,249,0.18)' : 'none',
-        }}
-      >
-        <ParticipantTile trackRef={focus} style={{ height: '100%', width: '100%' }} />
+      <div style={{ flex: 1, minHeight: 0, borderRadius: 16, overflow: 'hidden', border: '1px solid #330060' }}>
+        <ParticipantTile trackRef={screenShare} style={{ height: '100%', width: '100%' }} />
       </div>
-
-      {others.length > 0 && (
+      {cameras.length > 0 && (
         <div style={{ flexShrink: 0, display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2 }}>
-          {others.map((t) => {
-            const isSpeaking = t.participant.identity === topSpeakerId;
-            return (
-              <div
-                key={trackKey(t)}
-                style={{
-                  flexShrink: 0, width: 96, height: 72, borderRadius: 12, overflow: 'hidden',
-                  border: isSpeaking ? '2px solid #a855f7' : '1px solid #330060',
-                }}
-              >
-                <ParticipantTile trackRef={t} style={{ width: '100%', height: '100%' }} />
-              </div>
-            );
-          })}
+          {cameras.map((t) => (
+            <div key={trackKey(t)} style={{ flexShrink: 0, width: 96, height: 72, borderRadius: 12, overflow: 'hidden', border: '1px solid #330060' }}>
+              <ParticipantTile trackRef={t} style={{ width: '100%', height: '100%' }} />
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -142,9 +157,9 @@ function CallLoader() {
 
 /**
  * Mounted once near the app root. Holds the LiveKit room connection for an
- * active call so it survives navigation: while the user is on the room page
- * it renders into that page's mount point (full size), and when they
- * navigate away it shrinks into a floating picture-in-picture pill instead
+ * active call so it survives navigation: while the user is on the call page
+ * it renders into that page's mount point (full size), and when they navigate
+ * away it shrinks into a floating, draggable picture-in-picture pill instead
  * of disconnecting. The call only ends when the user explicitly leaves.
  */
 export default function CallManager() {
@@ -153,6 +168,9 @@ export default function CallManager() {
   const [token, setToken] = useState<string | null>(null);
   const [wsUrl, setWsUrl] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [pipLarge, setPipLarge] = useState(false);
+  const pipBoundsRef = useRef<HTMLDivElement>(null);
+  const draggedRef = useRef(false);
 
   useEffect(() => {
     if (!call) return;
@@ -172,12 +190,20 @@ export default function CallManager() {
   if (!call) return null;
 
   const minimized = !mountNode;
+
+  // Return to the chat without cutting the call (pop the call page off history
+  // so it doesn't linger as a duplicate entry).
+  const goToChat = () => {
+    const idx = (window.history.state && (window.history.state as any).idx) ?? 0;
+    const chatPath = call.threadId ? `/dm/${call.threadId}` : `/groups/${call.groupId}`;
+    if (idx > 0) navigate(-1);
+    else navigate(chatPath, { replace: true });
+  };
   const handleMaximize = () => navigate(
     call.threadId
       ? `/dm/${call.threadId}/call?type=${call.audioOnly ? 'audio' : 'video'}`
       : `/groups/${call.groupId}/rooms/${call.roomId}`
   );
-  const handleMinimize = () => navigate(call.threadId ? `/dm/${call.threadId}` : `/groups/${call.groupId}`);
 
   let body: ReactNode;
   if (error) {
@@ -212,34 +238,51 @@ export default function CallManager() {
         <RoomAudioRenderer />
         <CallLoader />
         {minimized ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
             <Maximize2 size={18} className="text-white drop-shadow" />
           </div>
         ) : (
-          <CallControlBar audioOnly={!!call.audioOnly} onMinimize={handleMinimize} onLeave={leaveCall} />
+          <CallControlBar audioOnly={!!call.audioOnly} onMinimize={goToChat} onLeave={leaveCall} />
         )}
       </LiveKitRoom>
     );
   }
 
   if (minimized) {
+    // Floating pill: draggable anywhere, with a resize toggle and leave button.
     return createPortal(
-      <div
-        className="fixed bottom-24 right-3 sm:bottom-5 sm:right-5 z-[90] w-28 h-40 sm:w-36 sm:h-48 rounded-2xl overflow-hidden shadow-2xl border border-white/10 cursor-pointer bg-black animate-fade-in"
-        onClick={handleMaximize}
-        title="Return to call"
-      >
-        {body}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            leaveCall();
-          }}
-          className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/60 hover:bg-red-500/100/80 flex items-center justify-center text-white z-20"
-          title="Leave call"
+      <div ref={pipBoundsRef} className="fixed inset-0 z-[90] pointer-events-none">
+        <motion.div
+          drag
+          dragConstraints={pipBoundsRef}
+          dragMomentum={false}
+          dragElastic={0}
+          onDragStart={() => { draggedRef.current = true; }}
+          onClick={() => { if (draggedRef.current) { draggedRef.current = false; return; } handleMaximize(); }}
+          style={{ touchAction: 'none' }}
+          className={`pointer-events-auto absolute bottom-24 right-3 sm:bottom-5 sm:right-5 rounded-2xl overflow-hidden shadow-2xl border border-white/10 cursor-grab bg-black ${
+            pipLarge ? 'w-44 h-64 sm:w-56 sm:h-80' : 'w-28 h-40 sm:w-36 sm:h-48'
+          }`}
+          title="Drag to move · tap to return to the call"
         >
-          <PhoneOff size={11} />
-        </button>
+          {body}
+          {/* Resize */}
+          <button
+            onClick={(e) => { e.stopPropagation(); setPipLarge((v) => !v); }}
+            className="absolute top-1.5 left-1.5 w-6 h-6 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-white z-20"
+            title={pipLarge ? 'Shrink' : 'Enlarge'}
+          >
+            {pipLarge ? <Minimize2 size={11} /> : <Maximize2 size={11} />}
+          </button>
+          {/* Leave */}
+          <button
+            onClick={(e) => { e.stopPropagation(); leaveCall(); }}
+            className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/60 hover:bg-red-500 flex items-center justify-center text-white z-20"
+            title="Leave call"
+          >
+            <PhoneOff size={11} />
+          </button>
+        </motion.div>
       </div>,
       document.body
     );

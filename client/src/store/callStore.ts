@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { getSocket } from '../hooks/useSocket';
 
 export interface ActiveCallInfo {
   roomName: string;
@@ -28,11 +29,31 @@ export const useCallStore = create<CallStore>((set, get) => ({
   joinCall: (info) => {
     const current = get().call;
     if (current?.roomId === info.roomId) return;
-    // Don't touch mountNode here — RoomPage's ref callback runs before this
-    // effect and has already set it to the room's mount point (or left it
-    // null if we're joining from elsewhere, which correctly starts minimized).
+
+    // Don't touch mountNode here — the call page's ref callback runs before this
+    // effect and has already set it to the page's mount point (or left it null
+    // if we're joining from elsewhere, which correctly starts minimized).
     set({ call: info });
+
+    // Announce presence so the OTHER side rings. This is tied to the call's
+    // lifetime, not to any page: navigating away only minimizes the call (the
+    // LiveKit connection and the ring both stay alive). Only leaveCall() below
+    // tells the server the call is over.
+    const socket = getSocket();
+    if (info.threadId) {
+      socket?.emit('dmcall:join', { threadId: info.threadId, type: info.audioOnly ? 'audio' : 'video' });
+    } else if (info.groupId) {
+      socket?.emit('room:join', { roomId: info.roomId, groupId: info.groupId });
+    }
   },
-  leaveCall: () => set({ call: null, mountNode: null }),
+  leaveCall: () => {
+    const current = get().call;
+    if (current) {
+      const socket = getSocket();
+      if (current.threadId) socket?.emit('dmcall:leave', { threadId: current.threadId });
+      else if (current.groupId) socket?.emit('room:leave', { roomId: current.roomId });
+    }
+    set({ call: null, mountNode: null });
+  },
   setMountNode: (node) => set({ mountNode: node }),
 }));

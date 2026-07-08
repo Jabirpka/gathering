@@ -4,12 +4,20 @@ import { ArrowLeft } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useDmStore } from '../store/dmStore';
 import { useCallStore } from '../store/callStore';
-import { getSocket } from '../hooks/useSocket';
+
+/** Minimize (go back to the chat) without cutting the call: pop the call page
+ *  off history, or replace if there's nothing behind us. The call keeps running
+ *  and shrinks into the floating pill. */
+function popOrReplace(navigate: ReturnType<typeof useNavigate>, fallback: string) {
+  const idx = (window.history.state && (window.history.state as any).idx) ?? 0;
+  if (idx > 0) navigate(-1);
+  else navigate(fallback, { replace: true });
+}
 
 /**
  * 1:1 DM call. Mirrors RoomPage but scoped to a DM thread: it joins the DM call
- * room (which rings the other person), and hands CallManager a mount point to
- * portal the live call into.
+ * room (which rings the other person, handled in callStore), and hands
+ * CallManager a mount point to portal the live call into.
  */
 export default function DmCallPage() {
   const { threadId } = useParams<{ threadId: string }>();
@@ -17,9 +25,8 @@ export default function DmCallPage() {
   const type = params.get('type') === 'audio' ? 'audio' : 'video';
   const user = useAuthStore((s) => s.user);
   const { threads, fetchThreads } = useDmStore();
-  const { joinCall, setMountNode, call, leaveCall } = useCallStore();
+  const { joinCall, setMountNode, call } = useCallStore();
   const navigate = useNavigate();
-  const socket = getSocket();
   const joinedRef = useRef(false);
 
   const thread = threads.find((t) => t.id === threadId);
@@ -30,6 +37,8 @@ export default function DmCallPage() {
 
   useEffect(() => {
     if (!threadId) return;
+    // callStore emits the ring (dmcall:join) and, on leaveCall(), the cancel —
+    // so navigating away here just minimizes; it never ends the call.
     joinCall({
       roomName: `dm-${threadId}`,
       threadId,
@@ -38,15 +47,13 @@ export default function DmCallPage() {
       displayName: user?.name ?? 'You',
       audioOnly: type === 'audio',
     });
-    socket?.emit('dmcall:join', { threadId, type });
-    return () => { socket?.emit('dmcall:leave', { threadId }); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threadId]);
 
   // When the call ends (Leave pressed), return to the conversation.
   useEffect(() => {
     if (call) joinedRef.current = true;
-    else if (joinedRef.current) navigate(`/dm/${threadId}`, { replace: true });
+    else if (joinedRef.current) popOrReplace(navigate, `/dm/${threadId}`);
   }, [call, threadId, navigate]);
 
   const setCallMount = useCallback((node: HTMLDivElement | null) => setMountNode(node), [setMountNode]);
@@ -54,7 +61,10 @@ export default function DmCallPage() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <div className="h-14 shrink-0 border-b border-white/10 glass-panel flex items-center px-3 gap-2">
-        <button onClick={() => leaveCall()} className="btn-ghost p-1.5"><ArrowLeft size={16} /></button>
+        {/* Back minimizes the call (keeps it running); Leave (in the controls) ends it. */}
+        <button onClick={() => popOrReplace(navigate, `/dm/${threadId}`)} className="btn-ghost p-1.5">
+          <ArrowLeft size={16} />
+        </button>
         {partner?.avatar ? (
           <img src={partner.avatar} className="w-9 h-9 rounded-xl object-cover shrink-0" alt={partnerName} />
         ) : (
