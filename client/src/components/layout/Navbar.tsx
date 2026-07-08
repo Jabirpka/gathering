@@ -17,8 +17,7 @@ export default function Navbar() {
 
   return (
     <header
-      className="border-b border-white/10 glass-panel flex items-center px-4 gap-3 shrink-0 z-20"
-      style={{ paddingTop: 'env(safe-area-inset-top)', height: 'calc(3.5rem + env(safe-area-inset-top))' }}
+      className="border-b border-white/10 glass-panel flex items-center px-4 gap-3 shrink-0 z-20 h-14"
     >
       <Link to="/dashboard" className="flex items-center gap-2.5">
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand to-accent flex items-center justify-center shrink-0">

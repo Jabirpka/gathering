@@ -13,10 +13,15 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:background">@null</item>
+        <!-- Match the app's dark background so the status bar isn't a white strip. -->
+        <item name="android:statusBarColor">#0D0010</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
 
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="android:background">@drawable/splash</item>
+        <item name="android:statusBarColor">#0D0010</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 </resources>

@@ -43,9 +43,10 @@ export default function NotificationPanel({ open, onClose }: Props) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: -8 }}
           transition={{ duration: 0.15 }}
-          className="absolute top-12 right-0 w-80 card shadow-2xl z-50 overflow-hidden"
+          className="fixed right-2 z-50 w-[calc(100vw-1rem)] max-w-sm card shadow-2xl overflow-hidden flex flex-col"
+          style={{ top: '3.75rem', maxHeight: 'calc(100vh - 5rem)' }}
         >
-          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
             <span className="text-sm font-semibold text-white">Notifications</span>
             <div className="flex items-center gap-1">
               {notifications.length > 0 && (
@@ -59,7 +60,7 @@ export default function NotificationPanel({ open, onClose }: Props) {
             </div>
           </div>
 
-          <div className="max-h-80 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="py-10 text-center">
                 <Bell size={28} className="text-slate-600 mx-auto mb-2" />
