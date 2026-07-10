@@ -8,6 +8,7 @@ import { ArrowLeft, Loader2, Zap, MessageSquare, Music, Film, MapPin, User as Us
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
+import { PROFILE_QUESTIONS } from '../utils/profile';
 
 /** Whole years between a date of birth and today. */
 function ageFrom(dob: string): number | null {
@@ -186,6 +187,23 @@ export default function UserProfilePage() {
                   <span className="text-sm text-slate-200">{u.city}</span>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* About you — answered prompts */}
+          {PROFILE_QUESTIONS.some((it) => (u as any)[it.key]) && (
+            <div className="card p-5 space-y-3 mb-4">
+              <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500">ABOUT</p>
+              {PROFILE_QUESTIONS.map((it) => {
+                const val = (u as any)[it.key] as string | undefined;
+                if (!val) return null;
+                return (
+                  <div key={it.key}>
+                    <p className="text-xs text-brand font-medium mb-0.5">{it.q}</p>
+                    <p className="text-sm text-slate-200 whitespace-pre-wrap">{val}</p>
+                  </div>
+                );
+              })}
             </div>
           )}
 

@@ -5,8 +5,12 @@ import { Camera, Loader2, LogOut, Save, Zap, Music, Film, MapPin } from 'lucide-
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
+import { User } from '../types';
+import { PROFILE_QUESTIONS, profileCompletion } from '../utils/profile';
 
 const INTEREST_OPTIONS = ['🎮 Gaming', '🎵 Music', '📸 Photography', '✈️ Travel', '🍕 Food', '📚 Books', '🎬 Movies', '⚽ Sports'];
+
+type AboutState = Record<(typeof PROFILE_QUESTIONS)[number]['key'], string>;
 
 export default function ProfilePage() {
   const { user, updateUser, logout } = useAuthStore();
@@ -19,6 +23,13 @@ export default function ProfilePage() {
   const [favoriteSong, setFavoriteSong] = useState(user?.favoriteSong ?? '');
   const [favoriteMovie, setFavoriteMovie] = useState(user?.favoriteMovie ?? '');
   const [city, setCity] = useState(user?.city ?? '');
+  const [about, setAbout] = useState<AboutState>({
+    whoAreYou: user?.whoAreYou ?? '',
+    whatCanYouDo: user?.whatCanYouDo ?? '',
+    trust: user?.trust ?? '',
+    lookingFor: user?.lookingFor ?? '',
+    wantToMeet: user?.wantToMeet ?? '',
+  });
   const [avatar, setAvatar] = useState<string | null>(user?.avatar ?? null);
   const [saving, setSaving] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -62,6 +73,11 @@ export default function ProfilePage() {
         favoriteSong: favoriteSong.trim() || undefined,
         favoriteMovie: favoriteMovie.trim() || undefined,
         city: city.trim() || undefined,
+        whoAreYou: about.whoAreYou.trim() || undefined,
+        whatCanYouDo: about.whatCanYouDo.trim() || undefined,
+        trust: about.trust.trim() || undefined,
+        lookingFor: about.lookingFor.trim() || undefined,
+        wantToMeet: about.wantToMeet.trim() || undefined,
         avatar: avatar ?? undefined,
       });
       updateUser(res.data);
@@ -74,6 +90,10 @@ export default function ProfilePage() {
   };
 
   const displayName = user?.nickname || user?.name || '';
+
+  // Live completeness from the fields currently in the form.
+  const draft = { ...user, avatar, username, bio, dateOfBirth, city, interests, favoriteSong, favoriteMovie, ...about } as User;
+  const completion = profileCompletion(draft);
 
   return (
     <div className="p-6 max-w-lg mx-auto animate-fade-in pb-28">
@@ -109,6 +129,21 @@ export default function ProfilePage() {
             {user?.strikePoints ?? 0} strike point{(user?.strikePoints ?? 0) !== 1 ? 's' : ''}
           </span>
         </motion.div>
+      </div>
+
+      {/* Profile completion */}
+      <div className="card p-4 mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-sm font-semibold text-white">Profile {completion}% complete</p>
+          {completion === 100 ? (
+            <span className="text-xs font-medium text-emerald-400">All done ✓</span>
+          ) : (
+            <span className="text-xs text-brand">Fill in more below</span>
+          )}
+        </div>
+        <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+          <div className="h-full rounded-full bg-gradient-to-r from-brand to-accent transition-all duration-300" style={{ width: `${completion}%` }} />
+        </div>
       </div>
 
       {/* Basic info */}
@@ -198,11 +233,30 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <button onClick={handleSave} disabled={saving} className="btn-primary w-full justify-center">
-          {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
-          Save changes
-        </button>
       </div>
+
+      {/* About you */}
+      <div className="card p-5 space-y-4 mb-4">
+        <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500">ABOUT YOU</p>
+        {PROFILE_QUESTIONS.map((item) => (
+          <div key={item.key}>
+            <label className="text-xs font-medium text-slate-400 mb-1.5 block">{item.q}</label>
+            <textarea
+              className="input resize-none"
+              rows={2}
+              maxLength={280}
+              value={about[item.key]}
+              onChange={(e) => setAbout((a) => ({ ...a, [item.key]: e.target.value }))}
+              placeholder={item.placeholder}
+            />
+          </div>
+        ))}
+      </div>
+
+      <button onClick={handleSave} disabled={saving} className="btn-primary w-full justify-center mb-4">
+        {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+        Save changes
+      </button>
 
       {/* Logout */}
       <button onClick={() => logout()}

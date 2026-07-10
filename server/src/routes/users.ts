@@ -13,7 +13,7 @@ router.get('/me', (req: Request, res: Response) => {
 
 // Update my profile (name, nickname, avatar, and v2 profile fields)
 router.patch('/me', async (req: Request, res: Response) => {
-  const { name, nickname, avatar, username, dateOfBirth, bio, interests, favoriteSong, favoriteMovie, city, onboarded } = req.body;
+  const { name, nickname, avatar, username, dateOfBirth, bio, interests, favoriteSong, favoriteMovie, city, whoAreYou, whatCanYouDo, trust, lookingFor, wantToMeet, onboarded } = req.body;
   try {
     const data: any = {};
     if (name !== undefined) data.name = name;
@@ -26,6 +26,11 @@ router.patch('/me', async (req: Request, res: Response) => {
     if (favoriteSong !== undefined) data.favoriteSong = favoriteSong || null;
     if (favoriteMovie !== undefined) data.favoriteMovie = favoriteMovie || null;
     if (city !== undefined) data.city = city || null;
+    if (whoAreYou !== undefined) data.whoAreYou = whoAreYou || null;
+    if (whatCanYouDo !== undefined) data.whatCanYouDo = whatCanYouDo || null;
+    if (trust !== undefined) data.trust = trust || null;
+    if (lookingFor !== undefined) data.lookingFor = lookingFor || null;
+    if (wantToMeet !== undefined) data.wantToMeet = wantToMeet || null;
     if (onboarded !== undefined) data.onboarded = !!onboarded;
 
     const user = await prisma.user.update({
@@ -34,7 +39,9 @@ router.patch('/me', async (req: Request, res: Response) => {
       select: {
         id: true, name: true, nickname: true, email: true, avatar: true,
         username: true, dateOfBirth: true, bio: true, interests: true,
-        favoriteSong: true, favoriteMovie: true, city: true, onboarded: true,
+        favoriteSong: true, favoriteMovie: true, city: true,
+        whoAreYou: true, whatCanYouDo: true, trust: true, lookingFor: true, wantToMeet: true,
+        onboarded: true,
       },
     });
     res.json(user);
@@ -98,6 +105,11 @@ router.get('/:id', async (req: Request, res: Response) => {
         favoriteSong: true,
         favoriteMovie: true,
         city: true,
+        whoAreYou: true,
+        whatCanYouDo: true,
+        trust: true,
+        lookingFor: true,
+        wantToMeet: true,
         createdAt: true,
         _count: { select: { pokesReceived: true } },
       },

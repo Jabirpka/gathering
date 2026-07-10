@@ -36,7 +36,9 @@ export const usersApi = {
   updateMe: (data: {
     name?: string; nickname?: string; avatar?: string;
     username?: string; dateOfBirth?: string; bio?: string; interests?: string[];
-    favoriteSong?: string; favoriteMovie?: string; city?: string; onboarded?: boolean;
+    favoriteSong?: string; favoriteMovie?: string; city?: string;
+    whoAreYou?: string; whatCanYouDo?: string; trust?: string; lookingFor?: string; wantToMeet?: string;
+    onboarded?: boolean;
   }) => api.patch('/users/me', data),
   getUser: (id: string) => api.get(`/users/${id}`),
   poke: (id: string) => api.post(`/users/${id}/poke`),

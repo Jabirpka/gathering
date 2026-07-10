@@ -23,6 +23,12 @@ model User {
   favoriteSong  String?
   favoriteMovie String?
   city          String?
+  // "About you" profile prompts (free text)
+  whoAreYou     String?
+  whatCanYouDo  String?
+  trust         String?
+  lookingFor    String?
+  wantToMeet    String?
   // Whether the user finished the "set up profile" onboarding. Defaults true so
   // existing accounts are unaffected; new signups are created with false.
   onboarded     Boolean        @default(true)

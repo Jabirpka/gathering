@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useGroupStore } from '../store/groupStore';
 import { useDmStore } from '../store/dmStore';
 import { useAuthStore } from '../store/authStore';
-import { Users, Plus } from 'lucide-react';
+import { Users, Plus, X, ChevronRight } from 'lucide-react';
 import { format, isToday } from 'date-fns';
 import { Group, DmThread } from '../types';
 import GroupSheet from '../components/groups/GroupSheet';
+import { profileCompletion } from '../utils/profile';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
 
@@ -88,6 +89,7 @@ export default function DashboardPage() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sheetTab, setSheetTab] = useState<'join' | 'create'>('join');
   const [filter, setFilter] = useState<Filter>('group');
+  const [hideNudge, setHideNudge] = useState(false);
   const openSheet = (t: 'join' | 'create') => { setSheetTab(t); setSheetOpen(true); };
 
   useEffect(() => { fetchGroups(); fetchThreads(); }, []);
@@ -108,11 +110,37 @@ export default function DashboardPage() {
     .sort((a, b) => b.at - a.at);
 
   const firstName = user?.nickname || user?.name?.split(' ')[0];
+  const completion = profileCompletion(user);
 
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto animate-fade-in pb-28">
       {/* Greeting (the GATHERING wordmark lives in the top bar now) */}
       <h1 className="text-lg font-bold text-white mb-3">Hey, {firstName} <span className="text-brand">✦</span></h1>
+
+      {/* Complete-your-profile nudge (shown until the profile is 100% done) */}
+      {completion < 100 && !hideNudge && (
+        <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+          className="relative mb-4 rounded-2xl border border-brand/30 bg-gradient-to-br from-brand/15 to-accent/10 p-3.5">
+          <button onClick={() => setHideNudge(true)} className="absolute top-2 right-2 text-slate-400 hover:text-white" aria-label="Dismiss">
+            <X size={14} />
+          </button>
+          <button onClick={() => navigate('/profile')} className="w-full flex items-center gap-3 text-left pr-5">
+            <div className="relative w-11 h-11 shrink-0">
+              <svg viewBox="0 0 36 36" className="w-11 h-11 -rotate-90">
+                <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="3" />
+                <circle cx="18" cy="18" r="15" fill="none" stroke="#e879f9" strokeWidth="3" strokeLinecap="round"
+                  strokeDasharray={`${(completion / 100) * 94.2} 94.2`} />
+              </svg>
+              <span className="absolute inset-0 flex items-center justify-center text-[11px] font-bold text-white">{completion}%</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-white">Complete your profile</p>
+              <p className="text-xs text-slate-300">Answer a few questions so people get to know you.</p>
+            </div>
+            <ChevronRight size={18} className="text-brand shrink-0" />
+          </button>
+        </motion.div>
+      )}
 
       {/* Group / DM segmented filter */}
       <div className="flex gap-1 p-1 rounded-2xl glass mb-4">

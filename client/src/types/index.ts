@@ -13,6 +13,11 @@ export interface User {
   favoriteSong?: string | null;
   favoriteMovie?: string | null;
   city?: string | null;
+  whoAreYou?: string | null;
+  whatCanYouDo?: string | null;
+  trust?: string | null;
+  lookingFor?: string | null;
+  wantToMeet?: string | null;
   onboarded?: boolean;
   strikePoints?: number;
   createdAt?: string;
