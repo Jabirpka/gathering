@@ -7,8 +7,11 @@ import { formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
 
 interface Props {
-  group: StatusGroup;
-  isMine: boolean;
+  /** Everyone's statuses, in play order. */
+  groups: StatusGroup[];
+  /** Which person to start on. */
+  startIndex: number;
+  myId?: string;
   onClose: () => void;
   onAddMore: () => void;
   onDeleted: () => void;
@@ -16,19 +19,44 @@ interface Props {
 
 const STEP_MS = 5000;
 
-/** Full-screen story viewer: progress bars per item, tap right/left to move. */
-export default function StatusViewer({ group, isMine, onClose, onAddMore, onDeleted }: Props) {
-  const [index, setIndex] = useState(0);
-  const status = group.statuses[index];
+/**
+ * Full-screen story viewer. Auto-plays each item, then advances to the next
+ * person automatically; once the last person's last status finishes it closes.
+ * Tap right/left to skip forward/back (across people too).
+ */
+export default function StatusViewer({ groups, startIndex, myId, onClose, onAddMore, onDeleted }: Props) {
+  const [gi, setGi] = useState(startIndex);
+  const [ii, setIi] = useState(0);
 
-  // Auto-advance every 5s; close after the last one.
+  const group = groups[gi];
+  const status = group?.statuses[ii];
+  const isMine = !!myId && group?.user.id === myId;
+
+  const next = () => {
+    if (!group) return onClose();
+    if (ii < group.statuses.length - 1) { setIi(ii + 1); return; }
+    if (gi < groups.length - 1) { setGi(gi + 1); setIi(0); return; }
+    onClose(); // finished everyone → auto-close
+  };
+  const prev = () => {
+    if (ii > 0) { setIi(ii - 1); return; }
+    if (gi > 0) {
+      const pg = groups[gi - 1];
+      setGi(gi - 1);
+      setIi(Math.max(0, pg.statuses.length - 1));
+    }
+    // already at the very first status — stay put
+  };
+
+  // Auto-advance every few seconds (restarts whenever the item/person changes).
   useEffect(() => {
-    const t = setTimeout(() => {
-      if (index < group.statuses.length - 1) setIndex(index + 1);
-      else onClose();
-    }, STEP_MS);
+    if (!status) { onClose(); return; }
+    const t = setTimeout(next, STEP_MS);
     return () => clearTimeout(t);
-  }, [index, group.statuses.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gi, ii]);
+
+  if (!status) return null;
 
   const handleDelete = async () => {
     try {
@@ -42,9 +70,8 @@ export default function StatusViewer({ group, isMine, onClose, onAddMore, onDele
 
   const tap = (e: React.MouseEvent) => {
     const x = e.clientX / window.innerWidth;
-    if (x < 0.3) setIndex((i) => Math.max(0, i - 1));
-    else if (index < group.statuses.length - 1) setIndex(index + 1);
-    else onClose();
+    if (x < 0.3) prev();
+    else next();
   };
 
   const name = group.user.nickname || group.user.name;
@@ -52,13 +79,14 @@ export default function StatusViewer({ group, isMine, onClose, onAddMore, onDele
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
       className="fixed inset-0 z-[100] bg-black flex flex-col" onClick={tap}>
-      {/* Progress bars */}
+      {/* Progress bars for the current person's items */}
       <div className="flex gap-1 p-2 pt-[max(env(safe-area-inset-top),0.5rem)]">
         {group.statuses.map((_, i) => (
           <div key={i} className="flex-1 h-1 rounded-full bg-white/25 overflow-hidden">
             <div
-              className={`h-full bg-white ${i < index ? 'w-full' : i === index ? 'animate-status-progress' : 'w-0'}`}
-              style={i === index ? { animationDuration: `${STEP_MS}ms` } : undefined}
+              key={`${gi}-${i}-${ii}`}
+              className={`h-full bg-white ${i < ii ? 'w-full' : i === ii ? 'animate-status-progress' : 'w-0'}`}
+              style={i === ii ? { animationDuration: `${STEP_MS}ms` } : undefined}
             />
           </div>
         ))}
