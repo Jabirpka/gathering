@@ -158,7 +158,7 @@ export default function StatusSheet() {
                   const photoStyle: React.CSSProperties = {
                     flex: 1, borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'center',
                     color: 'rgba(255,255,255,0.9)', fontSize: 'clamp(84px,26vw,140px)', fontWeight: 800,
-                    fontFamily: 'Georgia,serif', overflow: 'hidden', position: 'relative',
+                    fontFamily: 'Georgia,serif', overflow: isText ? 'visible' : 'hidden', position: 'relative',
                   };
                   if (isImage) {
                     photoStyle.backgroundImage = `url(${c.latest!.content})`;
@@ -181,23 +181,25 @@ export default function StatusSheet() {
                         opacity: depthFromFront > 3 ? 0 : 1 - depthFromFront * 0.14,
                         zIndex: 100 - depthFromFront,
                         transition: 'all 0.4s cubic-bezier(.22,1,.36,1)',
-                        display: 'flex', flexDirection: 'column', overflow: 'hidden',
+                        display: 'flex', flexDirection: 'column', overflow: isText ? 'visible' : 'hidden',
                         cursor: isFront ? 'pointer' : 'default',
                       }}
                     >
                       <div style={photoStyle}>
                         {isFront && isText && (
                           <div style={{
-                            textAlign: 'center', padding: '0 22px', color: '#fff', fontSize: 28, fontWeight: 800,
+                            position: 'relative', transform: 'translateY(-14px) scale(1.06)',
+                            textAlign: 'center', padding: '0 22px', color: '#fff', fontSize: 30, fontWeight: 800,
                             fontFamily: "'SF Pro Text',-apple-system,Inter,sans-serif", lineHeight: 1.3,
                             textShadow: '0 1px 0 #e9d5ff,0 2px 0 #d8b4fe,0 3px 0 #c084fc,0 4px 0 #a855f7,0 5px 0 #9333ea,0 6px 0 #7c1fd6,0 14px 24px rgba(0,0,0,0.55)',
+                            filter: 'drop-shadow(0 10px 14px rgba(0,0,0,0.4))',
                           }}>{c.latest!.content}</div>
                         )}
                         {isFront && !isImage && !isText && c.initial}
                       </div>
 
                       {isFront && (
-                        <div style={{ height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 6px' }}>
+                        <div style={{ height: 70, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 6px' }}>
                           <div style={{ position: 'relative', width: 34, height: 34, borderRadius: '50%', background: c.avatarGrad, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 13, boxShadow: '0 3px 8px rgba(0,0,0,0.3)' }}>
                             {c.initial}
                             {c.isMine && (
