@@ -3,11 +3,11 @@ import { User } from '../types';
 /** The "About you" profile prompts, in display/edit order. `key` maps to the
  *  User field and the /users/me PATCH body. */
 export const PROFILE_QUESTIONS = [
-  { key: 'whoAreYou', q: 'Who are you?', placeholder: 'A few words about who you are…' },
-  { key: 'whatCanYouDo', q: 'What can you do?', placeholder: 'Skills, talents, things you’re good at…' },
-  { key: 'trust', q: 'Can people trust you?', placeholder: 'Why people can count on you' },
-  { key: 'lookingFor', q: 'What are you looking for?', placeholder: 'Friends, collaborators, something else…' },
-  { key: 'wantToMeet', q: 'What kind of people do you want to meet?', placeholder: 'The people you’d love to connect with' },
+  { key: 'whoAreYou', q: 'A little about you', placeholder: 'Your story, your vibe — what makes you you' },
+  { key: 'whatCanYouDo', q: 'What you’re good at', placeholder: 'Skills, talents, things you love doing…' },
+  { key: 'trust', q: 'What you bring to a friendship', placeholder: 'How you show up for people — why they can count on you' },
+  { key: 'lookingFor', q: 'What you’re here for', placeholder: 'Friends, collaborators, someone to build with…' },
+  { key: 'wantToMeet', q: 'Who you’d love to meet', placeholder: 'The kind of people you want in your circle' },
 ] as const;
 
 export type ProfileQuestionKey = (typeof PROFILE_QUESTIONS)[number]['key'];
