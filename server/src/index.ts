@@ -124,6 +124,7 @@ async function ensureSchema() {
     `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "lookingFor" TEXT`,
     `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "wantToMeet" TEXT`,
     `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "onboarded" BOOLEAN NOT NULL DEFAULT true`,
+    `ALTER TABLE "Group" ADD COLUMN IF NOT EXISTS "category" TEXT`,
     `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "phone" TEXT`,
     `ALTER TABLE "User" ALTER COLUMN "googleId" DROP NOT NULL`,
     `ALTER TABLE "User" ALTER COLUMN "email" DROP NOT NULL`,

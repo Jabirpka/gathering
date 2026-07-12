@@ -118,6 +118,7 @@ model Group {
   code            String           @unique
   description     String?
   avatar          String?
+  category        String?
   isPublic        Boolean          @default(false)
   requireApproval Boolean          @default(true)
   creatorId       String

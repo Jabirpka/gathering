@@ -70,12 +70,26 @@ export interface CallRing {
   type: 'VIDEO_CALL' | 'AUDIO_CALL';
 }
 
+export interface DiscoverGroup {
+  id: string;
+  name: string;
+  description?: string | null;
+  avatar?: string | null;
+  category?: string | null;
+  isPublic: boolean;
+  requireApproval: boolean;
+  creator: Pick<User, 'id' | 'name' | 'avatar'>;
+  memberCount: number;
+  myStatus: MemberStatus | null;
+}
+
 export interface Group {
   id: string;
   name: string;
   code: string;
   description?: string | null;
   avatar?: string | null;
+  category?: string | null;
   isPublic: boolean;
   requireApproval: boolean;
   creatorId: string;

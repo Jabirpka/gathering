@@ -78,11 +78,12 @@ router.post(
       res.status(400).json({ errors: errors.array() });
       return;
     }
-    const { name, description, isPublic = false, requireApproval = true } = req.body;
+    const { name, description, category, isPublic = false, requireApproval = true } = req.body;
     const group = await prisma.group.create({
       data: {
         name,
         description,
+        category: category || null,
         isPublic,
         requireApproval,
         code: nanoid(),
@@ -107,6 +108,76 @@ router.post(
     res.status(201).json(group);
   }
 );
+
+// Discover public groups to browse & join. Optional text search (q) and
+// category filter. Returns member counts + my membership status so the client
+// can show "Join" / "Requested" / "Open". Defined before "/:id" so the literal
+// path isn't captured as an id.
+router.get('/discover', async (req: Request, res: Response) => {
+  const q = String(req.query.q ?? '').trim();
+  const category = String(req.query.category ?? '').trim();
+
+  const where: any = { isPublic: true };
+  if (category && category !== 'All') where.category = category;
+  if (q) {
+    where.OR = [
+      { name: { contains: q, mode: 'insensitive' } },
+      { description: { contains: q, mode: 'insensitive' } },
+    ];
+  }
+
+  const groups = await prisma.group.findMany({
+    where,
+    include: {
+      creator: { select: { id: true, name: true, avatar: true } },
+      _count: { select: { members: true } },
+      members: { where: { userId: req.user!.id }, select: { status: true } },
+    },
+    orderBy: { members: { _count: 'desc' } },
+    take: 60,
+  });
+
+  const shaped = groups.map((g) => ({
+    id: g.id,
+    name: g.name,
+    description: g.description,
+    avatar: g.avatar,
+    category: g.category,
+    isPublic: g.isPublic,
+    requireApproval: g.requireApproval,
+    creator: g.creator,
+    memberCount: g._count.members,
+    myStatus: g.members[0]?.status ?? null,
+  }));
+  res.json(shaped);
+});
+
+// Join a public group directly by id (from Discover). Private groups still
+// require an invite code (see POST /join).
+router.post('/:id/join', async (req: Request, res: Response) => {
+  const group = await prisma.group.findUnique({ where: { id: req.params.id } });
+  if (!group) {
+    res.status(404).json({ error: 'Group not found' });
+    return;
+  }
+  if (!group.isPublic) {
+    res.status(403).json({ error: 'This group is private — you need an invite code' });
+    return;
+  }
+  const existing = await prisma.groupMember.findUnique({
+    where: { userId_groupId: { userId: req.user!.id, groupId: group.id } },
+  });
+  if (existing) {
+    if (existing.status === 'APPROVED') { res.status(400).json({ error: 'Already a member' }); return; }
+    if (existing.status === 'PENDING') { res.status(400).json({ error: 'Join request pending' }); return; }
+    if (existing.status === 'BANNED') { res.status(403).json({ error: 'You are banned from this group' }); return; }
+  }
+  const status = group.requireApproval ? 'PENDING' : 'APPROVED';
+  const member = await prisma.groupMember.create({
+    data: { userId: req.user!.id, groupId: group.id, status },
+  });
+  res.json({ group, member, status });
+});
 
 router.get('/:id', async (req: Request, res: Response) => {
   const group = await prisma.group.findFirst({
@@ -214,10 +285,11 @@ router.patch('/:id', async (req: Request, res: Response) => {
     res.status(403).json({ error: 'Forbidden' });
     return;
   }
-  const { name, description, isPublic, requireApproval, avatar } = req.body;
+  const { name, description, category, isPublic, requireApproval, avatar } = req.body;
   const data: any = {};
   if (name !== undefined) data.name = name;
   if (description !== undefined) data.description = description;
+  if (category !== undefined) data.category = category || null;
   if (isPublic !== undefined) data.isPublic = isPublic;
   if (requireApproval !== undefined) data.requireApproval = requireApproval;
   if (avatar !== undefined) data.avatar = avatar;

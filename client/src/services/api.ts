@@ -48,11 +48,13 @@ export const usersApi = {
 export const groupsApi = {
   list: () => api.get('/groups'),
   get: (id: string) => api.get(`/groups/${id}`),
-  create: (data: { name: string; description?: string; isPublic?: boolean; requireApproval?: boolean }) =>
+  create: (data: { name: string; description?: string; category?: string; isPublic?: boolean; requireApproval?: boolean }) =>
     api.post('/groups', data),
-  update: (id: string, data: Partial<{ name: string; description: string; isPublic: boolean; requireApproval: boolean; avatar: string }>) =>
+  update: (id: string, data: Partial<{ name: string; description: string; category: string; isPublic: boolean; requireApproval: boolean; avatar: string }>) =>
     api.patch(`/groups/${id}`, data),
   join: (code: string) => api.post('/groups/join', { code }),
+  discover: (q?: string, category?: string) => api.get('/groups/discover', { params: { q: q || '', category: category || '' } }),
+  joinById: (id: string) => api.post(`/groups/${id}/join`, {}),
   leave: (id: string) => api.delete(`/groups/${id}/leave`),
   remove: (id: string) => api.delete(`/groups/${id}`),
   transferOwnership: (id: string, userId: string) => api.post(`/groups/${id}/transfer`, { userId }),

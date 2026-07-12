@@ -19,6 +19,7 @@ import DmPage from './pages/DmPage';
 import DmCallPage from './pages/DmCallPage';
 import ProfilePage from './pages/ProfilePage';
 import UserProfilePage from './pages/UserProfilePage';
+import DiscoverPage from './pages/DiscoverPage';
 import ProfileSetup from './pages/ProfileSetup';
 import AuthCallback from './pages/AuthCallback';
 import Layout from './components/layout/Layout';
@@ -166,6 +167,7 @@ function AppRoutes() {
             <Route element={<Layout />}>
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/discover" element={<DiscoverPage />} />
               <Route path="/u/:userId" element={<UserProfilePage />} />
               <Route path="/groups/:groupId" element={<GroupPage />} />
               <Route path="/groups/:groupId/rooms/:roomId" element={<RoomPage />} />

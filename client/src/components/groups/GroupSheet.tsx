@@ -3,6 +3,7 @@ import { Loader2, Hash, Lock, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { groupsApi } from '../../services/api';
 import { useGroupStore } from '../../store/groupStore';
+import { GROUP_CATEGORIES } from '../../utils/groups';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
@@ -27,6 +28,7 @@ export default function GroupSheet({ open, initialTab = 'join', onClose }: Props
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isPublic, setIsPublic] = useState(false);
+  const [category, setCategory] = useState('');
   const { addGroup, fetchGroups } = useGroupStore();
   const navigate = useNavigate();
 
@@ -60,12 +62,12 @@ export default function GroupSheet({ open, initialTab = 'join', onClose }: Props
     if (!name.trim()) return;
     setLoading(true);
     try {
-      const res = await groupsApi.create({ name: name.trim(), description: description.trim() || undefined, isPublic, requireApproval: true });
+      const res = await groupsApi.create({ name: name.trim(), description: description.trim() || undefined, category: isPublic ? (category || undefined) : undefined, isPublic, requireApproval: true });
       addGroup(res.data);
       toast.success('Group created!');
       onClose();
       navigate(`/groups/${res.data.id}`);
-      setName(''); setDescription('');
+      setName(''); setDescription(''); setCategory('');
     } catch {
       toast.error('Failed to create group');
     } finally {
@@ -140,6 +142,20 @@ export default function GroupSheet({ open, initialTab = 'join', onClose }: Props
                     ))}
                   </div>
                 </div>
+                {isPublic && (
+                  <div>
+                    <label className="text-xs font-medium text-slate-400 mb-1.5 block">Category <span className="text-slate-500">(helps people discover it)</span></label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {GROUP_CATEGORIES.map((c) => (
+                        <button key={c} type="button" onClick={() => setCategory((cur) => (cur === c ? '' : c))}
+                          className={clsx('px-2.5 py-1 rounded-full text-xs font-semibold transition-all',
+                            category === c ? 'bg-gradient-to-br from-brand to-accent text-white' : 'bg-surface-2 border border-white/10 text-slate-400')}>
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <button type="submit" disabled={loading || !name.trim()} className="btn-primary w-full justify-center py-3">
                   {loading ? <Loader2 size={15} className="animate-spin" /> : 'Create group 🚀'}
                 </button>

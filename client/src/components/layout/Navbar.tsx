@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Video, Bell } from 'lucide-react';
+import { Video, Bell, Compass } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useNotificationStore } from '../../store/notificationStore';
 import NotificationPanel from '../notifications/NotificationPanel';
@@ -30,6 +30,11 @@ export default function Navbar() {
       </Link>
 
       <div className="flex-1" />
+
+      {/* Discover / communities */}
+      <Link to="/discover" className="btn-ghost p-2" aria-label="Discover">
+        <Compass size={18} />
+      </Link>
 
       {/* Notification bell */}
       <div className="relative">
