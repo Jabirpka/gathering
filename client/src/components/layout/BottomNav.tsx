@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { MessageSquare, Users, Plus, User } from 'lucide-react';
+import { MessageSquare, Users, Plus, User, Compass } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useGroupStore } from '../../store/groupStore';
 import { useDmStore } from '../../store/dmStore';
@@ -19,10 +19,11 @@ export default function BottomNav() {
   const totalUnread = chatUnread + dmUnread;
 
   // Only the top-level hub screens get the tab bar.
-  if (pathname !== '/dashboard' && pathname !== '/profile') return null;
+  if (pathname !== '/dashboard' && pathname !== '/profile' && pathname !== '/discover') return null;
 
   const isHome = pathname === '/dashboard';
   const isProfile = pathname === '/profile';
+  const isDiscover = pathname === '/discover';
 
   return (
     <nav
@@ -31,7 +32,7 @@ export default function BottomNav() {
     >
       <button
         onClick={() => navigate('/dashboard')}
-        className={clsx('relative flex flex-col items-center gap-1 w-14 py-1', isHome ? 'text-brand' : 'text-slate-400')}
+        className={clsx('relative flex flex-col items-center gap-1 w-12 py-1', isHome ? 'text-brand' : 'text-slate-400')}
       >
         <MessageSquare size={22} />
         <span className={clsx('w-1 h-1 rounded-full', isHome ? 'bg-brand' : 'bg-transparent')} />
@@ -43,9 +44,15 @@ export default function BottomNav() {
       </button>
 
       <button onClick={() => window.dispatchEvent(new CustomEvent('open-contacts'))}
-        className="flex flex-col items-center gap-1 w-14 py-1 text-slate-400" title="People">
+        className="flex flex-col items-center gap-1 w-12 py-1 text-slate-400" title="People">
         <Users size={22} />
         <span className="w-1 h-1 rounded-full bg-transparent" />
+      </button>
+
+      <button onClick={() => navigate('/discover')}
+        className={clsx('flex flex-col items-center gap-1 w-12 py-1', isDiscover ? 'text-brand' : 'text-slate-400')} title="Discover">
+        <Compass size={22} />
+        <span className={clsx('w-1 h-1 rounded-full', isDiscover ? 'bg-brand' : 'bg-transparent')} />
       </button>
 
       {/* Center FAB — opens the Join/Create sheet (v2) */}
@@ -66,7 +73,7 @@ export default function BottomNav() {
 
       <button
         onClick={() => window.dispatchEvent(new CustomEvent('open-status'))}
-        className="flex flex-col items-center gap-1 w-14 py-1 text-slate-400"
+        className="flex flex-col items-center gap-1 w-12 py-1 text-slate-400"
         title="Status"
       >
         <div className="w-[22px] h-[22px] rounded-full border-2 border-dashed border-slate-400 flex items-center justify-center">
@@ -77,7 +84,7 @@ export default function BottomNav() {
 
       <button
         onClick={() => navigate('/profile')}
-        className={clsx('flex flex-col items-center gap-1 w-14 py-1', isProfile ? 'text-brand' : 'text-slate-400')}
+        className={clsx('flex flex-col items-center gap-1 w-12 py-1', isProfile ? 'text-brand' : 'text-slate-400')}
       >
         {user?.avatar ? (
           <img src={user.avatar} className={clsx('w-6 h-6 rounded-lg object-cover', isProfile && 'ring-2 ring-brand')} alt="" />
