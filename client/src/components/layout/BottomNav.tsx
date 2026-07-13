@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { MessageSquare, Users, Plus, User, Compass } from 'lucide-react';
+import { MessageSquare, Users, User, Compass } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useGroupStore } from '../../store/groupStore';
 import { useDmStore } from '../../store/dmStore';
@@ -53,22 +53,6 @@ export default function BottomNav() {
         className={clsx('flex flex-col items-center gap-1 w-12 py-1', isDiscover ? 'text-brand' : 'text-slate-400')} title="Discover">
         <Compass size={22} />
         <span className={clsx('w-1 h-1 rounded-full', isDiscover ? 'bg-brand' : 'bg-transparent')} />
-      </button>
-
-      {/* Center FAB — opens the Join/Create sheet (v2) */}
-      <button
-        onClick={() => {
-          if (pathname === '/dashboard') window.dispatchEvent(new CustomEvent('open-group-sheet'));
-          else navigate('/dashboard');
-        }}
-        className="w-14 h-14 -mt-6 rounded-2xl flex items-center justify-center text-white shrink-0"
-        style={{
-          background: 'linear-gradient(135deg, #e879f9, #a855f7)',
-          boxShadow: '0 8px 24px rgba(232,121,249,0.5)',
-        }}
-        title="Join or create a group"
-      >
-        <Plus size={26} />
       </button>
 
       <button

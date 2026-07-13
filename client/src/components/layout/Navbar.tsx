@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Video, Bell } from 'lucide-react';
+import { Video, Bell, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useNotificationStore } from '../../store/notificationStore';
 import NotificationPanel from '../notifications/NotificationPanel';
@@ -30,6 +30,15 @@ export default function Navbar() {
       </Link>
 
       <div className="flex-1" />
+
+      {/* Join / create a group */}
+      <button
+        onClick={() => window.dispatchEvent(new CustomEvent('open-group-sheet'))}
+        className="btn-ghost p-2"
+        aria-label="Join or create a group"
+      >
+        <Plus size={17} />
+      </button>
 
       {/* Notification bell */}
       <div className="relative">

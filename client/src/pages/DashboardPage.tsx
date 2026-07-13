@@ -6,7 +6,6 @@ import { useAuthStore } from '../store/authStore';
 import { Users, Plus, X, ChevronRight } from 'lucide-react';
 import { format, isToday } from 'date-fns';
 import { Group, DmThread } from '../types';
-import GroupSheet from '../components/groups/GroupSheet';
 import { profileCompletion } from '../utils/profile';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
@@ -86,20 +85,12 @@ export default function DashboardPage() {
   const { groups, loading, fetchGroups } = useGroupStore();
   const { threads, fetchThreads } = useDmStore();
   const navigate = useNavigate();
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const [sheetTab, setSheetTab] = useState<'join' | 'create'>('join');
   const [filter, setFilter] = useState<Filter>('group');
   const [hideNudge, setHideNudge] = useState(false);
-  const openSheet = (t: 'join' | 'create') => { setSheetTab(t); setSheetOpen(true); };
+  // The Join/Create sheet is hosted in Layout; open it via this event.
+  const openSheet = (t: 'join' | 'create') => window.dispatchEvent(new CustomEvent('open-group-sheet', { detail: { tab: t } }));
 
   useEffect(() => { fetchGroups(); fetchThreads(); }, []);
-
-  // The bottom-nav center + button opens the Join/Create sheet (v2).
-  useEffect(() => {
-    const open = () => openSheet('join');
-    window.addEventListener('open-group-sheet', open);
-    return () => window.removeEventListener('open-group-sheet', open);
-  }, []);
 
   // Merge groups and DMs into one list, newest activity first, then filter.
   const chatItems = [
@@ -189,8 +180,6 @@ export default function DashboardPage() {
           )}
         </div>
       )}
-
-      <GroupSheet open={sheetOpen} initialTab={sheetTab} onClose={() => setSheetOpen(false)} />
     </div>
   );
 }
