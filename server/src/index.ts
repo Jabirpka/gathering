@@ -18,6 +18,8 @@ import pushRoutes from './routes/push';
 import dmRoutes from './routes/dms';
 import statusRoutes from './routes/status';
 import pollRoutes from './routes/polls';
+import eventRoutes from './routes/events';
+import quizRoutes from './routes/quizzes';
 import { setupSocketHandlers } from './socket';
 import { errorHandler } from './middleware/error';
 
@@ -74,6 +76,8 @@ app.use('/api/push', pushRoutes);
 app.use('/api/dms', dmRoutes);
 app.use('/api/status', statusRoutes);
 app.use('/api/polls', pollRoutes);
+app.use('/api/events', eventRoutes);
+app.use('/api/quizzes', quizRoutes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
@@ -135,6 +139,26 @@ async function ensureSchema() {
       "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
     )`,
     `CREATE UNIQUE INDEX IF NOT EXISTS "PollVote_messageId_userId_optionIndex_key" ON "PollVote"("messageId","userId","optionIndex")`,
+    `CREATE TABLE IF NOT EXISTS "EventRsvp" (
+      "id" TEXT PRIMARY KEY,
+      "messageId" TEXT NOT NULL,
+      "userId" TEXT NOT NULL,
+      "status" TEXT NOT NULL,
+      "plusGuest" BOOLEAN NOT NULL DEFAULT false,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS "EventRsvp_messageId_userId_key" ON "EventRsvp"("messageId","userId")`,
+    `CREATE TABLE IF NOT EXISTS "QuizAnswer" (
+      "id" TEXT PRIMARY KEY,
+      "messageId" TEXT NOT NULL,
+      "groupId" TEXT NOT NULL,
+      "userId" TEXT NOT NULL,
+      "optionIndex" INTEGER NOT NULL,
+      "correct" BOOLEAN NOT NULL,
+      "points" INTEGER NOT NULL DEFAULT 0,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS "QuizAnswer_messageId_userId_key" ON "QuizAnswer"("messageId","userId")`,
     `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "phone" TEXT`,
     `ALTER TABLE "User" ALTER COLUMN "googleId" DROP NOT NULL`,
     `ALTER TABLE "User" ALTER COLUMN "email" DROP NOT NULL`,

@@ -101,4 +101,20 @@ export const pollsApi = {
   vote: (messageId: string, optionIndex: number) => api.post(`/polls/${messageId}/vote`, { optionIndex }),
 };
 
+export const eventsApi = {
+  create: (data: { groupId: string; name: string; description?: string; startsAt: string; endsAt?: string | null; location?: string; allowGuests: boolean; reminderMinutes?: number | null }) =>
+    api.post('/events', data),
+  get: (messageId: string) => api.get(`/events/${messageId}`),
+  rsvp: (messageId: string, status: 'GOING' | 'MAYBE' | 'NO', plusGuest?: boolean) =>
+    api.post(`/events/${messageId}/rsvp`, { status, plusGuest }),
+};
+
+export const quizzesApi = {
+  create: (data: { groupId: string; question: string; options: string[]; correctIndex: number; points: number; endsAt?: string | null }) =>
+    api.post('/quizzes', data),
+  get: (messageId: string) => api.get(`/quizzes/${messageId}`),
+  answer: (messageId: string, optionIndex: number) => api.post(`/quizzes/${messageId}/answer`, { optionIndex }),
+  leaderboard: (groupId: string) => api.get(`/quizzes/leaderboard/${groupId}`),
+};
+
 export default api;

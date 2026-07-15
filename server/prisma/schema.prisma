@@ -45,6 +45,8 @@ model User {
   statuses      Status[]
   reactions     MessageReaction[]
   pollVotes     PollVote[]
+  eventRsvps    EventRsvp[]
+  quizAnswers   QuizAnswer[]
 }
 
 // WhatsApp-style status/story: text or image, auto-expires after 24h.
@@ -197,7 +199,40 @@ model Message {
   thread    DmThread? @relation(fields: [threadId], references: [id], onDelete: Cascade)
   reactions MessageReaction[]
   pollVotes PollVote[]
+  eventRsvps EventRsvp[]
+  quizAnswers QuizAnswer[]
   createdAt DateTime  @default(now())
+}
+
+// RSVP to an EVENT message (event details live in the message JSON content).
+model EventRsvp {
+  id        String   @id @default(cuid())
+  messageId String
+  userId    String
+  status    String   // GOING | MAYBE | NO
+  plusGuest Boolean  @default(false)
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([messageId, userId])
+}
+
+// One user's answer to a QUIZ message. groupId + points are denormalized so the
+// per-group leaderboard is a single cheap groupBy/sum.
+model QuizAnswer {
+  id          String   @id @default(cuid())
+  messageId   String
+  groupId     String
+  userId      String
+  optionIndex Int
+  correct     Boolean
+  points      Int      @default(0)
+  message     Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([messageId, userId])
 }
 
 // A vote on a POLL message. The poll's question/options/settings live in the

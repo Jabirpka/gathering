@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Send, MessageSquare, X, Search, Plus, BarChart3 } from 'lucide-react';
+import { Send, MessageSquare, X, Search, Plus, BarChart3, CalendarPlus, HelpCircle } from 'lucide-react';
 import { useGroupStore } from '../../store/groupStore';
 import { useAuthStore } from '../../store/authStore';
 import { getSocket } from '../../hooks/useSocket';
@@ -7,7 +7,11 @@ import { groupsApi } from '../../services/api';
 import { Message } from '../../types';
 import MessageBubble from './MessageBubble';
 import PollCard from './PollCard';
+import EventCard from './EventCard';
+import QuizCard from './QuizCard';
 import CreatePoll from './CreatePoll';
+import CreateEvent from './CreateEvent';
+import CreateQuiz from './CreateQuiz';
 import VoiceRecorderButton from './VoiceRecorderButton';
 import clsx from 'clsx';
 
@@ -54,6 +58,8 @@ export default function ChatPanel({ groupId, roomId, bordered = true, hideHeader
   const [searchResults, setSearchResults] = useState<Message[]>([]);
   const [attachOpen, setAttachOpen] = useState(false);
   const [showPoll, setShowPoll] = useState(false);
+  const [showEvent, setShowEvent] = useState(false);
+  const [showQuiz, setShowQuiz] = useState(false);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const socket = getSocket();
@@ -209,6 +215,8 @@ export default function ChatPanel({ groupId, roomId, bordered = true, hideHeader
         {roomMessages.map((msg) => {
           const isOwn = msg.userId === user?.id;
           if (msg.kind === 'POLL') return <PollCard key={msg.id} message={msg} isOwn={isOwn} />;
+          if (msg.kind === 'EVENT') return <EventCard key={msg.id} message={msg} isOwn={isOwn} />;
+          if (msg.kind === 'QUIZ') return <QuizCard key={msg.id} message={msg} isOwn={isOwn} />;
           return (
             <MessageBubble
               key={msg.id}
@@ -270,6 +278,14 @@ export default function ChatPanel({ groupId, roomId, bordered = true, hideHeader
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-white">
                       <BarChart3 size={15} className="text-brand" /> Poll
                     </button>
+                    <button onClick={() => { setAttachOpen(false); setShowEvent(true); }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-white">
+                      <CalendarPlus size={15} className="text-brand" /> Event
+                    </button>
+                    <button onClick={() => { setAttachOpen(false); setShowQuiz(true); }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-white">
+                      <HelpCircle size={15} className="text-brand" /> Quiz
+                    </button>
                   </div>
                 </>
               )}
@@ -297,6 +313,8 @@ export default function ChatPanel({ groupId, roomId, bordered = true, hideHeader
       </div>
 
       {showPoll && <CreatePoll groupId={groupId} onClose={() => setShowPoll(false)} />}
+      {showEvent && <CreateEvent groupId={groupId} onClose={() => setShowEvent(false)} />}
+      {showQuiz && <CreateQuiz groupId={groupId} onClose={() => setShowQuiz(false)} />}
     </div>
   );
 }

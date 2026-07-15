@@ -162,6 +162,42 @@ export interface PollState {
   totalVoters: number;
 }
 
+export interface EventState {
+  messageId: string;
+  name: string;
+  description: string;
+  startsAt: string;
+  endsAt?: string | null;
+  location: string;
+  allowGuests: boolean;
+  reminderMinutes?: number | null;
+  rsvps: Record<'GOING' | 'MAYBE' | 'NO', { id: string; name: string; avatar: string | null; plusGuest: boolean }[]>;
+  myRsvp: { status: 'GOING' | 'MAYBE' | 'NO'; plusGuest: boolean } | null;
+  goingCount: number;
+}
+
+export interface QuizState {
+  messageId: string;
+  question: string;
+  options: string[];
+  points: number;
+  endsAt?: string | null;
+  counts: number[];
+  totalAnswers: number;
+  myAnswer: { optionIndex: number; correct: boolean; points: number } | null;
+  correctIndex: number | null;
+  ended: boolean;
+}
+
+export interface LeaderboardEntry {
+  userId: string;
+  name: string;
+  avatar: string | null;
+  points: number;
+  answered: number;
+  correct: number;
+}
+
 export interface PresenceEvent {
   userId: string;
   name?: string;
