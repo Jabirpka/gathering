@@ -4,10 +4,11 @@ import { useGroupStore } from '../store/groupStore';
 import { useDmStore } from '../store/dmStore';
 import { useAuthStore } from '../store/authStore';
 import { getSocket } from '../hooks/useSocket';
-import { ArrowLeft, Video, Phone, MoreVertical, Search, ChevronDown, ChevronUp, Copy, Check, UserCheck, Zap, Share2, UserPlus, Camera, Loader2, Crown, Trash2, MessageSquare, LogOut } from 'lucide-react';
+import { ArrowLeft, Video, Phone, MoreVertical, Search, ChevronDown, ChevronUp, Copy, Check, UserCheck, Zap, Share2, UserPlus, Camera, Loader2, Crown, Trash2, MessageSquare, LogOut, Trophy } from 'lucide-react';
 import { GroupMember } from '../types';
 import MemberApproval from '../components/groups/MemberApproval';
 import ChatPanel from '../components/chat/ChatPanel';
+import Leaderboard from '../components/chat/Leaderboard';
 import TransferOwnershipModal from '../components/groups/TransferOwnershipModal';
 import DeleteGroupModal from '../components/groups/DeleteGroupModal';
 import { usersApi, groupsApi } from '../services/api';
@@ -89,6 +90,7 @@ export default function GroupPage() {
   const [chatSearchOpen, setChatSearchOpen] = useState(false);
   const [callStarting, setCallStarting] = useState<'video' | 'audio' | null>(null);
   const [showOwnerMenu, setShowOwnerMenu] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -248,6 +250,15 @@ export default function GroupPage() {
           <Search size={16} />
         </button>
 
+        {/* Quiz leaderboard */}
+        <button
+          onClick={() => setShowLeaderboard(true)}
+          className="p-2 rounded-lg text-slate-500 hover:text-amber-300 transition-colors shrink-0"
+          title="Quiz leaderboard"
+        >
+          <Trophy size={16} />
+        </button>
+
         {/* WhatsApp-style call buttons */}
         <button onClick={() => startCall('video')} disabled={!!callStarting} title="Video call"
           className="w-9 h-9 rounded-full bg-brand-dim text-brand hover:bg-brand hover:text-white flex items-center justify-center transition-colors disabled:opacity-50 active:scale-90 shrink-0">
@@ -357,6 +368,8 @@ export default function GroupPage() {
         onClose={() => setShowDelete(false)}
         group={activeGroup}
       />
+
+      {showLeaderboard && <Leaderboard groupId={activeGroup.id} onClose={() => setShowLeaderboard(false)} />}
     </div>
   );
 }
