@@ -94,4 +94,11 @@ export const pushApi = {
     api.post('/push/unregister', { token }),
 };
 
+export const pollsApi = {
+  create: (data: { groupId: string; question: string; options: string[]; multiple: boolean; hideVoters: boolean; endsAt?: string | null }) =>
+    api.post('/polls', data),
+  get: (messageId: string) => api.get(`/polls/${messageId}`),
+  vote: (messageId: string, optionIndex: number) => api.post(`/polls/${messageId}/vote`, { optionIndex }),
+};
+
 export default api;

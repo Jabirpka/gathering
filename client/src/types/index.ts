@@ -111,7 +111,7 @@ export interface Group {
 export interface Message {
   id: string;
   content: string;
-  kind?: 'TEXT' | 'VOICE';
+  kind?: 'TEXT' | 'VOICE' | 'POLL' | 'EVENT' | 'QUIZ';
   duration?: number | null;
   userId: string;
   groupId?: string | null;
@@ -147,6 +147,19 @@ export interface DmThread {
   lastMessage?: { content: string; createdAt: string; userId: string } | null;
   updatedAt: string;
   createdAt: string;
+}
+
+export interface PollState {
+  messageId: string;
+  question: string;
+  options: string[];
+  multiple: boolean;
+  hideVoters: boolean;
+  endsAt?: string | null;
+  counts: number[];
+  voters: Record<number, Pick<User, 'id' | 'name' | 'avatar'>[]>;
+  myVotes: number[];
+  totalVoters: number;
 }
 
 export interface PresenceEvent {

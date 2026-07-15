@@ -17,6 +17,7 @@ import livekitRoutes from './routes/livekit';
 import pushRoutes from './routes/push';
 import dmRoutes from './routes/dms';
 import statusRoutes from './routes/status';
+import pollRoutes from './routes/polls';
 import { setupSocketHandlers } from './socket';
 import { errorHandler } from './middleware/error';
 
@@ -72,6 +73,7 @@ app.use('/api/livekit', livekitRoutes);
 app.use('/api/push', pushRoutes);
 app.use('/api/dms', dmRoutes);
 app.use('/api/status', statusRoutes);
+app.use('/api/polls', pollRoutes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
@@ -125,6 +127,14 @@ async function ensureSchema() {
     `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "wantToMeet" TEXT`,
     `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "onboarded" BOOLEAN NOT NULL DEFAULT true`,
     `ALTER TABLE "Group" ADD COLUMN IF NOT EXISTS "category" TEXT`,
+    `CREATE TABLE IF NOT EXISTS "PollVote" (
+      "id" TEXT PRIMARY KEY,
+      "messageId" TEXT NOT NULL,
+      "userId" TEXT NOT NULL,
+      "optionIndex" INTEGER NOT NULL,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS "PollVote_messageId_userId_optionIndex_key" ON "PollVote"("messageId","userId","optionIndex")`,
     `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "phone" TEXT`,
     `ALTER TABLE "User" ALTER COLUMN "googleId" DROP NOT NULL`,
     `ALTER TABLE "User" ALTER COLUMN "email" DROP NOT NULL`,

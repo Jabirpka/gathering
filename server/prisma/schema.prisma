@@ -44,6 +44,7 @@ model User {
   dmThreadsB    DmThread[]     @relation("DmUserB")
   statuses      Status[]
   reactions     MessageReaction[]
+  pollVotes     PollVote[]
 }
 
 // WhatsApp-style status/story: text or image, auto-expires after 24h.
@@ -195,6 +196,22 @@ model Message {
   room      Room?     @relation(fields: [roomId], references: [id])
   thread    DmThread? @relation(fields: [threadId], references: [id], onDelete: Cascade)
   reactions MessageReaction[]
+  pollVotes PollVote[]
   createdAt DateTime  @default(now())
+}
+
+// A vote on a POLL message. The poll's question/options/settings live in the
+// message's JSON `content`; each row here is one option a user picked (a user
+// may pick several when the poll allows multiple answers).
+model PollVote {
+  id          String   @id @default(cuid())
+  messageId   String
+  userId      String
+  optionIndex Int
+  message     Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([messageId, userId, optionIndex])
 }
 

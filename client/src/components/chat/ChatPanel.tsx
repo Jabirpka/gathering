@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import { Send, MessageSquare, X, Search } from 'lucide-react';
+import { Send, MessageSquare, X, Search, Plus, BarChart3 } from 'lucide-react';
 import { useGroupStore } from '../../store/groupStore';
 import { useAuthStore } from '../../store/authStore';
 import { getSocket } from '../../hooks/useSocket';
 import { groupsApi } from '../../services/api';
 import { Message } from '../../types';
 import MessageBubble from './MessageBubble';
+import PollCard from './PollCard';
+import CreatePoll from './CreatePoll';
 import VoiceRecorderButton from './VoiceRecorderButton';
 import clsx from 'clsx';
 
@@ -50,6 +52,8 @@ export default function ChatPanel({ groupId, roomId, bordered = true, hideHeader
   };
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Message[]>([]);
+  const [attachOpen, setAttachOpen] = useState(false);
+  const [showPoll, setShowPoll] = useState(false);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const socket = getSocket();
@@ -204,6 +208,7 @@ export default function ChatPanel({ groupId, roomId, bordered = true, hideHeader
         )}
         {roomMessages.map((msg) => {
           const isOwn = msg.userId === user?.id;
+          if (msg.kind === 'POLL') return <PollCard key={msg.id} message={msg} isOwn={isOwn} />;
           return (
             <MessageBubble
               key={msg.id}
@@ -250,6 +255,26 @@ export default function ChatPanel({ groupId, roomId, bordered = true, hideHeader
       {/* Input */}
       <div className="p-3 border-t border-white/10 shrink-0">
         <div className="flex gap-2 items-end">
+          {!roomId && (
+            <div className="relative shrink-0">
+              <button onClick={() => setAttachOpen((v) => !v)}
+                className="w-9 h-9 rounded-xl bg-surface-2 text-slate-300 hover:text-white flex items-center justify-center transition-colors"
+                title="Attach">
+                <Plus size={18} className={clsx('transition-transform', attachOpen && 'rotate-45')} />
+              </button>
+              {attachOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setAttachOpen(false)} />
+                  <div className="absolute bottom-11 left-0 w-44 glass-panel border border-white/10 rounded-xl p-1 shadow-2xl z-20">
+                    <button onClick={() => { setAttachOpen(false); setShowPoll(true); }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-white">
+                      <BarChart3 size={15} className="text-brand" /> Poll
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
           <textarea
             className="input resize-none text-sm min-h-[38px] max-h-24"
             placeholder="Message…"
@@ -270,6 +295,8 @@ export default function ChatPanel({ groupId, roomId, bordered = true, hideHeader
           )}
         </div>
       </div>
+
+      {showPoll && <CreatePoll groupId={groupId} onClose={() => setShowPoll(false)} />}
     </div>
   );
 }

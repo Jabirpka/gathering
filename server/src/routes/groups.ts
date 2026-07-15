@@ -55,7 +55,15 @@ router.get('/', async (req: Request, res: Response) => {
       ]);
       // Voice notes are data URLs — swap in a short label for the preview.
       const preview = lastMessage
-        ? { ...lastMessage, content: lastMessage.kind === 'VOICE' ? '🎤 Voice message' : lastMessage.content }
+        ? {
+            ...lastMessage,
+            content:
+              lastMessage.kind === 'VOICE' ? '🎤 Voice message'
+              : lastMessage.kind === 'POLL' ? '📊 Poll'
+              : lastMessage.kind === 'EVENT' ? '📅 Event'
+              : lastMessage.kind === 'QUIZ' ? '❓ Quiz'
+              : lastMessage.content,
+          }
         : null;
       return { ...g, unreadCount, lastMessage: preview };
     })
