@@ -77,6 +77,96 @@ router.get('/me/strikes', async (req: Request, res: Response) => {
   }
 });
 
+// Who viewed my profile (last 30 days, latest visit per person).
+router.get('/me/visitors', async (req: Request, res: Response) => {
+  const since = new Date(Date.now() - 30 * 24 * 3600 * 1000);
+  const visits = await prisma.profileVisit.findMany({
+    where: { profileId: req.user!.id, createdAt: { gt: since } },
+    include: { visitor: { select: { id: true, name: true, nickname: true, avatar: true, username: true } } },
+    orderBy: { createdAt: 'desc' },
+    take: 100,
+  });
+  const seen = new Set<string>();
+  const visitors = visits
+    .filter((v) => (seen.has(v.visitorId) ? false : (seen.add(v.visitorId), true)))
+    .slice(0, 20)
+    .map((v) => ({ user: v.visitor, at: v.createdAt }));
+  res.json({ total: visits.length, visitors });
+});
+
+// People search for Discover: name, @username, city, interests, and anything
+// in the extended profile (skills, job, industry…).
+router.get('/search', async (req: Request, res: Response) => {
+  const q = String(req.query.q ?? '').trim();
+  if (q.length < 2) {
+    res.json([]);
+    return;
+  }
+  const like = `%${q}%`;
+  const rows = await prisma.$queryRaw<{ id: string }[]>`
+    SELECT id FROM "User"
+    WHERE id != ${req.user!.id} AND (
+      name ILIKE ${like}
+      OR username ILIKE ${like}
+      OR city ILIKE ${like}
+      OR array_to_string(interests, ' ') ILIKE ${like}
+      OR COALESCE("profileExtra"::text, '') ILIKE ${like}
+    )
+    LIMIT 20`;
+  const users = await prisma.user.findMany({
+    where: { id: { in: rows.map((r) => r.id) } },
+    select: { id: true, name: true, nickname: true, avatar: true, username: true, city: true, profileExtra: true },
+  });
+  res.json(users.map(publicPersonCard));
+});
+
+// "Available for hire" directory for Discover's People tab.
+router.get('/hire', async (req: Request, res: Response) => {
+  const rows = await prisma.$queryRaw<{ id: string }[]>`
+    SELECT id FROM "User"
+    WHERE id != ${req.user!.id} AND "profileExtra"->>'availableForHire' = 'true'
+    ORDER BY "updatedAt" DESC
+    LIMIT 50`;
+  const users = await prisma.user.findMany({
+    where: { id: { in: rows.map((r) => r.id) } },
+    select: { id: true, name: true, nickname: true, avatar: true, username: true, city: true, profileExtra: true },
+  });
+  // Respect privacy: someone whose career section is hidden isn't listed.
+  res.json(users.filter((u) => ((u.profileExtra as any)?.privacy?.career ?? 'everyone') === 'everyone').map(publicPersonCard));
+});
+
+/** Small public card for search/hire lists — never leaks the raw extra blob. */
+function publicPersonCard(u: { id: string; name: string; nickname: string | null; avatar: string | null; username: string | null; city: string | null; profileExtra: any }) {
+  const x = (u.profileExtra as any) ?? {};
+  const careerPublic = (x.privacy?.career ?? 'everyone') === 'everyone';
+  return {
+    id: u.id,
+    name: u.name,
+    nickname: u.nickname,
+    avatar: u.avatar,
+    username: u.username,
+    city: u.city,
+    currentJob: careerPublic ? (x.currentJob ?? null) : null,
+    industry: careerPublic ? (x.industry ?? null) : null,
+    availableForHire: careerPublic ? !!x.availableForHire : false,
+  };
+}
+
+// Which profileExtra keys belong to which section — mirrors the client's
+// profileSchema so per-section privacy can be enforced server-side.
+const SECTION_KEYS: Record<string, string[]> = {
+  about: ['gender', 'languages', 'nationality', 'country', 'religion', 'maritalStatus'],
+  education: ['school', 'college', 'degree', 'certifications', 'courses'],
+  career: ['currentJob', 'company', 'industry', 'experienceYears', 'resumeLink', 'portfolio', 'availableForHire'],
+  personality: ['strength', 'threeWords', 'lifeGoal', 'values', 'personalityType', 'socialType', 'quote'],
+  skills: ['skills'],
+  lifestyle: ['smoke', 'drink', 'workout', 'food', 'sleep', 'pets', 'children'],
+  achievements: ['achievements'],
+  socials: ['instagram', 'facebook', 'linkedin', 'github', 'x', 'youtube', 'website'],
+  hobbies: ['hobbies'],
+  favorites: ['favMovie', 'favBook', 'favSong', 'favFood', 'favActor', 'favSport', 'favDestination', 'favColor'],
+};
+
 // Match a list of phone contacts against registered users (People/Contacts
 // screen). Compares by the last 10 digits so formatting differences don't
 // matter. Only returns the contacts that are on Gathering — never other users.
@@ -100,8 +190,10 @@ router.post('/contacts', async (req: Request, res: Response) => {
   res.json({ matches });
 });
 
-// Get a user's public profile by id (with strike/poke count). Email is
-// intentionally omitted — it's private and only returned for /me.
+// Get a user's public profile by id (with strike/poke count). Email/phone
+// values stay private — only verified booleans go out. Per-section privacy
+// (everyone / my groups / only me) is enforced here, and the visit is recorded
+// for the owner's "who viewed" card.
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const user = await prisma.user.findUnique({
@@ -119,20 +211,70 @@ router.get('/:id', async (req: Request, res: Response) => {
         favoriteSong: true,
         favoriteMovie: true,
         city: true,
-        whoAreYou: true,
-        whatCanYouDo: true,
-        trust: true,
-        lookingFor: true,
-        wantToMeet: true,
+        email: true,
+        phone: true,
         profileExtra: true,
         createdAt: true,
         _count: { select: { pokesReceived: true } },
       },
     });
     if (!user) return res.status(404).json({ error: 'User not found' });
-    // Emergency contact / medical info is private — never shown to others.
-    const { emergency: _emergency, ...publicExtra } = ((user.profileExtra as any) ?? {});
-    res.json({ ...user, profileExtra: publicExtra, strikePoints: user._count.pokesReceived });
+
+    const isSelf = user.id === req.user!.id;
+    const extra = ((user.profileExtra as any) ?? {}) as Record<string, any>;
+    const privacy = (extra.privacy ?? {}) as Record<string, string>;
+
+    // 'groups' visibility means "people who share an approved group with me".
+    let sharesGroup = isSelf;
+    if (!isSelf && Object.values(privacy).includes('groups')) {
+      sharesGroup = !!(await prisma.groupMember.findFirst({
+        where: {
+          userId: user.id,
+          status: 'APPROVED',
+          group: { members: { some: { userId: req.user!.id, status: 'APPROVED' } } },
+        },
+      }));
+    }
+
+    const publicExtra: Record<string, any> = { ...extra };
+    delete publicExtra.privacy;
+    if (!isSelf) {
+      for (const [section, keys] of Object.entries(SECTION_KEYS)) {
+        const level = privacy[section] ?? 'everyone';
+        if (level === 'me' || (level === 'groups' && !sharesGroup)) {
+          keys.forEach((k) => delete publicExtra[k]);
+        }
+      }
+      // Emergency contact / medical info is never shown to anyone else.
+      ['emergencyContact', 'bloodGroup', 'medicalNotes'].forEach((k) => delete publicExtra[k]);
+    }
+
+    // Record the visit (max one per visitor per 6h) and ping the owner.
+    if (!isSelf) {
+      const recent = await prisma.profileVisit.findFirst({
+        where: { profileId: user.id, visitorId: req.user!.id, createdAt: { gt: new Date(Date.now() - 6 * 3600 * 1000) } },
+      });
+      if (!recent) {
+        prisma.profileVisit.create({ data: { profileId: user.id, visitorId: req.user!.id } }).catch(() => {});
+        try {
+          getIO().to(`user:${user.id}`).emit('notification', {
+            type: 'visit',
+            from: { id: req.user!.id, name: req.user!.name, nickname: (req.user as any).nickname, avatar: req.user!.avatar },
+            message: `${(req.user as any).nickname || req.user!.name} viewed your profile 👀`,
+            createdAt: new Date().toISOString(),
+          });
+        } catch {}
+      }
+    }
+
+    const { email, phone, ...rest } = user;
+    res.json({
+      ...rest,
+      profileExtra: publicExtra,
+      emailVerified: !!email,
+      phoneVerified: !!phone,
+      strikePoints: user._count.pokesReceived,
+    });
   } catch {
     res.status(500).json({ error: 'Failed to fetch user' });
   }

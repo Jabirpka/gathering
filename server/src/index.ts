@@ -20,6 +20,7 @@ import statusRoutes from './routes/status';
 import pollRoutes from './routes/polls';
 import eventRoutes from './routes/events';
 import quizRoutes from './routes/quizzes';
+import mediaRoutes from './routes/media';
 import { setupSocketHandlers } from './socket';
 import { errorHandler } from './middleware/error';
 
@@ -78,6 +79,7 @@ app.use('/api/status', statusRoutes);
 app.use('/api/polls', pollRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/quizzes', quizRoutes);
+app.use('/api/media', mediaRoutes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
@@ -131,6 +133,20 @@ async function ensureSchema() {
     `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "wantToMeet" TEXT`,
     `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "profileExtra" JSONB`,
     `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "banner" TEXT`,
+    `CREATE TABLE IF NOT EXISTS "Media" (
+      "id" TEXT PRIMARY KEY,
+      "userId" TEXT NOT NULL,
+      "mime" TEXT NOT NULL,
+      "data" TEXT NOT NULL,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE TABLE IF NOT EXISTS "ProfileVisit" (
+      "id" TEXT PRIMARY KEY,
+      "profileId" TEXT NOT NULL,
+      "visitorId" TEXT NOT NULL,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE INDEX IF NOT EXISTS "ProfileVisit_profileId_createdAt_idx" ON "ProfileVisit"("profileId","createdAt")`,
     `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "onboarded" BOOLEAN NOT NULL DEFAULT true`,
     `ALTER TABLE "Group" ADD COLUMN IF NOT EXISTS "category" TEXT`,
     `CREATE TABLE IF NOT EXISTS "PollVote" (

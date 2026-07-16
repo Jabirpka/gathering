@@ -54,6 +54,34 @@ model User {
   pollVotes     PollVote[]
   eventRsvps    EventRsvp[]
   quizAnswers   QuizAnswer[]
+  media         Media[]
+  visitsReceived ProfileVisit[] @relation("VisitsReceived")
+  visitsMade     ProfileVisit[] @relation("VisitsMade")
+}
+
+// Uploaded images (avatars, banners) served by /api/media/:id so profile and
+// message rows carry a short URL instead of a multi-hundred-KB data URL. The
+// storage backend is the DB for now; swapping to object storage later only
+// changes this table's usage, not the URLs stored across the app.
+model Media {
+  id        String   @id @default(cuid())
+  userId    String
+  mime      String
+  data      String   // base64 payload (no data: prefix)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+// A profile view - powers the "who visited" card and view notifications.
+model ProfileVisit {
+  id        String   @id @default(cuid())
+  profileId String
+  visitorId String
+  profile   User     @relation("VisitsReceived", fields: [profileId], references: [id], onDelete: Cascade)
+  visitor   User     @relation("VisitsMade", fields: [visitorId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([profileId, createdAt])
 }
 
 // WhatsApp-style status/story: text or image, auto-expires after 24h.

@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNotificationStore } from '../../store/notificationStore';
-import { Bell, Zap, CheckCircle, X } from 'lucide-react';
+import { Bell, Zap, CheckCircle, X, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { AppNotification } from '../../types';
@@ -14,6 +14,7 @@ interface Props {
 function NotifIcon({ type }: { type: AppNotification['type'] }) {
   if (type === 'poke') return <Zap size={14} className="text-amber-300" />;
   if (type === 'approved') return <CheckCircle size={14} className="text-emerald-300" />;
+  if (type === 'visit') return <Eye size={14} className="text-brand" />;
   return <Bell size={14} className="text-brand" />;
 }
 

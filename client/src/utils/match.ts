@@ -14,10 +14,18 @@ export interface MatchScore {
   emoji: string;
   label: string;
   score: number; // 0–100
+  /** One human line explaining what drove the score (or how to improve it). */
+  reason: string;
 }
 
 const norm = (s: any) => String(s ?? '').trim().toLowerCase();
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
+
+/** Names from `b` that also appear in `a` (original casing, for reasons). */
+function sharedNames(a?: string[] | null, b?: string[] | null): string[] {
+  const A = new Set((a ?? []).map(norm).filter(Boolean));
+  return (b ?? []).filter((x) => A.has(norm(x)));
+}
 
 /** Overlap of two string lists relative to the smaller list. */
 function shared(a?: string[] | null, b?: string[] | null): number {
@@ -128,11 +136,55 @@ export function computeMatches(me: User, them: User): MatchScore[] {
   const mentor = 0.35 * expGap + 0.3 * complement + 0.2 * achievements + 0.15 * eduBoth;
   const friendship = 0.35 * interests + 0.2 * hobbies + 0.15 * languages + 0.15 * age + 0.15 * loc;
 
+  // Human explanations — built from the strongest real signals so the numbers
+  // feel earned. Falls back to a "complete your profile" hint on sparse data.
+  const commonInterests = sharedNames(me.interests, them.interests);
+  const commonHobbies = sharedNames(xa.hobbies, xb.hobbies);
+  const commonLangs = sharedNames(xa.languages, xb.languages);
+  const theirNewSkills = (() => {
+    const mine = new Set(skillNames(me));
+    const list = ((xb.skills as SkillEntry[] | undefined) ?? []).map((s) => s.name).filter((n) => n && !mine.has(norm(n)));
+    return list;
+  })();
+  const sameCity = !!(me.city && them.city && norm(me.city) === norm(them.city));
+  const sameIndustry = !!(xa.industry && xb.industry && norm(xa.industry) === norm(xb.industry));
+  const yearsAhead = Math.round(maxYears(them) - maxYears(me));
+  const fallback = 'Complete both profiles for a sharper read';
+  const pick = (parts: (string | false | null | undefined)[]) =>
+    parts.filter(Boolean).slice(0, 2).join(' · ') || fallback;
+
+  const relReason = pick([
+    life > 0.6 && 'Similar lifestyle',
+    commonInterests.length > 0 && `You both love ${commonInterests.slice(0, 2).join(' & ')}`,
+    sameCity && `Both in ${them.city}`,
+  ]);
+  const jobReason = pick([
+    sameIndustry && `Same industry: ${xb.industry}`,
+    sharedNames(skillNames(me), skillNames(them)).length > 0 && 'Overlapping skills',
+    expSim > 0.7 && maxYears(them) > 0 && 'Similar experience level',
+  ]);
+  const bizReason = pick([
+    theirNewSkills.length > 0 && `They bring ${theirNewSkills.slice(0, 2).join(' & ')}`,
+    xb.availableForHire && 'Open to work',
+    sameIndustry && `Same industry: ${xb.industry}`,
+  ]);
+  const mentorReason = pick([
+    yearsAhead >= 2 && `${yearsAhead} more years of experience`,
+    has(xb.achievements) && 'Proven achievements',
+    theirNewSkills.length > 0 && `Can teach you ${theirNewSkills[0]}`,
+  ]);
+  const friendReason = pick([
+    commonInterests.length > 0 && `Shared: ${commonInterests.slice(0, 2).join(', ')}`,
+    commonHobbies.length > 0 && `You both enjoy ${commonHobbies[0]}`,
+    commonLangs.length > 0 && `Both speak ${commonLangs[0]}`,
+    sameCity && `Both in ${them.city}`,
+  ]);
+
   return [
-    { key: 'relationship', emoji: '❤️', label: 'Relationship Match', score: finalize(relationship, me, them, 'rel') },
-    { key: 'job', emoji: '💼', label: 'Job Match', score: finalize(job, me, them, 'job') },
-    { key: 'business', emoji: '🤝', label: 'Business Match', score: finalize(business, me, them, 'biz') },
-    { key: 'mentor', emoji: '🎓', label: 'Mentor Match', score: finalize(mentor, me, them, 'mentor') },
-    { key: 'friendship', emoji: '👥', label: 'Friendship Match', score: finalize(friendship, me, them, 'friend') },
+    { key: 'relationship', emoji: '❤️', label: 'Relationship Match', score: finalize(relationship, me, them, 'rel'), reason: relReason },
+    { key: 'job', emoji: '💼', label: 'Job Match', score: finalize(job, me, them, 'job'), reason: jobReason },
+    { key: 'business', emoji: '🤝', label: 'Business Match', score: finalize(business, me, them, 'biz'), reason: bizReason },
+    { key: 'mentor', emoji: '🎓', label: 'Mentor Match', score: finalize(mentor, me, them, 'mentor'), reason: mentorReason },
+    { key: 'friendship', emoji: '👥', label: 'Friendship Match', score: finalize(friendship, me, them, 'friend'), reason: friendReason },
   ];
 }

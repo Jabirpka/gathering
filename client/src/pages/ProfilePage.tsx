@@ -1,11 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { usersApi } from '../services/api';
-import { Camera, Loader2, LogOut, Save, Zap, ChevronDown, ChevronUp, Plus, Trash2, X, BadgeCheck, ShieldAlert } from 'lucide-react';
+import { usersApi, mediaApi } from '../services/api';
+import { Camera, Loader2, LogOut, Save, Zap, ChevronDown, ChevronUp, Plus, Trash2, X, BadgeCheck, ShieldAlert, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
-import { User } from '../types';
+import { User, ProfileVisitor } from '../types';
 import { profileCompletion } from '../utils/profile';
 import {
   PROFILE_SECTIONS, INTEREST_OPTIONS, SKILL_SUGGESTIONS, SKILL_LEVELS, ACHIEVEMENT_TYPES,
@@ -218,8 +218,16 @@ export default function ProfilePage() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const bannerRef = useRef<HTMLInputElement>(null);
+  const [views, setViews] = useState<{ total: number; visitors: ProfileVisitor[] } | null>(null);
+
+  useEffect(() => {
+    usersApi.myVisitors().then((r) => setViews(r.data)).catch(() => {});
+  }, []);
 
   const setX = (key: string, v: any) => setExtra((e) => ({ ...e, [key]: v }));
+  const privacyOf = (sectionId: string) => (extra.privacy?.[sectionId] ?? 'everyone') as string;
+  const setPrivacy = (sectionId: string, level: string) =>
+    setExtra((e) => ({ ...e, privacy: { ...(e.privacy ?? {}), [sectionId]: level } }));
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -244,6 +252,17 @@ export default function ProfilePage() {
     if (!name.trim()) return toast.error('Name cannot be empty');
     setSaving(true);
     try {
+      // Freshly-picked images are data URLs — upload them to /api/media and
+      // store the short URL instead (keeps the user row small). If the media
+      // endpoint isn't deployed yet, fall back to the data URL so saving works.
+      let avatarOut = avatar;
+      let bannerOut = banner;
+      if (avatarOut?.startsWith('data:')) {
+        try { avatarOut = await mediaApi.upload(avatarOut); setAvatar(avatarOut); } catch {}
+      }
+      if (bannerOut?.startsWith('data:')) {
+        try { bannerOut = await mediaApi.upload(bannerOut); setBanner(bannerOut); } catch {}
+      }
       const res = await usersApi.updateMe({
         name: name.trim(),
         nickname: nickname.trim() || undefined,
@@ -253,8 +272,8 @@ export default function ProfilePage() {
         city: city.trim() || undefined,
         interests,
         profileExtra: extra,
-        avatar: avatar ?? undefined,
-        banner,
+        avatar: avatarOut ?? undefined,
+        banner: bannerOut,
       });
       updateUser(res.data);
       toast.success('Profile saved!');
@@ -277,9 +296,22 @@ export default function ProfilePage() {
     return (
       <div key={section.id} className="card overflow-hidden mb-3">
         <button onClick={() => setOpenSection(open ? null : section.id)}
-          className="w-full flex items-center justify-between px-5 py-4 text-left">
-          <span className="text-sm font-bold text-white">{section.title}</span>
-          {open ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
+          className="w-full flex items-center gap-2 px-5 py-4 text-left">
+          <span className="text-sm font-bold text-white flex-1">{section.title}</span>
+          {!section.privateSection && (
+            <select
+              value={privacyOf(section.id)}
+              onChange={(e) => setPrivacy(section.id, e.target.value)}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-surface-2 border border-white/10 rounded-lg text-[11px] text-slate-300 px-1.5 py-1 outline-none"
+              title="Who can see this section"
+            >
+              <option value="everyone">🌍 Everyone</option>
+              <option value="groups">👥 My groups</option>
+              <option value="me">🔒 Only me</option>
+            </select>
+          )}
+          {open ? <ChevronUp size={16} className="text-slate-400 shrink-0" /> : <ChevronDown size={16} className="text-slate-400 shrink-0" />}
         </button>
         {open && (
           <div className="px-5 pb-5 space-y-4">
@@ -364,6 +396,33 @@ export default function ProfilePage() {
           <div className="h-full rounded-full bg-gradient-to-r from-brand to-accent transition-all duration-300" style={{ width: `${completion}%` }} />
         </div>
       </div>
+
+      {/* Profile views */}
+      {views && views.total > 0 && (
+        <div className="card p-4 mb-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Eye size={14} className="text-brand" />
+            <p className="text-sm font-semibold text-white flex-1">
+              {views.total} profile view{views.total !== 1 ? 's' : ''} <span className="text-slate-500 text-xs font-normal">· 30 days</span>
+            </p>
+          </div>
+          <div className="flex items-center gap-1.5">
+            {views.visitors.slice(0, 8).map((v) => (
+              v.user.avatar ? (
+                <img key={v.user.id} src={v.user.avatar} className="w-8 h-8 rounded-xl object-cover" alt={v.user.name} title={v.user.nickname || v.user.name} />
+              ) : (
+                <div key={v.user.id} title={v.user.nickname || v.user.name}
+                  className="w-8 h-8 rounded-xl bg-gradient-to-br from-accent to-brand flex items-center justify-center text-xs font-bold text-white">
+                  {(v.user.nickname || v.user.name)[0]?.toUpperCase()}
+                </div>
+              )
+            ))}
+            {views.visitors.length > 8 && (
+              <span className="text-xs text-slate-400 ml-1">+{views.visitors.length - 8}</span>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Verification */}
       <div className="card p-5 mb-4">

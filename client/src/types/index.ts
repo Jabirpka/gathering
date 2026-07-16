@@ -22,6 +22,9 @@ export interface User {
   /** Extended profile blob (education, career, skills, lifestyle, socials,
    *  favorites, emergency…) — shaped by utils/profileSchema.ts. */
   profileExtra?: Record<string, any> | null;
+  /** Derived on the public profile endpoint (values stay private). */
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
   onboarded?: boolean;
   strikePoints?: number;
   createdAt?: string;
@@ -29,7 +32,7 @@ export interface User {
 
 export interface AppNotification {
   id: string;
-  type: 'poke' | 'approved' | 'pending';
+  type: 'poke' | 'approved' | 'pending' | 'visit';
   message: string;
   from?: Pick<User, 'id' | 'name' | 'nickname' | 'avatar'>;
   groupId?: string;
@@ -200,6 +203,24 @@ export interface LeaderboardEntry {
   points: number;
   answered: number;
   correct: number;
+}
+
+/** Compact person row returned by people search / hire directory. */
+export interface PersonCard {
+  id: string;
+  name: string;
+  nickname?: string | null;
+  avatar?: string | null;
+  username?: string | null;
+  city?: string | null;
+  currentJob?: string | null;
+  industry?: string | null;
+  availableForHire?: boolean;
+}
+
+export interface ProfileVisitor {
+  user: Pick<User, 'id' | 'name' | 'nickname' | 'avatar' | 'username'>;
+  at: string;
 }
 
 export interface PresenceEvent {

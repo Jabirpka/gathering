@@ -44,6 +44,18 @@ export const usersApi = {
   getUser: (id: string) => api.get(`/users/${id}`),
   poke: (id: string) => api.post(`/users/${id}/poke`),
   matchContacts: (phones: string[]) => api.post('/users/contacts', { phones }),
+  searchPeople: (q: string) => api.get('/users/search', { params: { q } }),
+  hireDirectory: () => api.get('/users/hire'),
+  myVisitors: () => api.get('/users/me/visitors'),
+};
+
+export const mediaApi = {
+  /** Upload an image data URL; returns an absolute URL to store instead of the
+   *  payload (keeps user/message rows small). */
+  upload: async (dataUrl: string): Promise<string> => {
+    const res = await api.post('/media', { data: dataUrl });
+    return `${BASE}${res.data.url}`;
+  },
 };
 
 export const groupsApi = {

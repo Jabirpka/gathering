@@ -204,8 +204,15 @@ export default function UserProfilePage() {
             </div>
             <h1 className="text-xl font-bold text-white mt-3 flex items-center gap-1.5">
               {name}
-              {extra.availableForHire && <BadgeCheck size={16} className="text-emerald-400" />}
+              {(u.emailVerified || u.phoneVerified) && (
+                <BadgeCheck size={17} className="text-brand" aria-label="Verified" />
+              )}
             </h1>
+            {extra.availableForHire && (
+              <span className="mt-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-400/30 rounded-full px-2.5 py-0.5">
+                Available for hire
+              </span>
+            )}
             {u.username && <p className="text-sm text-slate-400">@{u.username}</p>}
             {u.bio && <p className="text-sm text-slate-300 text-center mt-2 max-w-xs">{u.bio}</p>}
 
@@ -247,6 +254,7 @@ export default function UserProfilePage() {
                       <div className="h-full rounded-full bg-gradient-to-r from-brand to-accent transition-all duration-500"
                         style={{ width: `${m.score}%` }} />
                     </div>
+                    <p className="text-[10px] text-slate-500 mt-0.5">{m.reason}</p>
                   </div>
                 ))}
               </div>

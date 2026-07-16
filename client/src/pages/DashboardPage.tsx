@@ -6,7 +6,7 @@ import { useAuthStore } from '../store/authStore';
 import { Users, Plus, X, ChevronRight } from 'lucide-react';
 import { format, isToday } from 'date-fns';
 import { Group, DmThread } from '../types';
-import { profileCompletion } from '../utils/profile';
+import { profileCompletion, nextProfilePrompt } from '../utils/profile';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
 
@@ -102,6 +102,7 @@ export default function DashboardPage() {
 
   const firstName = user?.nickname || user?.name?.split(' ')[0];
   const completion = profileCompletion(user);
+  const nextPrompt = nextProfilePrompt(user);
 
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto animate-fade-in pb-28">
@@ -126,7 +127,7 @@ export default function DashboardPage() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-white">Complete your profile</p>
-              <p className="text-xs text-slate-300">Answer a few questions so people get to know you.</p>
+              <p className="text-xs text-slate-300">{nextPrompt ? `Next: ${nextPrompt.toLowerCase()} →` : 'Answer a few questions so people get to know you.'}</p>
             </div>
             <ChevronRight size={18} className="text-brand shrink-0" />
           </button>
