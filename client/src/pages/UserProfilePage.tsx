@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { PROFILE_SECTIONS, zodiacFrom, SectionDef, SkillEntry, AchievementEntry } from '../utils/profileSchema';
+import { computeMatches } from '../utils/match';
 
 /** Whole years between a date of birth and today. */
 function ageFrom(dob: string): number | null {
@@ -116,7 +117,8 @@ function SectionView({ section, extra }: { section: SectionDef; extra: Record<st
 export default function UserProfilePage() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
-  const myId = useAuthStore((s) => s.user?.id);
+  const me = useAuthStore((s) => s.user);
+  const myId = me?.id;
   const openThread = useDmStore((s) => s.openThread);
 
   const [u, setU] = useState<User | null>(null);
@@ -166,6 +168,7 @@ export default function UserProfilePage() {
   const name = u?.nickname || u?.name || '';
   const extra = (u?.profileExtra ?? {}) as Record<string, any>;
   const zodiac = zodiacFrom(u?.dateOfBirth);
+  const matches = me && u ? computeMatches(me, u) : [];
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -181,9 +184,16 @@ export default function UserProfilePage() {
         <div className="flex-1 flex items-center justify-center"><p className="text-slate-400 text-sm">Profile not found</p></div>
       ) : (
         <div className="flex-1 overflow-y-auto p-6 max-w-lg mx-auto w-full pb-28 animate-fade-in">
+          {/* Banner */}
+          {u.banner && (
+            <div className="h-32 rounded-2xl overflow-hidden border border-white/10 -mt-2">
+              <img src={u.banner} alt="" className="w-full h-full object-cover" />
+            </div>
+          )}
+
           {/* Avatar + identity */}
-          <div className="flex flex-col items-center mb-6">
-            <div className="w-24 h-24 rounded-3xl overflow-hidden border-2 border-white/10">
+          <div className={`flex flex-col items-center mb-6 ${u.banner ? '-mt-12' : ''}`}>
+            <div className="w-24 h-24 rounded-3xl overflow-hidden border-2 border-surface bg-surface">
               {u.avatar ? (
                 <img src={u.avatar} alt={name} className="w-full h-full object-cover" />
               ) : (
@@ -221,6 +231,28 @@ export default function UserProfilePage() {
               Message
             </button>
           </div>
+
+          {/* Match with you */}
+          {matches.length > 0 && (
+            <div className="card p-5 mb-4">
+              <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500 mb-3">MATCH WITH YOU</p>
+              <div className="space-y-2.5">
+                {matches.map((m) => (
+                  <div key={m.key}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm text-slate-200">{m.emoji} {m.label}</span>
+                      <span className="text-sm font-bold text-brand tabular-nums">{m.score}%</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                      <div className="h-full rounded-full bg-gradient-to-r from-brand to-accent transition-all duration-500"
+                        style={{ width: `${m.score}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[10px] text-slate-500 mt-3">Based on both profiles — complete yours for sharper matches.</p>
+            </div>
+          )}
 
           {/* Basic info */}
           {((u.nickname && u.name && u.nickname !== u.name) || u.dateOfBirth || u.city) && (

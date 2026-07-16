@@ -5,6 +5,7 @@ export interface User {
   name: string;
   nickname?: string | null;
   avatar?: string | null;
+  banner?: string | null;
   phone?: string | null;
   username?: string | null;
   dateOfBirth?: string | null;

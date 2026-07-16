@@ -130,6 +130,7 @@ async function ensureSchema() {
     `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "lookingFor" TEXT`,
     `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "wantToMeet" TEXT`,
     `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "profileExtra" JSONB`,
+    `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "banner" TEXT`,
     `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "onboarded" BOOLEAN NOT NULL DEFAULT true`,
     `ALTER TABLE "Group" ADD COLUMN IF NOT EXISTS "category" TEXT`,
     `CREATE TABLE IF NOT EXISTS "PollVote" (

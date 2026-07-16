@@ -212,10 +212,12 @@ export default function ProfilePage() {
     ...(user?.profileExtra ?? {}),
   }));
   const [avatar, setAvatar] = useState<string | null>(user?.avatar ?? null);
+  const [banner, setBanner] = useState<string | null>(user?.banner ?? null);
   const [openSection, setOpenSection] = useState<string | null>('about');
   const [saving, setSaving] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const bannerRef = useRef<HTMLInputElement>(null);
 
   const setX = (key: string, v: any) => setExtra((e) => ({ ...e, [key]: v }));
 
@@ -226,6 +228,15 @@ export default function ProfilePage() {
     setUploadingPhoto(true);
     const reader = new FileReader();
     reader.onload = () => { setAvatar(reader.result as string); setUploadingPhoto(false); };
+    reader.readAsDataURL(file);
+  };
+
+  const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { toast.error('Banner must be under 2MB'); return; }
+    const reader = new FileReader();
+    reader.onload = () => setBanner(reader.result as string);
     reader.readAsDataURL(file);
   };
 
@@ -243,6 +254,7 @@ export default function ProfilePage() {
         interests,
         profileExtra: extra,
         avatar: avatar ?? undefined,
+        banner,
       });
       updateUser(res.data);
       toast.success('Profile saved!');
@@ -290,10 +302,29 @@ export default function ProfilePage() {
     <div className="p-6 max-w-lg mx-auto animate-fade-in pb-28">
       <h1 className="text-xl font-bold text-white mb-6">Profile</h1>
 
+      {/* Banner */}
+      <div className="relative -mt-2 mb-0">
+        <div className="h-32 rounded-2xl overflow-hidden border border-white/10">
+          {banner ? (
+            <img src={banner} alt="Banner" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-brand/40 via-surface-2 to-accent/30 flex items-center justify-center">
+              <span className="text-xs text-slate-400">Add a banner image</span>
+            </div>
+          )}
+        </div>
+        <button onClick={() => bannerRef.current?.click()}
+          className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-white"
+          title="Change banner">
+          <Camera size={14} />
+        </button>
+        <input ref={bannerRef} type="file" accept="image/*" className="hidden" onChange={handleBannerChange} />
+      </div>
+
       {/* Avatar */}
-      <div className="flex flex-col items-center mb-6">
+      <div className="flex flex-col items-center mb-6 -mt-12">
         <div className="relative group">
-          <div className="w-24 h-24 rounded-3xl overflow-hidden border-2 border-white/10">
+          <div className="w-24 h-24 rounded-3xl overflow-hidden border-2 border-surface bg-surface">
             {avatar ? (
               <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
             ) : (

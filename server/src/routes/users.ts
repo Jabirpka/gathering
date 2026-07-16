@@ -13,12 +13,13 @@ router.get('/me', (req: Request, res: Response) => {
 
 // Update my profile (name, nickname, avatar, and v2 profile fields)
 router.patch('/me', async (req: Request, res: Response) => {
-  const { name, nickname, avatar, username, dateOfBirth, bio, interests, favoriteSong, favoriteMovie, city, whoAreYou, whatCanYouDo, trust, lookingFor, wantToMeet, profileExtra, onboarded } = req.body;
+  const { name, nickname, avatar, banner, username, dateOfBirth, bio, interests, favoriteSong, favoriteMovie, city, whoAreYou, whatCanYouDo, trust, lookingFor, wantToMeet, profileExtra, onboarded } = req.body;
   try {
     const data: any = {};
     if (name !== undefined) data.name = name;
     if (nickname !== undefined) data.nickname = nickname;
     if (avatar !== undefined) data.avatar = avatar;
+    if (banner !== undefined) data.banner = banner || null;
     if (username !== undefined) data.username = (typeof username === 'string' && username.trim()) ? username.trim() : null;
     if (dateOfBirth !== undefined) data.dateOfBirth = dateOfBirth || null;
     if (bio !== undefined) data.bio = bio || null;
@@ -48,7 +49,7 @@ router.patch('/me', async (req: Request, res: Response) => {
       where: { id: req.user!.id },
       data,
       select: {
-        id: true, name: true, nickname: true, email: true, phone: true, avatar: true,
+        id: true, name: true, nickname: true, email: true, phone: true, avatar: true, banner: true,
         username: true, dateOfBirth: true, bio: true, interests: true,
         favoriteSong: true, favoriteMovie: true, city: true,
         whoAreYou: true, whatCanYouDo: true, trust: true, lookingFor: true, wantToMeet: true,
@@ -110,6 +111,7 @@ router.get('/:id', async (req: Request, res: Response) => {
         name: true,
         nickname: true,
         avatar: true,
+        banner: true,
         username: true,
         dateOfBirth: true,
         bio: true,

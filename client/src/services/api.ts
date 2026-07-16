@@ -34,7 +34,7 @@ export const usersApi = {
   me: () => api.get('/users/me'),
   myStrikes: () => api.get('/users/me/strikes'),
   updateMe: (data: {
-    name?: string; nickname?: string; avatar?: string;
+    name?: string; nickname?: string; avatar?: string; banner?: string | null;
     username?: string; dateOfBirth?: string; bio?: string; interests?: string[];
     favoriteSong?: string; favoriteMovie?: string; city?: string;
     whoAreYou?: string; whatCanYouDo?: string; trust?: string; lookingFor?: string; wantToMeet?: string;
