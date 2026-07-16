@@ -29,6 +29,11 @@ model User {
   trust         String?
   lookingFor    String?
   wantToMeet    String?
+  // Extended profile (education, career, skills, lifestyle, socials, favorites,
+  // emergency, etc) - one JSON blob keyed by field, shaped by the client's
+  // profile schema config. The "emergency" key is private (stripped from the
+  // public profile endpoint).
+  profileExtra  Json?
   // Whether the user finished the "set up profile" onboarding. Defaults true so
   // existing accounts are unaffected; new signups are created with false.
   onboarded     Boolean        @default(true)

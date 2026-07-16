@@ -18,6 +18,9 @@ export interface User {
   trust?: string | null;
   lookingFor?: string | null;
   wantToMeet?: string | null;
+  /** Extended profile blob (education, career, skills, lifestyle, socials,
+   *  favorites, emergency…) — shaped by utils/profileSchema.ts. */
+  profileExtra?: Record<string, any> | null;
   onboarded?: boolean;
   strikePoints?: number;
   createdAt?: string;

@@ -13,7 +13,7 @@ router.get('/me', (req: Request, res: Response) => {
 
 // Update my profile (name, nickname, avatar, and v2 profile fields)
 router.patch('/me', async (req: Request, res: Response) => {
-  const { name, nickname, avatar, username, dateOfBirth, bio, interests, favoriteSong, favoriteMovie, city, whoAreYou, whatCanYouDo, trust, lookingFor, wantToMeet, onboarded } = req.body;
+  const { name, nickname, avatar, username, dateOfBirth, bio, interests, favoriteSong, favoriteMovie, city, whoAreYou, whatCanYouDo, trust, lookingFor, wantToMeet, profileExtra, onboarded } = req.body;
   try {
     const data: any = {};
     if (name !== undefined) data.name = name;
@@ -22,7 +22,7 @@ router.patch('/me', async (req: Request, res: Response) => {
     if (username !== undefined) data.username = (typeof username === 'string' && username.trim()) ? username.trim() : null;
     if (dateOfBirth !== undefined) data.dateOfBirth = dateOfBirth || null;
     if (bio !== undefined) data.bio = bio || null;
-    if (interests !== undefined) data.interests = Array.isArray(interests) ? interests.slice(0, 5) : [];
+    if (interests !== undefined) data.interests = Array.isArray(interests) ? interests.slice(0, 20) : [];
     if (favoriteSong !== undefined) data.favoriteSong = favoriteSong || null;
     if (favoriteMovie !== undefined) data.favoriteMovie = favoriteMovie || null;
     if (city !== undefined) data.city = city || null;
@@ -31,16 +31,28 @@ router.patch('/me', async (req: Request, res: Response) => {
     if (trust !== undefined) data.trust = trust || null;
     if (lookingFor !== undefined) data.lookingFor = lookingFor || null;
     if (wantToMeet !== undefined) data.wantToMeet = wantToMeet || null;
+    if (profileExtra !== undefined) {
+      // One JSON blob for the extended profile; cap its size so a client can't
+      // stuff megabytes into the row.
+      if (profileExtra !== null && (typeof profileExtra !== 'object' || Array.isArray(profileExtra))) {
+        return res.status(400).json({ error: 'Invalid profile data' });
+      }
+      if (profileExtra && JSON.stringify(profileExtra).length > 100_000) {
+        return res.status(400).json({ error: 'Profile data too large' });
+      }
+      data.profileExtra = profileExtra;
+    }
     if (onboarded !== undefined) data.onboarded = !!onboarded;
 
     const user = await prisma.user.update({
       where: { id: req.user!.id },
       data,
       select: {
-        id: true, name: true, nickname: true, email: true, avatar: true,
+        id: true, name: true, nickname: true, email: true, phone: true, avatar: true,
         username: true, dateOfBirth: true, bio: true, interests: true,
         favoriteSong: true, favoriteMovie: true, city: true,
         whoAreYou: true, whatCanYouDo: true, trust: true, lookingFor: true, wantToMeet: true,
+        profileExtra: true,
         onboarded: true,
       },
     });
@@ -110,12 +122,15 @@ router.get('/:id', async (req: Request, res: Response) => {
         trust: true,
         lookingFor: true,
         wantToMeet: true,
+        profileExtra: true,
         createdAt: true,
         _count: { select: { pokesReceived: true } },
       },
     });
     if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json({ ...user, strikePoints: user._count.pokesReceived });
+    // Emergency contact / medical info is private — never shown to others.
+    const { emergency: _emergency, ...publicExtra } = ((user.profileExtra as any) ?? {});
+    res.json({ ...user, profileExtra: publicExtra, strikePoints: user._count.pokesReceived });
   } catch {
     res.status(500).json({ error: 'Failed to fetch user' });
   }

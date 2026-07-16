@@ -38,6 +38,7 @@ export const usersApi = {
     username?: string; dateOfBirth?: string; bio?: string; interests?: string[];
     favoriteSong?: string; favoriteMovie?: string; city?: string;
     whoAreYou?: string; whatCanYouDo?: string; trust?: string; lookingFor?: string; wantToMeet?: string;
+    profileExtra?: Record<string, any>;
     onboarded?: boolean;
   }) => api.patch('/users/me', data),
   getUser: (id: string) => api.get(`/users/${id}`),

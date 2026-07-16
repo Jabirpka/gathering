@@ -1,33 +1,32 @@
 import { User } from '../types';
 
-/** The "About you" profile prompts, in display/edit order. `key` maps to the
- *  User field and the /users/me PATCH body. */
-export const PROFILE_QUESTIONS = [
-  { key: 'whoAreYou', q: 'A little about you', placeholder: 'Your story, your vibe — what makes you you' },
-  { key: 'whatCanYouDo', q: 'What you’re good at', placeholder: 'Skills, talents, things you love doing…' },
-  { key: 'trust', q: 'What you bring to a friendship', placeholder: 'How you show up for people — why they can count on you' },
-  { key: 'lookingFor', q: 'What you’re here for', placeholder: 'Friends, collaborators, someone to build with…' },
-  { key: 'wantToMeet', q: 'Who you’d love to meet', placeholder: 'The kind of people you want in your circle' },
-] as const;
-
-export type ProfileQuestionKey = (typeof PROFILE_QUESTIONS)[number]['key'];
-
-/** Fields that count toward a "complete" profile. */
+/** Fields that count toward a "complete" profile — a mix of core columns and
+ *  extended (profileExtra) sections. Roughly one check per profile section so
+ *  the percentage rewards breadth, not grinding one list. */
 function completionChecks(u: User): boolean[] {
+  const x = (u.profileExtra ?? {}) as Record<string, any>;
+  const filled = (v: any) => (Array.isArray(v) ? v.length > 0 : typeof v === 'number' ? true : !!(typeof v === 'string' ? v.trim() : v));
   return [
     !!u.avatar,
     !!u.username,
     !!u.bio,
     !!u.dateOfBirth,
     !!u.city,
-    (u.interests?.length ?? 0) > 0,
-    !!u.favoriteSong,
-    !!u.favoriteMovie,
-    !!u.whoAreYou,
-    !!u.whatCanYouDo,
-    !!u.trust,
-    !!u.lookingFor,
-    !!u.wantToMeet,
+    (u.interests?.length ?? 0) >= 3,
+    filled(x.gender),
+    filled(x.languages),
+    filled(x.nationality) || filled(x.country),
+    filled(x.school) || filled(x.college) || filled(x.degree),
+    filled(x.currentJob) || filled(x.company) || filled(x.industry),
+    filled(x.strength),
+    filled(x.threeWords),
+    filled(x.lifeGoal) || filled(x.values),
+    filled(x.socialType) || filled(x.personalityType),
+    Array.isArray(x.skills) && x.skills.length > 0,
+    filled(x.smoke) || filled(x.food) || filled(x.workout),
+    filled(x.hobbies),
+    filled(x.favMovie) || filled(x.favSong) || filled(x.favBook) || filled(x.favFood),
+    filled(x.instagram) || filled(x.linkedin) || filled(x.github) || filled(x.website) || filled(x.x) || filled(x.youtube) || filled(x.facebook),
   ];
 }
 
@@ -35,6 +34,6 @@ function completionChecks(u: User): boolean[] {
 export function profileCompletion(user?: User | null): number {
   if (!user) return 0;
   const checks = completionChecks(user);
-  const filled = checks.filter(Boolean).length;
-  return Math.round((filled / checks.length) * 100);
+  const done = checks.filter(Boolean).length;
+  return Math.round((done / checks.length) * 100);
 }
