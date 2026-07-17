@@ -157,7 +157,7 @@ function publicPersonCard(u: { id: string; name: string; nickname: string | null
 const SECTION_KEYS: Record<string, string[]> = {
   about: ['gender', 'languages', 'nationality', 'country', 'religion', 'maritalStatus'],
   education: ['school', 'college', 'degree', 'certifications', 'courses'],
-  career: ['currentJob', 'company', 'industry', 'experienceYears', 'resumeLink', 'portfolio', 'availableForHire'],
+  career: ['currentJob', 'company', 'industry', 'experienceYears', 'education', 'resumeLink', 'portfolio', 'availableForHire'],
   personality: ['strength', 'threeWords', 'lifeGoal', 'values', 'personalityType', 'socialType', 'quote'],
   skills: ['skills'],
   lifestyle: ['smoke', 'drink', 'workout', 'food', 'sleep', 'pets', 'children'],

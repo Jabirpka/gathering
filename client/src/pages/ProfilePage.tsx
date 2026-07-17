@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import clsx from 'clsx';
 import { User, ProfileVisitor } from '../types';
 import { profileCompletion } from '../utils/profile';
+import ImageAdjustModal from '../components/profile/ImageAdjustModal';
 import {
   PROFILE_SECTIONS, INTEREST_OPTIONS, SKILL_SUGGESTIONS, SKILL_LEVELS, ACHIEVEMENT_TYPES,
   zodiacFrom, FieldDef, SectionDef, SkillEntry, AchievementEntry,
@@ -201,21 +202,27 @@ export default function ProfilePage() {
   const [bio, setBio] = useState(user?.bio ?? (user?.whoAreYou ?? ''));
   const [city, setCity] = useState(user?.city ?? '');
   const [interests, setInterests] = useState<string[]>(user?.interests ?? []);
-  // The extended profile blob — prefilled from the old standalone columns so
-  // the merged questions carry existing answers over.
-  const [extra, setExtra] = useState<Record<string, any>>(() => ({
-    strength: user?.whatCanYouDo ?? '',
-    lifeGoal: user?.lookingFor ?? '',
-    values: user?.trust ?? '',
-    favSong: user?.favoriteSong ?? '',
-    favMovie: user?.favoriteMovie ?? '',
-    ...(user?.profileExtra ?? {}),
-  }));
+  // The extended profile blob — prefilled from the old standalone columns and
+  // legacy split fields so the merged questions carry existing answers over.
+  const [extra, setExtra] = useState<Record<string, any>>(() => {
+    const x: Record<string, any> = {
+      lifeGoal: user?.lookingFor ?? '',
+      favSong: user?.favoriteSong ?? '',
+      favMovie: user?.favoriteMovie ?? '',
+      ...(user?.profileExtra ?? {}),
+    };
+    // Old school/college/degree answers fold into the single education line.
+    if (!x.education) x.education = [x.degree, x.college || x.school].filter(Boolean).join(', ');
+    // Old separate company answer folds into "What you do".
+    if (x.currentJob && x.company && !String(x.currentJob).toLowerCase().includes(String(x.company).toLowerCase())) {
+      x.currentJob = `${x.currentJob} at ${x.company}`;
+    }
+    return x;
+  });
   const [avatar, setAvatar] = useState<string | null>(user?.avatar ?? null);
   const [banner, setBanner] = useState<string | null>(user?.banner ?? null);
   const [openSection, setOpenSection] = useState<string | null>('about');
   const [saving, setSaving] = useState(false);
-  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const bannerRef = useRef<HTMLInputElement>(null);
   const [views, setViews] = useState<{ total: number; visitors: ProfileVisitor[] } | null>(null);
@@ -229,23 +236,26 @@ export default function ProfilePage() {
   const setPrivacy = (sectionId: string, level: string) =>
     setExtra((e) => ({ ...e, privacy: { ...(e.privacy ?? {}), [sectionId]: level } }));
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Freshly picked photos open the size/position adjuster before being used.
+  // The adjuster re-renders through a canvas, so even huge camera photos come
+  // out small — the pick cap can be generous.
+  const [adjust, setAdjust] = useState<{ src: string; kind: 'avatar' | 'banner' } | null>(null);
+
+  const pickImage = (e: React.ChangeEvent<HTMLInputElement>, kind: 'avatar' | 'banner') => {
     const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-picking the same file
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) { toast.error('Photo must be under 2MB'); return; }
-    setUploadingPhoto(true);
+    if (file.size > 8 * 1024 * 1024) { toast.error('Photo must be under 8MB'); return; }
     const reader = new FileReader();
-    reader.onload = () => { setAvatar(reader.result as string); setUploadingPhoto(false); };
+    reader.onload = () => setAdjust({ src: reader.result as string, kind });
     reader.readAsDataURL(file);
   };
 
-  const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 2 * 1024 * 1024) { toast.error('Banner must be under 2MB'); return; }
-    const reader = new FileReader();
-    reader.onload = () => setBanner(reader.result as string);
-    reader.readAsDataURL(file);
+  const applyAdjusted = (dataUrl: string) => {
+    if (!adjust) return;
+    if (adjust.kind === 'avatar') setAvatar(dataUrl);
+    else setBanner(dataUrl);
+    setAdjust(null);
   };
 
   const handleSave = async () => {
@@ -303,7 +313,7 @@ export default function ProfilePage() {
               value={privacyOf(section.id)}
               onChange={(e) => setPrivacy(section.id, e.target.value)}
               onClick={(e) => e.stopPropagation()}
-              className="bg-surface-2 border border-white/10 rounded-lg text-[11px] text-slate-300 px-1.5 py-1 outline-none"
+              className="appearance-none bg-surface-2 border border-white/10 rounded-lg text-[11px] text-slate-300 px-2 py-1 outline-none cursor-pointer"
               title="Who can see this section"
             >
               <option value="everyone">🌍 Everyone</option>
@@ -331,12 +341,10 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="p-6 max-w-lg mx-auto animate-fade-in pb-28">
-      <h1 className="text-xl font-bold text-white mb-6">Profile</h1>
-
-      {/* Banner */}
-      <div className="relative -mt-2 mb-0">
-        <div className="h-32 rounded-2xl overflow-hidden border border-white/10">
+    <div className="p-6 pt-0 max-w-lg mx-auto animate-fade-in pb-28">
+      {/* Banner — full-bleed across the app width */}
+      <div className="relative -mx-6">
+        <div className="h-36 overflow-hidden border-b border-white/10">
           {banner ? (
             <img src={banner} alt="Banner" className="w-full h-full object-cover" />
           ) : (
@@ -345,12 +353,21 @@ export default function ProfilePage() {
             </div>
           )}
         </div>
-        <button onClick={() => bannerRef.current?.click()}
-          className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-white"
-          title="Change banner">
-          <Camera size={14} />
-        </button>
-        <input ref={bannerRef} type="file" accept="image/*" className="hidden" onChange={handleBannerChange} />
+        <div className="absolute top-2 right-3 flex gap-1.5">
+          <button onClick={() => bannerRef.current?.click()}
+            className="w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-white"
+            title={banner ? 'Change banner' : 'Add banner'}>
+            <Camera size={14} />
+          </button>
+          {banner && (
+            <button onClick={() => setBanner(null)}
+              className="w-8 h-8 rounded-full bg-black/60 hover:bg-red-500/80 flex items-center justify-center text-white"
+              title="Remove banner">
+              <X size={14} />
+            </button>
+          )}
+        </div>
+        <input ref={bannerRef} type="file" accept="image/*" className="hidden" onChange={(e) => pickImage(e, 'banner')} />
       </div>
 
       {/* Avatar */}
@@ -365,13 +382,18 @@ export default function ProfilePage() {
               </div>
             )}
           </div>
-          <button onClick={() => fileRef.current?.click()} disabled={uploadingPhoto}
+          <button onClick={() => fileRef.current?.click()}
             className="absolute inset-0 rounded-3xl bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-            {uploadingPhoto ? <Loader2 size={20} className="animate-spin text-white" /> : <Camera size={20} className="text-white" />}
+            <Camera size={20} className="text-white" />
+          </button>
+          <button onClick={() => fileRef.current?.click()}
+            className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-brand border-2 border-surface flex items-center justify-center text-white sm:hidden"
+            title="Change photo">
+            <Camera size={12} />
           </button>
         </div>
-        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
-        <p className="text-xs text-slate-400 mt-2">Tap photo to change · Max 2MB</p>
+        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => pickImage(e, 'avatar')} />
+        <p className="text-xs text-slate-400 mt-2">Tap photo to change</p>
 
         <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }}
           className="mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/15 border border-amber-200/60">
@@ -494,6 +516,18 @@ export default function ProfilePage() {
         </div>
         <span className="text-sm font-medium text-slate-200 group-hover:text-red-400 transition-colors">Sign out</span>
       </button>
+
+      {/* Photo size/position adjuster for freshly picked images */}
+      {adjust && (
+        <ImageAdjustModal
+          src={adjust.src}
+          aspect={adjust.kind === 'banner' ? 3 : 1}
+          outWidth={adjust.kind === 'banner' ? 1200 : 512}
+          title={adjust.kind === 'banner' ? 'Adjust banner' : 'Adjust photo'}
+          onCancel={() => setAdjust(null)}
+          onDone={applyAdjusted}
+        />
+      )}
     </div>
   );
 }

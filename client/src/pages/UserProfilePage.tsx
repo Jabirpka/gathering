@@ -183,12 +183,14 @@ export default function UserProfilePage() {
       ) : !u ? (
         <div className="flex-1 flex items-center justify-center"><p className="text-slate-400 text-sm">Profile not found</p></div>
       ) : (
-        <div className="flex-1 overflow-y-auto p-6 max-w-lg mx-auto w-full pb-28 animate-fade-in">
-          {/* Banner */}
-          {u.banner && (
-            <div className="h-32 rounded-2xl overflow-hidden border border-white/10 -mt-2">
+        <div className="flex-1 overflow-y-auto p-6 pt-0 max-w-lg mx-auto w-full pb-28 animate-fade-in">
+          {/* Banner — full-bleed across the app width */}
+          {u.banner ? (
+            <div className="h-36 overflow-hidden border-b border-white/10 -mx-6">
               <img src={u.banner} alt="" className="w-full h-full object-cover" />
             </div>
+          ) : (
+            <div className="pt-6" />
           )}
 
           {/* Avatar + identity */}

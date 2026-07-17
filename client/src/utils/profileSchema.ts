@@ -51,61 +51,42 @@ export const INTEREST_OPTIONS = [
   '❤️ Charity', '🧘 Meditation', '🙏 Spirituality',
 ];
 
-export const HOBBY_OPTIONS = [
-  '🪴 Gardening', '🎵 Music', '⚽ Football', '🏏 Cricket', '♟️ Chess', '🚴 Cycling', '🥾 Hiking', '🎣 Fishing',
-  '🍳 Cooking', '🖌️ Painting', '📸 Photography', '📚 Reading', '✍️ Writing', '💃 Dancing', '🎤 Singing',
-  '🏊 Swimming', '🧘 Yoga', '🎮 Gaming', '🧵 Knitting', '🏕️ Camping', '🐦 Bird watching', '🧩 Puzzles',
-  '🍰 Baking', '🎸 Playing guitar', '🎹 Playing piano', '🏃 Running', '🛹 Skating', '🪁 Kite flying',
-];
-
 export const SKILL_SUGGESTIONS = ['Welding', 'Photography', 'Programming', 'Sales', 'Marketing', 'Driving', 'Cooking', 'Design', 'Teaching', 'Writing', 'Accounting', 'Carpentry', 'Electrical', 'Plumbing', 'Video editing', 'Public speaking'];
 export const SKILL_LEVELS = ['Beginner', 'Intermediate', 'Expert', 'Professional'];
 export const ACHIEVEMENT_TYPES = ['Award', 'Certificate', 'Project', 'Volunteer work', 'Patent', 'Publication'];
 
+/**
+ * Kept deliberately light: every data category survives, but overlapping
+ * questions are merged (school/college/degree → one education line; job +
+ * company → one line; hobbies folded into interests; nationality folded into
+ * country) and fluff is cut. Legacy answers to removed fields stay stored in
+ * profileExtra — they just aren't asked again.
+ */
 export const PROFILE_SECTIONS: SectionDef[] = [
   {
     id: 'about', title: 'About me', kind: 'fields',
     fields: [
       { key: 'gender', label: 'Gender', type: 'select', options: ['Male', 'Female', 'Other', 'Prefer not to say'] },
       { key: 'languages', label: 'Languages', type: 'chips', options: LANGUAGES, allowCustom: true, maxChips: 10 },
-      { key: 'nationality', label: 'Nationality', type: 'text', placeholder: 'e.g. Indian' },
-      { key: 'country', label: 'Current country', type: 'text', placeholder: 'Where you live now' },
-      { key: 'religion', label: 'Religion', type: 'text', optional: true },
-      { key: 'maritalStatus', label: 'Marital status', type: 'select', options: ['Single', 'Married', 'Engaged', 'Divorced', 'Widowed', 'Prefer not to say'] },
+      { key: 'country', label: 'Country', type: 'text', placeholder: 'Where you live now' },
     ],
   },
   {
-    id: 'education', title: 'Education', kind: 'fields',
+    id: 'career', title: 'Work & education', kind: 'fields',
     fields: [
-      { key: 'school', label: 'School', type: 'text' },
-      { key: 'college', label: 'College / University', type: 'text' },
-      { key: 'degree', label: 'Degree', type: 'text', placeholder: 'e.g. B.Tech Computer Science' },
-      { key: 'certifications', label: 'Certifications', type: 'chips', allowCustom: true, maxChips: 15 },
-      { key: 'courses', label: 'Courses', type: 'chips', allowCustom: true, maxChips: 15 },
-    ],
-  },
-  {
-    id: 'career', title: 'Career', kind: 'fields',
-    fields: [
-      { key: 'currentJob', label: 'Current job', type: 'text', placeholder: 'e.g. Welder, Software engineer' },
-      { key: 'company', label: 'Company', type: 'text' },
-      { key: 'industry', label: 'Industry', type: 'text' },
+      { key: 'currentJob', label: 'What you do', type: 'text', placeholder: 'e.g. Welder at ABC Co' },
+      { key: 'industry', label: 'Industry', type: 'text', placeholder: 'e.g. Construction, Tech' },
       { key: 'experienceYears', label: 'Years of experience', type: 'number' },
-      { key: 'resumeLink', label: 'Resume link', type: 'text', placeholder: 'Link to your CV (Drive, etc.)', optional: true },
-      { key: 'portfolio', label: 'Portfolio', type: 'text', placeholder: 'Link to your work', optional: true },
+      { key: 'education', label: 'Education', type: 'text', placeholder: 'e.g. B.Tech, XYZ College' },
       { key: 'availableForHire', label: 'Available for hire', type: 'toggle' },
     ],
   },
   {
     id: 'personality', title: 'Personality', kind: 'fields',
     fields: [
-      { key: 'strength', label: 'My biggest strength', type: 'textarea' },
       { key: 'threeWords', label: 'Three words about me', type: 'text', placeholder: 'e.g. curious, loyal, funny' },
       { key: 'lifeGoal', label: 'My life goal', type: 'textarea' },
-      { key: 'values', label: 'My personal values', type: 'textarea' },
-      { key: 'personalityType', label: 'My personality type', type: 'text', placeholder: 'e.g. INFJ', optional: true },
       { key: 'socialType', label: 'Introvert / Extrovert', type: 'select', options: ['Introvert', 'Extrovert', 'Ambivert'] },
-      { key: 'quote', label: 'Favorite quote', type: 'text' },
     ],
   },
   { id: 'skills', title: 'Skills', kind: 'skills', fields: [] },
@@ -116,9 +97,6 @@ export const PROFILE_SECTIONS: SectionDef[] = [
       { key: 'drink', label: 'Do you drink?', type: 'select', options: ['No', 'Occasionally', 'Yes'] },
       { key: 'workout', label: 'Workout frequency', type: 'select', options: ['Never', 'Sometimes', 'Weekly', 'Daily'] },
       { key: 'food', label: 'Food preference', type: 'select', options: ['Vegetarian', 'Vegan', 'Halal', 'Non-veg', 'Everything'] },
-      { key: 'sleep', label: 'Sleep schedule', type: 'select', options: ['Early bird', 'Night owl', 'Flexible'] },
-      { key: 'pets', label: 'Pets', type: 'text', placeholder: 'e.g. a cat named Momo', optional: true },
-      { key: 'children', label: 'Children', type: 'select', options: ['No', 'Yes', 'Prefer not to say'], optional: true },
     ],
   },
   { id: 'achievements', title: 'Achievements', kind: 'achievements', fields: [] },
@@ -126,31 +104,17 @@ export const PROFILE_SECTIONS: SectionDef[] = [
     id: 'socials', title: 'Social links', kind: 'fields',
     fields: [
       { key: 'instagram', label: 'Instagram', type: 'text', placeholder: '@username or link' },
-      { key: 'facebook', label: 'Facebook', type: 'text' },
       { key: 'linkedin', label: 'LinkedIn', type: 'text' },
       { key: 'github', label: 'GitHub', type: 'text' },
-      { key: 'x', label: 'X (Twitter)', type: 'text' },
-      { key: 'youtube', label: 'YouTube', type: 'text' },
       { key: 'website', label: 'Website', type: 'text' },
-    ],
-  },
-  {
-    id: 'hobbies', title: 'Hobbies', kind: 'fields',
-    fields: [
-      { key: 'hobbies', label: 'Your hobbies', type: 'chips', options: HOBBY_OPTIONS, allowCustom: true, maxChips: 15 },
     ],
   },
   {
     id: 'favorites', title: 'Favorites', kind: 'fields',
     fields: [
       { key: 'favMovie', label: 'Movie', type: 'text' },
-      { key: 'favBook', label: 'Book', type: 'text' },
       { key: 'favSong', label: 'Song', type: 'text' },
       { key: 'favFood', label: 'Food', type: 'text' },
-      { key: 'favActor', label: 'Actor', type: 'text' },
-      { key: 'favSport', label: 'Sport', type: 'text' },
-      { key: 'favDestination', label: 'Destination', type: 'text' },
-      { key: 'favColor', label: 'Color', type: 'text' },
     ],
   },
   {

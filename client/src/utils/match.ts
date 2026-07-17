@@ -124,7 +124,9 @@ export function computeMatches(me: User, them: User): MatchScore[] {
   const age = ageProximity(me, them);
   const loc = locationScore(me, them);
   const life = lifestyleScore(me, them);
-  const eduBoth = (has(xa.degree) || has(xa.college)) && (has(xb.degree) || has(xb.college)) ? 1 : 0.4;
+  const eduA = has(xa.education) || has(xa.degree) || has(xa.college);
+  const eduB = has(xb.education) || has(xb.degree) || has(xb.college);
+  const eduBoth = eduA && eduB ? 1 : 0.4;
   const achievements = has(xb.achievements) ? 1 : 0.35;
   const socialPresence = ['linkedin', 'website', 'github', 'instagram'].some((k) => has(xb[k])) ? 1 : 0.4;
   const expGap = clamp01((maxYears(them) - maxYears(me)) / 8); // mentor: they know more
