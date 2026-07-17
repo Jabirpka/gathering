@@ -13,6 +13,7 @@ import { useNotificationStore } from './store/notificationStore';
 import { CallRing } from './types';
 import LandingPage from './pages/LandingPage';
 import DashboardPage from './pages/DashboardPage';
+import FeedPage from './pages/FeedPage';
 import GroupPage from './pages/GroupPage';
 import RoomPage from './pages/RoomPage';
 import DmPage from './pages/DmPage';
@@ -168,6 +169,7 @@ function AppRoutes() {
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/discover" element={<DiscoverPage />} />
+              <Route path="/feed" element={<FeedPage />} />
               <Route path="/u/:userId" element={<UserProfilePage />} />
               <Route path="/groups/:groupId" element={<GroupPage />} />
               <Route path="/groups/:groupId/rooms/:roomId" element={<RoomPage />} />

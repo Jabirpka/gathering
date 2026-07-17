@@ -223,6 +223,31 @@ export interface ProfileVisitor {
   at: string;
 }
 
+export interface FeedPost {
+  id: string;
+  kind: 'PHOTO' | 'NEWS' | 'POLL' | 'QUESTION' | 'WRITEUP' | 'EVENT' | 'JOB_HUNT' | 'JOB_FIND' | 'INFO';
+  category: string;
+  title?: string | null;
+  content: string;
+  image?: string | null;
+  extra?: Record<string, any> | null;
+  user: Pick<User, 'id' | 'name' | 'nickname' | 'avatar' | 'username'>;
+  likeCount: number;
+  commentCount: number;
+  likedByMe: boolean;
+  pollCounts?: Record<number, number>;
+  myVote?: number | null;
+  createdAt: string;
+}
+
+export interface FeedComment {
+  id: string;
+  postId: string;
+  content: string;
+  user: Pick<User, 'id' | 'name' | 'nickname' | 'avatar' | 'username'>;
+  createdAt: string;
+}
+
 export interface PresenceEvent {
   userId: string;
   name?: string;

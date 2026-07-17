@@ -21,6 +21,7 @@ import pollRoutes from './routes/polls';
 import eventRoutes from './routes/events';
 import quizRoutes from './routes/quizzes';
 import mediaRoutes from './routes/media';
+import feedRoutes from './routes/feed';
 import { setupSocketHandlers } from './socket';
 import { errorHandler } from './middleware/error';
 
@@ -80,6 +81,7 @@ app.use('/api/polls', pollRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/media', mediaRoutes);
+app.use('/api/feed', feedRoutes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
@@ -147,6 +149,42 @@ async function ensureSchema() {
       "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
     )`,
     `CREATE INDEX IF NOT EXISTS "ProfileVisit_profileId_createdAt_idx" ON "ProfileVisit"("profileId","createdAt")`,
+    `CREATE TABLE IF NOT EXISTS "Post" (
+      "id" TEXT PRIMARY KEY,
+      "userId" TEXT NOT NULL,
+      "kind" TEXT NOT NULL,
+      "category" TEXT NOT NULL,
+      "title" TEXT,
+      "content" TEXT NOT NULL,
+      "image" TEXT,
+      "extra" JSONB,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE INDEX IF NOT EXISTS "Post_createdAt_idx" ON "Post"("createdAt")`,
+    `CREATE INDEX IF NOT EXISTS "Post_category_createdAt_idx" ON "Post"("category","createdAt")`,
+    `CREATE TABLE IF NOT EXISTS "PostLike" (
+      "id" TEXT PRIMARY KEY,
+      "postId" TEXT NOT NULL,
+      "userId" TEXT NOT NULL,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS "PostLike_postId_userId_key" ON "PostLike"("postId","userId")`,
+    `CREATE TABLE IF NOT EXISTS "PostComment" (
+      "id" TEXT PRIMARY KEY,
+      "postId" TEXT NOT NULL,
+      "userId" TEXT NOT NULL,
+      "content" TEXT NOT NULL,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE INDEX IF NOT EXISTS "PostComment_postId_createdAt_idx" ON "PostComment"("postId","createdAt")`,
+    `CREATE TABLE IF NOT EXISTS "PostPollVote" (
+      "id" TEXT PRIMARY KEY,
+      "postId" TEXT NOT NULL,
+      "userId" TEXT NOT NULL,
+      "optionIndex" INTEGER NOT NULL,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS "PostPollVote_postId_userId_key" ON "PostPollVote"("postId","userId")`,
     `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "onboarded" BOOLEAN NOT NULL DEFAULT true`,
     `ALTER TABLE "Group" ADD COLUMN IF NOT EXISTS "category" TEXT`,
     `CREATE TABLE IF NOT EXISTS "PollVote" (

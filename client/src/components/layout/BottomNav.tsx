@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { MessageSquare, Users, User, Compass } from 'lucide-react';
+import { MessageSquare, Users, User, Compass, Newspaper } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useGroupStore } from '../../store/groupStore';
 import { useDmStore } from '../../store/dmStore';
@@ -19,11 +19,12 @@ export default function BottomNav() {
   const totalUnread = chatUnread + dmUnread;
 
   // Only the top-level hub screens get the tab bar.
-  if (pathname !== '/dashboard' && pathname !== '/profile' && pathname !== '/discover') return null;
+  if (pathname !== '/dashboard' && pathname !== '/profile' && pathname !== '/discover' && pathname !== '/feed') return null;
 
   const isHome = pathname === '/dashboard';
   const isProfile = pathname === '/profile';
   const isDiscover = pathname === '/discover';
+  const isFeed = pathname === '/feed';
 
   return (
     <nav
@@ -41,6 +42,12 @@ export default function BottomNav() {
             {totalUnread > 9 ? '9+' : totalUnread}
           </span>
         )}
+      </button>
+
+      <button onClick={() => navigate('/feed')}
+        className={clsx('flex flex-col items-center gap-1 w-12 py-1', isFeed ? 'text-brand' : 'text-slate-400')} title="Feed">
+        <Newspaper size={22} />
+        <span className={clsx('w-1 h-1 rounded-full', isFeed ? 'bg-brand' : 'bg-transparent')} />
       </button>
 
       <button onClick={() => window.dispatchEvent(new CustomEvent('open-contacts'))}

@@ -49,6 +49,17 @@ export const usersApi = {
   myVisitors: () => api.get('/users/me/visitors'),
 };
 
+export const feedApi = {
+  list: (params: { cursor?: string; category?: string; kind?: string } = {}) => api.get('/feed', { params }),
+  create: (data: { kind: string; category: string; title?: string; content: string; image?: string | null; extra?: Record<string, any> }) =>
+    api.post('/feed', data),
+  like: (id: string) => api.post(`/feed/${id}/like`),
+  comments: (id: string) => api.get(`/feed/${id}/comments`),
+  addComment: (id: string, content: string) => api.post(`/feed/${id}/comments`, { content }),
+  vote: (id: string, optionIndex: number) => api.post(`/feed/${id}/vote`, { optionIndex }),
+  remove: (id: string) => api.delete(`/feed/${id}`),
+};
+
 export const mediaApi = {
   /** Upload an image data URL; returns an absolute URL to store instead of the
    *  payload (keeps user/message rows small). */

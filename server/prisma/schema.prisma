@@ -57,6 +57,68 @@ model User {
   media         Media[]
   visitsReceived ProfileVisit[] @relation("VisitsReceived")
   visitsMade     ProfileVisit[] @relation("VisitsMade")
+  posts         Post[]
+  postLikes     PostLike[]
+  postComments  PostComment[]
+  postPollVotes PostPollVote[]
+}
+
+// A social-feed post. `kind` picks the card layout (PHOTO | NEWS | POLL |
+// QUESTION | WRITEUP | EVENT | JOB_HUNT | JOB_FIND | INFO), `category` is the
+// topic tag (Sports, Business, ...) the feed filters on, and `extra` holds the
+// kind-specific payload (poll options, event date/location, job details).
+model Post {
+  id        String   @id @default(cuid())
+  userId    String
+  kind      String
+  category  String
+  title     String?
+  content   String
+  image     String?
+  extra     Json?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes     PostLike[]
+  comments  PostComment[]
+  pollVotes PostPollVote[]
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([category, createdAt])
+}
+
+model PostLike {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+}
+
+model PostComment {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  content   String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([postId, createdAt])
+}
+
+model PostPollVote {
+  id          String   @id @default(cuid())
+  postId      String
+  userId      String
+  optionIndex Int
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([postId, userId])
 }
 
 // Uploaded images (avatars, banners) served by /api/media/:id so profile and
