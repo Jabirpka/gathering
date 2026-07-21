@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -188,6 +188,21 @@ export default function CallManager() {
   const [pipLarge, setPipLarge] = useState(false);
   const pipBoundsRef = useRef<HTMLDivElement>(null);
   const draggedRef = useRef(false);
+  // The LiveKit UI always lives inside this one persistent DOM node. We move
+  // the node between the full mount point and the floating pill with plain
+  // appendChild, so React never unmounts <LiveKitRoom> — the media connection
+  // survives navigation instead of tearing down and reconnecting.
+  const [container] = useState<HTMLDivElement | null>(() => {
+    if (typeof document === 'undefined') return null;
+    const el = document.createElement('div');
+    el.style.width = '100%';
+    el.style.height = '100%';
+    return el;
+  });
+  const pillHostRef = useRef<HTMLDivElement>(null);
+
+  // Detach the persistent container when the call ends / this unmounts.
+  useEffect(() => () => { container?.remove(); }, [container]);
 
   useEffect(() => {
     if (!call) return;
@@ -204,7 +219,17 @@ export default function CallManager() {
       .catch(() => setError('Could not connect to the call.'));
   }, [call?.roomName, call?.groupId, call?.threadId]);
 
-  if (!call) return null;
+  // Move the persistent container into whichever host is active right now:
+  // the page's mount point (full) or the floating pill (minimized). Runs every
+  // commit and is a no-op once already attached, so a media node is relocated
+  // without any React remount.
+  useLayoutEffect(() => {
+    if (!container) return;
+    const host = mountNode ?? pillHostRef.current;
+    if (host && container.parentNode !== host) host.appendChild(container);
+  });
+
+  if (!call || !container) return null;
 
   const minimized = !mountNode;
 
@@ -266,45 +291,48 @@ export default function CallManager() {
     );
   }
 
-  if (minimized) {
-    // Floating pill: draggable anywhere, with a resize toggle and leave button.
-    return createPortal(
-      <div ref={pipBoundsRef} className="fixed inset-0 z-[90] pointer-events-none">
-        <motion.div
-          drag
-          dragConstraints={pipBoundsRef}
-          dragMomentum={false}
-          dragElastic={0}
-          onDragStart={() => { draggedRef.current = true; }}
-          onClick={() => { if (draggedRef.current) { draggedRef.current = false; return; } handleMaximize(); }}
-          style={{ touchAction: 'none' }}
-          className={`pointer-events-auto absolute bottom-24 right-3 sm:bottom-5 sm:right-5 rounded-2xl overflow-hidden shadow-2xl border border-white/10 cursor-grab bg-black ${
-            pipLarge ? 'w-44 h-64 sm:w-56 sm:h-80' : 'w-28 h-40 sm:w-36 sm:h-48'
-          }`}
-          title="Drag to move · tap to return to the call"
-        >
-          {body}
-          {/* Resize */}
-          <button
-            onClick={(e) => { e.stopPropagation(); setPipLarge((v) => !v); }}
-            className="absolute top-1.5 left-1.5 w-6 h-6 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-white z-20"
-            title={pipLarge ? 'Shrink' : 'Enlarge'}
-          >
-            {pipLarge ? <Minimize2 size={11} /> : <Maximize2 size={11} />}
-          </button>
-          {/* Leave */}
-          <button
-            onClick={(e) => { e.stopPropagation(); leaveCall(); }}
-            className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/60 hover:bg-red-500 flex items-center justify-center text-white z-20"
-            title="Leave call"
-          >
-            <PhoneOff size={11} />
-          </button>
-        </motion.div>
-      </div>,
-      document.body
-    );
-  }
+  return (
+    <>
+      {/* The live call UI — rendered once into the persistent container, which
+          is physically moved between the mount point and the pill. */}
+      {createPortal(body, container)}
 
-  return createPortal(<div className="relative w-full h-full">{body}</div>, mountNode);
+      {/* Floating pill (minimized): draggable, with resize + leave. The call UI
+          is relocated into the host div below by the layout effect. */}
+      {minimized && createPortal(
+        <div ref={pipBoundsRef} className="fixed inset-0 z-[90] pointer-events-none">
+          <motion.div
+            drag
+            dragConstraints={pipBoundsRef}
+            dragMomentum={false}
+            dragElastic={0}
+            onDragStart={() => { draggedRef.current = true; }}
+            onClick={() => { if (draggedRef.current) { draggedRef.current = false; return; } handleMaximize(); }}
+            style={{ touchAction: 'none' }}
+            className={`pointer-events-auto absolute bottom-24 right-3 sm:bottom-5 sm:right-5 rounded-2xl overflow-hidden shadow-2xl border border-white/10 cursor-grab bg-black ${
+              pipLarge ? 'w-44 h-64 sm:w-56 sm:h-80' : 'w-28 h-40 sm:w-36 sm:h-48'
+            }`}
+            title="Drag to move · tap to return to the call"
+          >
+            <div ref={pillHostRef} className="w-full h-full" />
+            <button
+              onClick={(e) => { e.stopPropagation(); setPipLarge((v) => !v); }}
+              className="absolute top-1.5 left-1.5 w-6 h-6 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-white z-20"
+              title={pipLarge ? 'Shrink' : 'Enlarge'}
+            >
+              {pipLarge ? <Minimize2 size={11} /> : <Maximize2 size={11} />}
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); leaveCall(); }}
+              className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/60 hover:bg-red-500 flex items-center justify-center text-white z-20"
+              title="Leave call"
+            >
+              <PhoneOff size={11} />
+            </button>
+          </motion.div>
+        </div>,
+        document.body
+      )}
+    </>
+  );
 }
