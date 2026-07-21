@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNotificationStore } from '../../store/notificationStore';
-import { Bell, Zap, CheckCircle, X, Eye } from 'lucide-react';
+import { Bell, Zap, CheckCircle, X, Eye, Briefcase, UserCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { AppNotification } from '../../types';
@@ -15,6 +15,8 @@ function NotifIcon({ type }: { type: AppNotification['type'] }) {
   if (type === 'poke') return <Zap size={14} className="text-amber-300" />;
   if (type === 'approved') return <CheckCircle size={14} className="text-emerald-300" />;
   if (type === 'visit') return <Eye size={14} className="text-brand" />;
+  if (type === 'job') return <Briefcase size={14} className="text-brand" />;
+  if (type === 'apply') return <UserCheck size={14} className="text-emerald-300" />;
   return <Bell size={14} className="text-brand" />;
 }
 
@@ -72,9 +74,10 @@ export default function NotificationPanel({ open, onClose }: Props) {
                 <div
                   key={n.id}
                   onClick={() => {
-                    if (n.groupId) { navigate(`/groups/${n.groupId}`); onClose(); }
+                    const dest = n.link ?? (n.groupId ? `/groups/${n.groupId}` : null);
+                    if (dest) { navigate(dest); onClose(); }
                   }}
-                  className={`flex items-start gap-3 px-4 py-3 border-b border-white/10 last:border-0 transition-colors ${n.groupId ? 'cursor-pointer hover:bg-white/10' : ''} ${!n.read ? 'bg-brand/5' : ''}`}
+                  className={`flex items-start gap-3 px-4 py-3 border-b border-white/10 last:border-0 transition-colors ${(n.link || n.groupId) ? 'cursor-pointer hover:bg-white/10' : ''} ${!n.read ? 'bg-brand/5' : ''}`}
                 >
                   <div className="w-8 h-8 rounded-full bg-surface-3 flex items-center justify-center shrink-0 mt-0.5">
                     {n.from?.avatar ? (

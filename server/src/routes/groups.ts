@@ -62,6 +62,8 @@ router.get('/', async (req: Request, res: Response) => {
               : lastMessage.kind === 'POLL' ? '📊 Poll'
               : lastMessage.kind === 'EVENT' ? '📅 Event'
               : lastMessage.kind === 'QUIZ' ? '❓ Quiz'
+              : lastMessage.kind === 'POST' ? '📎 Shared a post'
+              : lastMessage.kind === 'PROFILE' ? '👤 Shared a profile'
               : lastMessage.content,
           }
         : null;

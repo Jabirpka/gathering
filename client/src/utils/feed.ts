@@ -42,10 +42,6 @@ export const FEED_KINDS: FeedKindDef[] = [
     content: { label: 'Question', placeholder: 'Ask the crowd…', required: true },
   },
   {
-    kind: 'QUESTION', label: 'Question', emoji: '❓', image: 'none',
-    content: { label: 'Your question', placeholder: 'What do you want to know?', required: true, rows: 3 },
-  },
-  {
     kind: 'WRITEUP', label: 'Write-up', emoji: '✍️', image: 'optional',
     title: { label: 'Title', placeholder: 'Give it a title', required: true },
     content: { label: 'Write-up', placeholder: 'Share your thoughts…', required: true, rows: 8 },

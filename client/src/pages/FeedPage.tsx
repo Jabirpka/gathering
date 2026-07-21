@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Loader2, Newspaper, Plus, RefreshCw } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { Loader2, Newspaper, Plus, RefreshCw, X } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import { feedApi } from '../services/api';
 import { useAuthStore } from '../store/authStore';
@@ -14,12 +15,22 @@ const CATS = ['All', ...FEED_CATEGORIES];
 /** The social feed: every post type in one stream, filterable by category. */
 export default function FeedPage() {
   const myId = useAuthStore((s) => s.user?.id);
+  const [params, setParams] = useSearchParams();
   const [cat, setCat] = useState('All');
   const [posts, setPosts] = useState<FeedPost[]>([]);
+  const [pinned, setPinned] = useState<FeedPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
+
+  // Opened from a shared post link in a chat (/feed?post=id).
+  const postId = params.get('post');
+  useEffect(() => {
+    if (!postId) { setPinned(null); return; }
+    feedApi.get(postId).then((r) => setPinned(r.data)).catch(() => setPinned(null));
+  }, [postId]);
+  const clearPinned = () => { setPinned(null); setParams({}, { replace: true }); };
 
   const load = (category: string) => {
     setLoading(true);
@@ -64,6 +75,18 @@ export default function FeedPage() {
 
       {/* Posts */}
       <div className="flex-1 overflow-y-auto p-3 pb-32">
+        {/* A post opened from a shared chat link, pinned above the feed */}
+        {pinned && (
+          <div className="max-w-lg mx-auto mb-3">
+            <div className="flex items-center justify-between mb-1.5 px-1">
+              <span className="text-[10px] font-bold tracking-[0.18em] text-brand uppercase">Shared post</span>
+              <button onClick={clearPinned} className="text-slate-400 hover:text-white flex items-center gap-1 text-xs"><X size={13} /> Back to feed</button>
+            </div>
+            <div className="ring-1 ring-brand/40 rounded-2xl">
+              <PostCard post={pinned} myId={myId} onDeleted={clearPinned} />
+            </div>
+          </div>
+        )}
         {loading ? (
           <div className="flex justify-center py-12"><Loader2 size={22} className="animate-spin text-brand" /></div>
         ) : posts.length === 0 ? (

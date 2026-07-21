@@ -61,7 +61,11 @@ router.get('/', async (req: Request, res: Response) => {
         }),
       ]);
       const preview = lastMessage
-        ? { ...lastMessage, content: lastMessage.kind === 'VOICE' ? '🎤 Voice message' : lastMessage.content }
+        ? { ...lastMessage, content:
+            lastMessage.kind === 'VOICE' ? '🎤 Voice message'
+            : lastMessage.kind === 'POST' ? '📎 Shared a post'
+            : lastMessage.kind === 'PROFILE' ? '👤 Shared a profile'
+            : lastMessage.content }
         : null;
       return { ...shapeThread(t, myId), unreadCount, lastMessage: preview, cleared: !!myClearedAt && !lastMessage };
     })

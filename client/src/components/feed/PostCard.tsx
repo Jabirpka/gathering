@@ -1,12 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, MessageCircle, Trash2, MapPin, Calendar, Send, X, Check, Loader2, MessageSquare } from 'lucide-react';
+import { Heart, MessageCircle, Trash2, MapPin, Calendar, Send, X, Check, Loader2, MessageSquare, Share2, HelpCircle, UserCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { feedApi } from '../../services/api';
 import { useDmStore } from '../../store/dmStore';
 import { FeedPost, FeedComment } from '../../types';
 import { kindDef, postAge } from '../../utils/feed';
+import ShareSheet from './ShareSheet';
+
+const RSVP = [
+  { i: 0, label: 'Going', icon: Check },
+  { i: 1, label: 'Maybe', icon: HelpCircle },
+  { i: 2, label: "Can't", icon: X },
+] as const;
 
 function CommentsSheet({ post, onClose, onCount }: { post: FeedPost; onClose: () => void; onCount: (n: number) => void }) {
   const [comments, setComments] = useState<FeedComment[] | null>(null);
@@ -92,6 +99,8 @@ export default function PostCard({ post, myId, onDeleted }: { post: FeedPost; my
   const openThread = useDmStore((s) => s.openThread);
   const [p, setP] = useState(post);
   const [showComments, setShowComments] = useState(false);
+  const [showShare, setShowShare] = useState(false);
+  const [applying, setApplying] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const def = kindDef(p.kind);
   const isOwn = p.user.id === myId;
@@ -123,6 +132,21 @@ export default function PostCard({ post, myId, onDeleted }: { post: FeedPost; my
       navigate(`/dm/${thread.id}`);
     } catch {
       toast.error('Could not open chat');
+    }
+  };
+
+  // Apply to a hiring post — auto-sends my profile to the poster's DM.
+  const apply = async () => {
+    if (applying) return;
+    setApplying(true);
+    try {
+      const res = await feedApi.apply(p.id);
+      toast.success('Application sent — your profile was shared');
+      navigate(`/dm/${res.data.threadId}`);
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Could not apply');
+    } finally {
+      setApplying(false);
     }
   };
 
@@ -190,6 +214,27 @@ export default function PostCard({ post, myId, onDeleted }: { post: FeedPost; my
           </div>
         )}
 
+        {/* Event RSVP — attending / maybe / can't */}
+        {p.kind === 'EVENT' && (
+          <div className="pt-1">
+            <div className="grid grid-cols-3 gap-1.5">
+              {RSVP.map(({ i, label, icon: Icon }) => {
+                const active = p.myVote === i;
+                const n = counts[i] ?? 0;
+                return (
+                  <button key={i} onClick={() => vote(i)}
+                    className={`flex flex-col items-center gap-0.5 py-2 rounded-xl text-xs font-semibold transition-colors ${
+                      active ? 'bg-gradient-to-br from-brand to-accent text-white' : 'bg-white/5 text-slate-300 hover:bg-white/10'
+                    }`}>
+                    <span className="flex items-center gap-1"><Icon size={13} /> {label}</span>
+                    {n > 0 && <span className={`text-[10px] ${active ? 'text-white/80' : 'text-slate-500'}`}>{n}</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Job details */}
         {isJob && p.extra && (
           <div className="flex flex-wrap gap-1.5">
@@ -244,8 +289,18 @@ export default function PostCard({ post, myId, onDeleted }: { post: FeedPost; my
           <MessageCircle size={17} />
           <span className="tabular-nums">{p.commentCount > 0 ? p.commentCount : ''}</span>
         </button>
+        <button onClick={() => setShowShare(true)}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:text-white transition-colors" title="Share">
+          <Share2 size={17} />
+        </button>
         <div className="flex-1" />
-        {isJob && !isOwn && (
+        {!isOwn && p.kind === 'JOB_FIND' && (
+          <button onClick={apply} disabled={applying}
+            className="flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-br from-brand to-accent rounded-lg px-3 py-1.5 active:scale-95 transition-transform disabled:opacity-60">
+            {applying ? <Loader2 size={13} className="animate-spin" /> : <UserCheck size={13} />} Apply
+          </button>
+        )}
+        {!isOwn && p.kind === 'JOB_HUNT' && (
           <button onClick={message}
             className="flex items-center gap-1.5 text-xs font-semibold text-brand bg-brand-dim border border-brand/30 rounded-lg px-3 py-1.5 active:scale-95 transition-transform">
             <MessageSquare size={13} /> Message
@@ -258,6 +313,7 @@ export default function PostCard({ post, myId, onDeleted }: { post: FeedPost; my
           <CommentsSheet post={p} onClose={() => setShowComments(false)}
             onCount={(n) => setP((c) => ({ ...c, commentCount: n }))} />
         )}
+        {showShare && <ShareSheet postId={p.id} onClose={() => setShowShare(false)} />}
       </AnimatePresence>
     </div>
   );

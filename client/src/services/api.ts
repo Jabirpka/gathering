@@ -52,12 +52,15 @@ export const usersApi = {
 
 export const feedApi = {
   list: (params: { cursor?: string; category?: string; kind?: string } = {}) => api.get('/feed', { params }),
+  get: (id: string) => api.get(`/feed/${id}`),
   create: (data: { kind: string; category: string; title?: string; content: string; image?: string | null; extra?: Record<string, any> }) =>
     api.post('/feed', data),
   like: (id: string) => api.post(`/feed/${id}/like`),
   comments: (id: string) => api.get(`/feed/${id}/comments`),
   addComment: (id: string, content: string) => api.post(`/feed/${id}/comments`, { content }),
   vote: (id: string, optionIndex: number) => api.post(`/feed/${id}/vote`, { optionIndex }),
+  apply: (id: string) => api.post(`/feed/${id}/apply`),
+  share: (id: string, target: { groupId?: string; threadId?: string; userId?: string }) => api.post(`/feed/${id}/share`, target),
   remove: (id: string) => api.delete(`/feed/${id}`),
 };
 

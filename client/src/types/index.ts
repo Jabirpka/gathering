@@ -32,10 +32,12 @@ export interface User {
 
 export interface AppNotification {
   id: string;
-  type: 'poke' | 'approved' | 'pending' | 'visit';
+  type: 'poke' | 'approved' | 'pending' | 'visit' | 'job' | 'apply';
   message: string;
   from?: Pick<User, 'id' | 'name' | 'nickname' | 'avatar'>;
   groupId?: string;
+  /** In-app deep link to open when tapped (e.g. /feed, /dm/:id). */
+  link?: string;
   strikePoints?: number;
   createdAt: string;
   read: boolean;
@@ -118,7 +120,7 @@ export interface Group {
 export interface Message {
   id: string;
   content: string;
-  kind?: 'TEXT' | 'VOICE' | 'POLL' | 'EVENT' | 'QUIZ';
+  kind?: 'TEXT' | 'VOICE' | 'POLL' | 'EVENT' | 'QUIZ' | 'POST' | 'PROFILE';
   duration?: number | null;
   userId: string;
   groupId?: string | null;

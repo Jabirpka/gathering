@@ -8,6 +8,7 @@ import { getSocket } from '../hooks/useSocket';
 import { dmsApi } from '../services/api';
 import { Message } from '../types';
 import MessageBubble from '../components/chat/MessageBubble';
+import SharedMessageCard from '../components/chat/SharedMessageCard';
 import VoiceRecorderButton from '../components/chat/VoiceRecorderButton';
 
 export default function DmPage() {
@@ -221,16 +222,20 @@ export default function DmPage() {
           </p>
         )}
         {messages.map((m) => (
-          <MessageBubble
-            key={m.id}
-            message={m}
-            isOwn={m.userId === user?.id}
-            readState={readStateFor(m)}
-            myId={user?.id}
-            onReply={setReplyingTo}
-            onDelete={deleteMessage}
-            onReact={react}
-          />
+          (m.kind === 'POST' || m.kind === 'PROFILE') ? (
+            <SharedMessageCard key={m.id} message={m} isOwn={m.userId === user?.id} />
+          ) : (
+            <MessageBubble
+              key={m.id}
+              message={m}
+              isOwn={m.userId === user?.id}
+              readState={readStateFor(m)}
+              myId={user?.id}
+              onReply={setReplyingTo}
+              onDelete={deleteMessage}
+              onReact={react}
+            />
+          )
         ))}
         <div ref={bottomRef} />
       </div>

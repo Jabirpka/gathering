@@ -118,6 +118,8 @@ function AppRoutes() {
       addNotification(data);
       if (data.type === 'poke') toast(data.message, { icon: '⚡', duration: 4000 });
       else if (data.type === 'approved') toast.success(data.message, { duration: 5000 });
+      else if (data.type === 'apply') toast(data.message, { icon: '📋', duration: 5000 });
+      else if (data.type === 'job') toast(data.message, { icon: '💼', duration: 4000 });
     };
 
     const handleCallRing = (data: CallRing) => {

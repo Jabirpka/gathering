@@ -6,6 +6,7 @@ import { getSocket } from '../../hooks/useSocket';
 import { groupsApi } from '../../services/api';
 import { Message } from '../../types';
 import MessageBubble from './MessageBubble';
+import SharedMessageCard from './SharedMessageCard';
 import PollCard from './PollCard';
 import EventCard from './EventCard';
 import QuizCard from './QuizCard';
@@ -217,6 +218,7 @@ export default function ChatPanel({ groupId, roomId, bordered = true, hideHeader
           if (msg.kind === 'POLL') return <PollCard key={msg.id} message={msg} isOwn={isOwn} />;
           if (msg.kind === 'EVENT') return <EventCard key={msg.id} message={msg} isOwn={isOwn} />;
           if (msg.kind === 'QUIZ') return <QuizCard key={msg.id} message={msg} isOwn={isOwn} />;
+          if (msg.kind === 'POST' || msg.kind === 'PROFILE') return <SharedMessageCard key={msg.id} message={msg} isOwn={isOwn} />;
           return (
             <MessageBubble
               key={msg.id}
