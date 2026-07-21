@@ -81,7 +81,13 @@ export const FEED_KINDS: FeedKindDef[] = [
   },
 ];
 
-export const kindDef = (kind: string): FeedKindDef => FEED_KINDS.find((k) => k.kind === kind) ?? FEED_KINDS[8];
+/** Fallback for retired/unknown kinds (e.g. old QUESTION posts) so a stray
+ *  post can never crash the feed render. */
+const FALLBACK_KIND: FeedKindDef = {
+  kind: 'INFO', label: 'Info', emoji: 'ℹ️', image: 'none',
+  content: { label: 'Information', placeholder: '' },
+};
+export const kindDef = (kind: string): FeedKindDef => FEED_KINDS.find((k) => k.kind === kind) ?? FALLBACK_KIND;
 
 /** Compact relative time for post headers. */
 export function postAge(iso: string): string {
