@@ -44,6 +44,7 @@ export const usersApi = {
   getUser: (id: string) => api.get(`/users/${id}`),
   poke: (id: string) => api.post(`/users/${id}/poke`),
   matchContacts: (phones: string[]) => api.post('/users/contacts', { phones }),
+  suggestUsername: (name: string) => api.get('/users/username/suggest', { params: { name } }),
   searchPeople: (q: string) => api.get('/users/search', { params: { q } }),
   hireDirectory: () => api.get('/users/hire'),
   myVisitors: () => api.get('/users/me/visitors'),

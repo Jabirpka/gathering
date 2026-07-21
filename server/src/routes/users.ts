@@ -20,7 +20,17 @@ router.patch('/me', async (req: Request, res: Response) => {
     if (nickname !== undefined) data.nickname = nickname;
     if (avatar !== undefined) data.avatar = avatar;
     if (banner !== undefined) data.banner = banner || null;
-    if (username !== undefined) data.username = (typeof username === 'string' && username.trim()) ? username.trim() : null;
+    // Username is permanent: it can be set once (first time), then never changed.
+    if (username !== undefined) {
+      const current = await prisma.user.findUnique({ where: { id: req.user!.id }, select: { username: true } });
+      if (!current?.username) {
+        const clean = typeof username === 'string'
+          ? username.trim().toLowerCase().replace(/[^a-z0-9._]/g, '').slice(0, 24)
+          : '';
+        if (clean.length >= 3) data.username = clean;
+      }
+      // already set → ignore any change (locked)
+    }
     if (dateOfBirth !== undefined) data.dateOfBirth = dateOfBirth || null;
     if (bio !== undefined) data.bio = bio || null;
     if (interests !== undefined) data.interests = Array.isArray(interests) ? interests.slice(0, 20) : [];
@@ -65,6 +75,24 @@ router.patch('/me', async (req: Request, res: Response) => {
     }
     res.status(500).json({ error: 'Failed to update profile' });
   }
+});
+
+// Suggest a unique username: first name + last-name initial + a short random
+// tail (e.g. "johnd7x2"). Guaranteed free at suggestion time.
+router.get('/username/suggest', async (req: Request, res: Response) => {
+  const name = String(req.query.name ?? req.user!.name ?? '').trim();
+  const parts = name.split(/\s+/).filter(Boolean);
+  const first = (parts[0] ?? 'user').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const lastInitial = parts.length > 1 ? (parts[parts.length - 1][0] || '').toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+  const base = (first + lastInitial).slice(0, 16) || 'user';
+  for (let i = 0; i < 15; i++) {
+    const rand = Math.random().toString(36).slice(2, i < 3 ? 6 : 8);
+    const candidate = (base + rand).slice(0, 24);
+    if (candidate.length < 3) continue;
+    const exists = await prisma.user.findUnique({ where: { username: candidate }, select: { id: true } });
+    if (!exists) { res.json({ username: candidate }); return; }
+  }
+  res.json({ username: (base + Date.now().toString(36).slice(-5)).slice(0, 24) });
 });
 
 // Get my strike points (must be before /:id)
@@ -132,13 +160,15 @@ router.get('/hire', async (req: Request, res: Response) => {
     select: { id: true, name: true, nickname: true, avatar: true, username: true, city: true, profileExtra: true },
   });
   // Respect privacy: someone whose career section is hidden isn't listed.
-  res.json(users.filter((u) => ((u.profileExtra as any)?.privacy?.career ?? 'everyone') === 'everyone').map(publicPersonCard));
+  res.json(users.filter((u) => ((u.profileExtra as any)?.privacy?.work ?? 'everyone') === 'everyone').map(publicPersonCard));
 });
 
 /** Small public card for search/hire lists — never leaks the raw extra blob. */
 function publicPersonCard(u: { id: string; name: string; nickname: string | null; avatar: string | null; username: string | null; city: string | null; profileExtra: any }) {
   const x = (u.profileExtra as any) ?? {};
-  const careerPublic = (x.privacy?.career ?? 'everyone') === 'everyone';
+  const workPublic = (x.privacy?.work ?? 'everyone') === 'everyone';
+  const work = Array.isArray(x.work) ? x.work : [];
+  const top = work.find((w: any) => w?.current) ?? work[0] ?? null;
   return {
     id: u.id,
     name: u.name,
@@ -146,25 +176,20 @@ function publicPersonCard(u: { id: string; name: string; nickname: string | null
     avatar: u.avatar,
     username: u.username,
     city: u.city,
-    currentJob: careerPublic ? (x.currentJob ?? null) : null,
-    industry: careerPublic ? (x.industry ?? null) : null,
-    availableForHire: careerPublic ? !!x.availableForHire : false,
+    currentJob: workPublic && top ? [top.designation, top.company].filter(Boolean).join(' at ') || null : null,
+    industry: null,
+    availableForHire: workPublic ? !!x.availableForHire : false,
   };
 }
 
 // Which profileExtra keys belong to which section — mirrors the client's
 // profileSchema so per-section privacy can be enforced server-side.
 const SECTION_KEYS: Record<string, string[]> = {
-  about: ['gender', 'languages', 'nationality', 'country', 'religion', 'maritalStatus'],
-  education: ['school', 'college', 'degree', 'certifications', 'courses'],
-  career: ['currentJob', 'company', 'industry', 'experienceYears', 'education', 'resumeLink', 'portfolio', 'availableForHire'],
-  personality: ['strength', 'threeWords', 'lifeGoal', 'values', 'personalityType', 'socialType', 'quote'],
+  work: ['work', 'availableForHire'],
+  education: ['educations'],
   skills: ['skills'],
-  lifestyle: ['smoke', 'drink', 'workout', 'food', 'sleep', 'pets', 'children'],
-  achievements: ['achievements'],
-  socials: ['instagram', 'facebook', 'linkedin', 'github', 'x', 'youtube', 'website'],
-  hobbies: ['hobbies'],
-  favorites: ['favMovie', 'favBook', 'favSong', 'favFood', 'favActor', 'favSport', 'favDestination', 'favColor'],
+  lifestyle: ['smoke', 'drink', 'workout', 'food'],
+  favorites: ['favMovie', 'favSong', 'favFood'],
 };
 
 // Match a list of phone contacts against registered users (People/Contacts

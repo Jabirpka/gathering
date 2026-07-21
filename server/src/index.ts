@@ -185,6 +185,21 @@ async function ensureSchema() {
       "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
     )`,
     `CREATE UNIQUE INDEX IF NOT EXISTS "PostPollVote_postId_userId_key" ON "PostPollVote"("postId","userId")`,
+    // Profile trimmed to a fixed set of sections: clear the retired answers so
+    // no stale data lingers. Old free-text columns first...
+    `UPDATE "User" SET "whoAreYou"=NULL,"whatCanYouDo"=NULL,"trust"=NULL,"lookingFor"=NULL,"wantToMeet"=NULL,"favoriteSong"=NULL,"favoriteMovie"=NULL
+       WHERE "whoAreYou" IS NOT NULL OR "whatCanYouDo" IS NOT NULL OR "trust" IS NOT NULL OR "lookingFor" IS NOT NULL OR "wantToMeet" IS NOT NULL OR "favoriteSong" IS NOT NULL OR "favoriteMovie" IS NOT NULL`,
+    // ...then strip the retired keys from the profileExtra JSON (only rows that
+    // still have any of them, so this is a no-op scan once cleaned).
+    `UPDATE "User" SET "profileExtra" = "profileExtra"
+       - 'nationality' - 'country' - 'religion' - 'maritalStatus' - 'languages'
+       - 'strength' - 'threeWords' - 'lifeGoal' - 'values' - 'personalityType' - 'socialType' - 'quote'
+       - 'currentJob' - 'company' - 'industry' - 'experienceYears' - 'education' - 'resumeLink' - 'portfolio'
+       - 'degree' - 'college' - 'school' - 'certifications' - 'courses' - 'achievements'
+       - 'instagram' - 'facebook' - 'linkedin' - 'github' - 'x' - 'youtube' - 'website'
+       - 'emergencyContact' - 'bloodGroup' - 'medicalNotes' - 'hobbies' - 'pets' - 'children' - 'sleep'
+       - 'favActor' - 'favSport' - 'favDestination' - 'favColor' - 'favBook'
+       WHERE "profileExtra" IS NOT NULL AND "profileExtra" ?| array['nationality','country','religion','maritalStatus','languages','strength','threeWords','lifeGoal','values','personalityType','socialType','quote','currentJob','company','industry','experienceYears','education','resumeLink','portfolio','degree','college','school','certifications','courses','achievements','instagram','facebook','linkedin','github','x','youtube','website','emergencyContact','bloodGroup','medicalNotes','hobbies','pets','children','sleep','favActor','favSport','favDestination','favColor','favBook']`,
     `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "onboarded" BOOLEAN NOT NULL DEFAULT true`,
     `ALTER TABLE "Group" ADD COLUMN IF NOT EXISTS "category" TEXT`,
     `CREATE TABLE IF NOT EXISTS "PollVote" (

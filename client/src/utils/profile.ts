@@ -10,23 +10,16 @@ function completionChecks(u: User): { done: boolean; label: string }[] {
   return [
     { done: !!u.avatar, label: 'Add a profile photo' },
     { done: !!u.username, label: 'Pick a username' },
+    { done: filled(x.gender), label: 'Add your gender' },
     { done: !!u.bio, label: 'Write a short bio' },
     { done: !!u.dateOfBirth, label: 'Add your date of birth' },
     { done: !!u.city, label: 'Add your city' },
     { done: (u.interests?.length ?? 0) >= 3, label: 'Pick 3+ interests' },
-    { done: filled(x.gender), label: 'Add your gender' },
-    { done: filled(x.languages), label: 'Add the languages you speak' },
-    { done: filled(x.country) || filled(x.nationality), label: 'Add your country' },
-    { done: filled(x.currentJob) || filled(x.industry) || filled(x.education) || filled(x.degree) || filled(x.college), label: 'Add your work or education' },
-    { done: filled(x.threeWords), label: 'Describe yourself in three words' },
-    { done: filled(x.lifeGoal) || filled(x.socialType), label: 'Share your life goal' },
+    { done: Array.isArray(x.work) && x.work.length > 0, label: 'Add your work experience' },
+    { done: Array.isArray(x.educations) && x.educations.length > 0, label: 'Add your education' },
     { done: Array.isArray(x.skills) && x.skills.length > 0, label: 'Add a skill' },
     { done: filled(x.smoke) || filled(x.food) || filled(x.workout) || filled(x.drink), label: 'Fill in your lifestyle' },
     { done: filled(x.favMovie) || filled(x.favSong) || filled(x.favFood), label: 'Add a favorite' },
-    {
-      done: filled(x.instagram) || filled(x.linkedin) || filled(x.github) || filled(x.website),
-      label: 'Link a social profile',
-    },
   ];
 }
 

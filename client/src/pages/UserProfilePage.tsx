@@ -4,11 +4,11 @@ import { usersApi } from '../services/api';
 import { useAuthStore } from '../store/authStore';
 import { useDmStore } from '../store/dmStore';
 import { User } from '../types';
-import { ArrowLeft, Loader2, Zap, MessageSquare, MapPin, User as UserIcon, Cake, Link as LinkIcon, BadgeCheck } from 'lucide-react';
+import { ArrowLeft, Loader2, Zap, MessageSquare, MapPin, User as UserIcon, Cake, Briefcase, GraduationCap, BadgeCheck } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { PROFILE_SECTIONS, zodiacFrom, SectionDef, SkillEntry, AchievementEntry } from '../utils/profileSchema';
+import { PROFILE_SECTIONS, zodiacFrom, SectionDef, SkillEntry, WorkEntry, EducationEntry } from '../utils/profileSchema';
 import { computeMatches } from '../utils/match';
 
 /** Whole years between a date of birth and today. */
@@ -24,17 +24,63 @@ function ageFrom(dob: string): number | null {
 
 const isFilled = (v: any) => (Array.isArray(v) ? v.length > 0 : typeof v === 'number' ? true : typeof v === 'boolean' ? v : !!(typeof v === 'string' ? v.trim() : v));
 
-/** Make a pasted handle/URL clickable. */
-function linkHref(v: string): string {
-  const s = v.trim();
-  if (/^https?:\/\//i.test(s)) return s;
-  if (s.startsWith('@')) return `https://instagram.com/${s.slice(1)}`;
-  return `https://${s}`;
+/** "2020-01" -> "Jan 2020". */
+function monthLabel(v?: string): string {
+  if (!v) return '';
+  const d = new Date(v.length === 7 ? `${v}-01` : v);
+  return isNaN(d.getTime()) ? v : d.toLocaleDateString([], { month: 'short', year: 'numeric' });
 }
 
-/** Read-only renderer for one extended-profile section. */
+/** Read-only renderer for one profile section (work, education, skills, fields). */
 function SectionView({ section, extra }: { section: SectionDef; extra: Record<string, any> }) {
   if (section.privateSection) return null;
+
+  if (section.kind === 'work') {
+    const work = (Array.isArray(extra.work) ? extra.work : []) as WorkEntry[];
+    if (work.length === 0 && !extra.availableForHire) return null;
+    return (
+      <div className="card p-5 mb-4">
+        <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500 mb-3">WORK</p>
+        {extra.availableForHire && (
+          <span className="inline-block mb-3 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-400/30 rounded-full px-2.5 py-0.5">Available for hire</span>
+        )}
+        <div className="space-y-3">
+          {work.map((w, i) => (
+            <div key={i} className="flex items-start gap-3">
+              <Briefcase size={15} className="text-brand shrink-0 mt-0.5" />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-white">{w.designation}{w.company ? <span className="text-slate-400 font-normal"> · {w.company}</span> : ''}</p>
+                {(w.joinDate || w.current || w.endDate) && (
+                  <p className="text-xs text-slate-500">{monthLabel(w.joinDate)} – {w.current ? 'Present' : monthLabel(w.endDate) || '—'}</p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (section.kind === 'education') {
+    const items = (Array.isArray(extra.educations) ? extra.educations : []) as EducationEntry[];
+    if (items.length === 0) return null;
+    return (
+      <div className="card p-5 mb-4">
+        <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500 mb-3">EDUCATION</p>
+        <div className="space-y-3">
+          {items.map((e, i) => (
+            <div key={i} className="flex items-start gap-3">
+              <GraduationCap size={15} className="text-brand shrink-0 mt-0.5" />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-white">{e.level}</p>
+                <p className="text-xs text-slate-400">{e.institution}{e.institution && (e.endYear || e.ongoing) ? ' · ' : ''}{e.ongoing ? 'Ongoing' : e.endYear || ''}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (section.kind === 'skills') {
     const skills = (Array.isArray(extra.skills) ? extra.skills : []) as SkillEntry[];
@@ -55,56 +101,18 @@ function SectionView({ section, extra }: { section: SectionDef; extra: Record<st
     );
   }
 
-  if (section.kind === 'achievements') {
-    const items = (Array.isArray(extra.achievements) ? extra.achievements : []) as AchievementEntry[];
-    if (items.length === 0) return null;
-    return (
-      <div className="card p-5 mb-4">
-        <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500 mb-3">ACHIEVEMENTS</p>
-        <div className="space-y-2">
-          {items.map((a, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-brand shrink-0">{a.type}</span>
-              <span className="text-sm text-white">{a.title}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   const filledFields = section.fields.filter((f) => isFilled(extra[f.key]));
   if (filledFields.length === 0) return null;
-  const isSocials = section.id === 'socials';
-
   return (
     <div className="card p-5 mb-4">
       <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500 mb-3">{section.title.toUpperCase()}</p>
       <div className="space-y-2.5">
-        {filledFields.map((f) => {
-          const v = extra[f.key];
-          return (
-            <div key={f.key}>
-              <p className="text-xs text-brand font-medium mb-0.5">{f.label}</p>
-              {f.type === 'chips' ? (
-                <div className="flex flex-wrap gap-1.5">
-                  {(v as string[]).map((c) => (
-                    <span key={c} className="px-2.5 py-1 rounded-full text-xs font-semibold bg-surface-2 border border-white/10 text-slate-200">{c}</span>
-                  ))}
-                </div>
-              ) : f.type === 'toggle' ? (
-                <p className="text-sm text-emerald-400 font-medium">Yes</p>
-              ) : isSocials ? (
-                <a href={linkHref(String(v))} target="_blank" rel="noreferrer"
-                  className="text-sm text-brand underline underline-offset-2 flex items-center gap-1.5 break-all">
-                  <LinkIcon size={12} className="shrink-0" /> {String(v)}
-                </a>
-              ) : (
-                <p className="text-sm text-slate-200 whitespace-pre-wrap">{String(v)}</p>
-              )}
-            </div>
-          );
-        })}
+        {filledFields.map((f) => (
+          <div key={f.key} className="flex items-center justify-between gap-3">
+            <p className="text-sm text-slate-400">{f.label}</p>
+            <p className="text-sm text-white text-right">{String(extra[f.key])}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -265,7 +273,7 @@ export default function UserProfilePage() {
           )}
 
           {/* Basic info */}
-          {((u.nickname && u.name && u.nickname !== u.name) || u.dateOfBirth || u.city) && (
+          {((u.nickname && u.name && u.nickname !== u.name) || u.dateOfBirth || u.city || extra.gender) && (
             <div className="card p-5 space-y-3 mb-4">
               <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500">BASIC INFO</p>
               {u.nickname && u.name && u.nickname !== u.name && (
@@ -284,10 +292,16 @@ export default function UserProfilePage() {
                   </span>
                 </div>
               )}
+              {extra.gender && (
+                <div className="flex items-center gap-3">
+                  <UserIcon size={15} className="text-brand shrink-0" />
+                  <span className="text-sm text-slate-200">{extra.gender}</span>
+                </div>
+              )}
               {u.city && (
                 <div className="flex items-center gap-3">
                   <MapPin size={15} className="text-brand shrink-0" />
-                  <span className="text-sm text-slate-200">{u.city}{extra.country ? `, ${extra.country}` : ''}</span>
+                  <span className="text-sm text-slate-200">{u.city}</span>
                 </div>
               )}
             </div>
