@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Loader2, Newspaper, Plus, RefreshCw, X } from 'lucide-react';
+import { Loader2, Newspaper, Plus, RefreshCw } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import { feedApi } from '../services/api';
 import { useAuthStore } from '../store/authStore';
@@ -75,16 +75,10 @@ export default function FeedPage() {
 
       {/* Posts */}
       <div className="flex-1 overflow-y-auto p-3 pb-32">
-        {/* A post opened from a shared chat link, pinned above the feed */}
+        {/* A post opened from a shared chat link shows at the top of the feed. */}
         {pinned && (
           <div className="max-w-lg mx-auto mb-3">
-            <div className="flex items-center justify-between mb-1.5 px-1">
-              <span className="text-[10px] font-bold tracking-[0.18em] text-brand uppercase">Shared post</span>
-              <button onClick={clearPinned} className="text-slate-400 hover:text-white flex items-center gap-1 text-xs"><X size={13} /> Back to feed</button>
-            </div>
-            <div className="ring-1 ring-brand/40 rounded-2xl">
-              <PostCard post={pinned} myId={myId} onDeleted={clearPinned} />
-            </div>
+            <PostCard post={pinned} myId={myId} onDeleted={clearPinned} />
           </div>
         )}
         {loading ? (
@@ -98,7 +92,7 @@ export default function FeedPage() {
           </div>
         ) : (
           <div className="space-y-3 max-w-lg mx-auto">
-            {posts.map((p) => (
+            {posts.filter((p) => p.id !== pinned?.id).map((p) => (
               <PostCard key={p.id} post={p} myId={myId}
                 onDeleted={(id) => setPosts((cur) => cur.filter((x) => x.id !== id))} />
             ))}
