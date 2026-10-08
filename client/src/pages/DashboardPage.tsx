@@ -113,6 +113,9 @@ export default function DashboardPage() {
   const firstName = user?.nickname || user?.name?.split(' ')[0];
   const completion = profileCompletion(user);
   const nextPrompt = nextProfilePrompt(user);
+  // Calm "Digest": how many circles have had activity in the last 24h.
+  const dayAgo = Date.now() - 24 * 3600 * 1000;
+  const digestCount = groups.filter((g) => g.lastMessage && +new Date(g.lastMessage.createdAt) > dayAgo).length;
 
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto animate-fade-in pb-28">
@@ -121,6 +124,19 @@ export default function DashboardPage() {
 
       {/* Stories — moved here from the bottom nav, where people expect them. */}
       <StatusStrip />
+
+      {/* Calm Digest teaser — a once-a-glance catch-up instead of an endless feed. */}
+      {digestCount > 0 && (
+        <button onClick={() => navigate('/feed')}
+          className="w-full mb-4 card p-3.5 flex items-center gap-3 text-left bg-gradient-to-br from-brand/10 to-accent/5">
+          <div className="w-10 h-10 rounded-xl bg-brand/15 flex items-center justify-center text-xl shrink-0">🌤️</div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-ink">Today in your circles</p>
+            <p className="text-xs text-muted">{digestCount} {digestCount === 1 ? 'circle has' : 'circles have'} new activity · tap to catch up</p>
+          </div>
+          <ChevronRight size={16} className="text-muted" />
+        </button>
+      )}
 
       {/* Complete-your-profile nudge (shown until the profile is 100% done) */}
       {completion < 100 && !hideNudge && (
@@ -132,7 +148,7 @@ export default function DashboardPage() {
           <button onClick={() => navigate('/profile')} className="w-full flex items-center gap-3 text-left pr-5">
             <div className="relative w-11 h-11 shrink-0">
               <svg viewBox="0 0 36 36" className="w-11 h-11 -rotate-90">
-                <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="3" />
+                <circle cx="18" cy="18" r="15" fill="none" stroke="rgb(var(--line) / 0.15)" strokeWidth="3" />
                 <circle cx="18" cy="18" r="15" fill="none" stroke="#FF6B5E" strokeWidth="3" strokeLinecap="round"
                   strokeDasharray={`${(completion / 100) * 94.2} 94.2`} />
               </svg>

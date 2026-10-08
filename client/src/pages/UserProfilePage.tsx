@@ -263,7 +263,7 @@ export default function UserProfilePage() {
               <div className="flex items-center gap-4">
                 <div className="relative w-16 h-16 shrink-0">
                   <svg viewBox="0 0 36 36" className="w-16 h-16 -rotate-90">
-                    <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="3.5" />
+                    <circle cx="18" cy="18" r="15" fill="none" stroke="rgb(var(--line) / 0.12)" strokeWidth="3.5" />
                     <circle cx="18" cy="18" r="15" fill="none" stroke="url(#matchgrad)" strokeWidth="3.5" strokeLinecap="round"
                       strokeDasharray={`${(match.percent / 100) * 94.2} 94.2`} className="transition-all duration-700" />
                     <defs>

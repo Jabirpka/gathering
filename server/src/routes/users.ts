@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { authMiddleware } from '../middleware/auth';
 import { prisma } from '../index';
-import { getIO } from '../socket/index';
+import { getIO, isUserOnline } from '../socket/index';
 import { computeMatchPercent, gatherInteractionStats } from '../services/match';
 
 const router = Router();
@@ -214,6 +214,77 @@ router.post('/contacts', async (req: Request, res: Response) => {
   });
   const matches = users.filter((u) => u.phone && wanted.has(norm(u.phone)));
   res.json({ matches });
+});
+
+// My "People": everyone I have a DM thread with, each with a single
+// Match-with-you %, a short reason, and whether they're available right now.
+// Sorted available-first, then strongest match. (Defined before /:id so the
+// literal path wins over the id param.)
+const peopleSelect = {
+  id: true, name: true, nickname: true, avatar: true,
+  interests: true, city: true, dateOfBirth: true, bio: true, profileExtra: true,
+} as const;
+
+router.get('/people', async (req: Request, res: Response) => {
+  try {
+    const myId = req.user!.id;
+    const [me, threads] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: myId },
+        select: { id: true, interests: true, city: true, dateOfBirth: true, bio: true, profileExtra: true },
+      }),
+      prisma.dmThread.findMany({
+        where: { OR: [{ userAId: myId }, { userBId: myId }] },
+        include: { userA: { select: peopleSelect }, userB: { select: peopleSelect } },
+        orderBy: { updatedAt: 'desc' },
+      }),
+    ]);
+
+    const people = await Promise.all(
+      threads.map(async (t) => {
+        const partner: any = t.userAId === myId ? t.userB : t.userA;
+        let matchPercent: number | undefined;
+        let reason = '';
+        if (me) {
+          const stats = await gatherInteractionStats(prisma, myId, partner.id, t.id);
+          const m = computeMatchPercent(me as any, partner, stats);
+          matchPercent = m.percent;
+          reason = m.reason;
+        }
+        return {
+          id: partner.id,
+          name: partner.name,
+          nickname: partner.nickname,
+          avatar: partner.avatar,
+          threadId: t.id,
+          matchPercent,
+          reason,
+          online: isUserOnline(partner.id),
+        };
+      })
+    );
+
+    people.sort((a, b) => (Number(b.online) - Number(a.online)) || ((b.matchPercent ?? 0) - (a.matchPercent ?? 0)));
+    res.json(people);
+  } catch {
+    res.status(500).json({ error: 'Failed to load people' });
+  }
+});
+
+// Which of my DM partners are online right now (for the "Available now" row).
+router.get('/presence', async (req: Request, res: Response) => {
+  try {
+    const myId = req.user!.id;
+    const threads = await prisma.dmThread.findMany({
+      where: { OR: [{ userAId: myId }, { userBId: myId }] },
+      select: { userAId: true, userBId: true },
+    });
+    const peers = new Set<string>();
+    for (const t of threads) peers.add(t.userAId === myId ? t.userBId : t.userAId);
+    res.json({ online: [...peers].filter((id) => isUserOnline(id)) });
+  } catch {
+    res.status(500).json({ error: 'Failed to load presence' });
+  }
 });
 
 // Get a user's public profile by id (with strike/poke count). Email/phone

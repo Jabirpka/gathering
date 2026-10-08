@@ -24,6 +24,36 @@ export function getIO(): Server {
   return _io;
 }
 
+// ---- Presence ("Available now") -------------------------------------------
+// In-memory online tracking (userId -> live socket count); no DB needed. A user
+// is "online" while they have at least one connected socket.
+const onlineUsers = new Map<string, number>();
+
+export function isUserOnline(userId: string): boolean {
+  return (onlineUsers.get(userId) ?? 0) > 0;
+}
+export function getOnlineUserIds(): string[] {
+  return [...onlineUsers.keys()];
+}
+
+/** The people who should hear about my presence: my DM partners. */
+async function presencePeers(userId: string): Promise<string[]> {
+  const threads = await prisma.dmThread.findMany({
+    where: { OR: [{ userAId: userId }, { userBId: userId }] },
+    select: { userAId: true, userBId: true },
+  });
+  const peers = new Set<string>();
+  for (const t of threads) peers.add(t.userAId === userId ? t.userBId : t.userAId);
+  return [...peers];
+}
+
+async function broadcastPresence(io: Server, userId: string, online: boolean) {
+  try {
+    const peers = await presencePeers(userId);
+    for (const p of peers) io.to(`user:${p}`).emit('presence:update', { userId, online });
+  } catch {}
+}
+
 // Tracks live call rooms (roomId → groupId) so we can stop the ring on every
 // callee's device the moment the call empties out — i.e. the caller hung up
 // before anyone answered, or the last participant left.
@@ -95,6 +125,13 @@ export function setupSocketHandlers(io: Server) {
 
     // Join personal room for direct events
     socket.join(`user:${socket.user.id}`);
+
+    // Mark online; tell my people if this is my first live socket.
+    {
+      const prev = onlineUsers.get(socket.user.id) ?? 0;
+      onlineUsers.set(socket.user.id, prev + 1);
+      if (prev === 0) broadcastPresence(io, socket.user.id, true);
+    }
 
     setupChatHandlers(io, socket);
 
@@ -264,6 +301,14 @@ export function setupSocketHandlers(io: Server) {
 
     socket.on('disconnect', () => {
       console.log(`Socket disconnected: ${socket.user.name}`);
+      // Mark offline once my last socket drops.
+      const cur = (onlineUsers.get(socket.user.id) ?? 1) - 1;
+      if (cur <= 0) {
+        onlineUsers.delete(socket.user.id);
+        broadcastPresence(io, socket.user.id, false);
+      } else {
+        onlineUsers.set(socket.user.id, cur);
+      }
     });
   });
 }

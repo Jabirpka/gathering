@@ -42,6 +42,8 @@ export const usersApi = {
     onboarded?: boolean;
   }) => api.patch('/users/me', data),
   getUser: (id: string) => api.get(`/users/${id}`),
+  people: () => api.get('/users/people'),
+  presence: () => api.get('/users/presence'),
   poke: (id: string) => api.post(`/users/${id}/poke`),
   matchContacts: (phones: string[]) => api.post('/users/contacts', { phones }),
   suggestUsername: (name: string) => api.get('/users/username/suggest', { params: { name } }),

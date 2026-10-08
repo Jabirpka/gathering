@@ -6,6 +6,7 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { useAuth } from './hooks/useAuth';
 import { useAuthStore } from './store/authStore';
 import { useCallStore } from './store/callStore';
+import { usePresenceStore } from './store/presenceStore';
 import { useSocket } from './hooks/useSocket';
 import { getSocket } from './hooks/useSocket';
 import { usePushNotifications } from './hooks/usePushNotifications';
@@ -28,6 +29,7 @@ const DmCallPage = lazy(() => import('./pages/DmCallPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
+const PeoplePage = lazy(() => import('./pages/PeoplePage'));
 const ProfileSetup = lazy(() => import('./pages/ProfileSetup'));
 const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 const CallManager = lazy(() => import('./components/call/CallManager'));
@@ -155,13 +157,22 @@ function AppRoutes() {
       setIncomingCall((cur) => (cur && cur.roomId === data.roomId ? null : cur));
     };
 
+    // "Available now" presence for my people.
+    const handlePresence = (data: { userId: string; online: boolean }) => {
+      usePresenceStore.getState().update(data.userId, data.online);
+    };
+
     socket.on('notification', handleNotification);
     socket.on('call:ring', handleCallRing);
     socket.on('call:cancel', handleCallCancel);
+    socket.on('presence:update', handlePresence);
+    // Seed the current online set once connected.
+    usePresenceStore.getState().fetch();
     return () => {
       socket.off('notification', handleNotification);
       socket.off('call:ring', handleCallRing);
       socket.off('call:cancel', handleCallCancel);
+      socket.off('presence:update', handlePresence);
     };
   }, [user]);
 
@@ -199,6 +210,7 @@ function AppRoutes() {
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/discover" element={<DiscoverPage />} />
+              <Route path="/people" element={<PeoplePage />} />
               <Route path="/feed" element={<FeedPage />} />
               <Route path="/u/:userId" element={<UserProfilePage />} />
               <Route path="/groups/:groupId" element={<GroupPage />} />

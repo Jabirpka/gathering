@@ -19,12 +19,13 @@ export default function BottomNav() {
   const totalUnread = chatUnread + dmUnread;
 
   // Only the top-level hub screens get the tab bar.
-  if (pathname !== '/dashboard' && pathname !== '/profile' && pathname !== '/discover' && pathname !== '/feed') return null;
+  if (!['/dashboard', '/profile', '/discover', '/feed', '/people'].includes(pathname)) return null;
 
   const isHome = pathname === '/dashboard';
   const isProfile = pathname === '/profile';
   const isDiscover = pathname === '/discover';
   const isFeed = pathname === '/feed';
+  const isPeople = pathname === '/people';
 
   return (
     <nav
@@ -52,10 +53,10 @@ export default function BottomNav() {
         <span className={clsx('w-1 h-1 rounded-full', isFeed ? 'bg-brand' : 'bg-transparent')} />
       </button>
 
-      <button onClick={() => window.dispatchEvent(new CustomEvent('open-contacts'))} aria-label="People"
-        className="flex flex-col items-center justify-center gap-1 w-12 min-h-[44px] py-1 text-muted">
+      <button onClick={() => navigate('/people')} aria-label="People" aria-current={isPeople ? 'page' : undefined}
+        className={clsx('flex flex-col items-center justify-center gap-1 w-12 min-h-[44px] py-1', isPeople ? 'text-brand' : 'text-muted')}>
         <Users size={22} aria-hidden="true" />
-        <span className="w-1 h-1 rounded-full bg-transparent" />
+        <span className={clsx('w-1 h-1 rounded-full', isPeople ? 'bg-brand' : 'bg-transparent')} />
       </button>
 
       <button onClick={() => navigate('/discover')} aria-label="Discover" aria-current={isDiscover ? 'page' : undefined}
