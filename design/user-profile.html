@@ -1,0 +1,60 @@
+<!-- @dsCard group="Gathering — Screens (v3)" name="Profile view + Match" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gathering — Profile view</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #08000c; padding: 28px; font-family: 'Space Grotesk', system-ui, sans-serif; }
+  .phone { width: 360px; height: 740px; border-radius: 36px; overflow: hidden; position: relative; background: #0d0010; border: 1px solid #330060; box-shadow: 0 24px 80px rgba(0,0,0,0.6); color: #fff; display: flex; flex-direction: column; }
+  .avatar { border-radius: 20px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .grad { background: linear-gradient(135deg, #e879f9, #a855f7); }
+  .sub { color: #9b7abd; }
+  .card { background: #1c0333; border: 1px solid #330060; border-radius: 16px; }
+  .lbl { font-size:10px;font-weight:700;letter-spacing:1.6px;color:#7c6690; }
+  .bar { height:6px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden; }
+  .fill { height:100%;border-radius:999px;background:linear-gradient(90deg,#e879f9,#a855f7); }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div style="flex-shrink:0;height:50px;border-bottom:1px solid #330060;display:flex;align-items:center;gap:10px;padding:0 14px;"><span class="sub" style="font-size:18px;">‹</span><span style="font-size:14px;font-weight:700;">Profile</span></div>
+
+  <div style="flex:1;overflow-y:auto;min-height:0;">
+    <div style="height:100px;background:linear-gradient(135deg,rgba(96,165,250,0.4),#2a1030,rgba(168,85,247,0.4));"></div>
+    <div style="display:flex;flex-direction:column;align-items:center;margin-top:-40px;">
+      <div class="avatar" style="width:82px;height:82px;background:linear-gradient(135deg,#f472b6,#7c3aed);font-size:32px;border:3px solid #0d0010;">M</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:8px;"><span style="font-size:18px;font-weight:800;">Meera S.</span><span style="color:#a855f7;">✔</span></div>
+      <div class="sub" style="font-size:13px;">@meeras</div>
+      <div style="font-size:12px;color:#d8c7e8;text-align:center;padding:6px 30px 0;">Product designer · loves mountains 🏔️</div>
+    </div>
+
+    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px;">
+      <div style="display:flex;gap:10px;">
+        <div style="flex:1;text-align:center;padding:11px;border-radius:14px;background:linear-gradient(135deg,#e879f9,#a855f7);font-weight:700;font-size:13px;">⚡ Poke</div>
+        <div style="flex:1;text-align:center;padding:11px;border-radius:14px;background:rgba(232,121,249,0.14);border:1px solid rgba(232,121,249,0.3);color:#e879f9;font-weight:700;font-size:13px;">💬 Message</div>
+      </div>
+
+      <!-- Match card -->
+      <div class="card" style="padding:16px;">
+        <div class="lbl" style="margin-bottom:12px;">MATCH WITH YOU</div>
+        <div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:13px;">❤️ Relationship Match</span><span style="font-size:13px;font-weight:700;color:#e879f9;">92%</span></div><div class="bar"><div class="fill" style="width:92%;"></div></div><div class="sub" style="font-size:10px;margin-top:2px;">Similar lifestyle · You both love 🏔️ Travel</div></div>
+        <div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:13px;">💼 Job Match</span><span style="font-size:13px;font-weight:700;color:#e879f9;">88%</span></div><div class="bar"><div class="fill" style="width:88%;"></div></div><div class="sub" style="font-size:10px;margin-top:2px;">Overlapping skills · Similar experience</div></div>
+        <div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:13px;">🤝 Business Match</span><span style="font-size:13px;font-weight:700;color:#e879f9;">94%</span></div><div class="bar"><div class="fill" style="width:94%;"></div></div><div class="sub" style="font-size:10px;margin-top:2px;">They bring Design & Illustration</div></div>
+        <div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:13px;">🎓 Mentor Match</span><span style="font-size:13px;font-weight:700;color:#e879f9;">81%</span></div><div class="bar"><div class="fill" style="width:81%;"></div></div><div class="sub" style="font-size:10px;margin-top:2px;">3 more years of experience</div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:13px;">👥 Friendship Match</span><span style="font-size:13px;font-weight:700;color:#e879f9;">89%</span></div><div class="bar"><div class="fill" style="width:89%;"></div></div><div class="sub" style="font-size:10px;margin-top:2px;">Shared: AI, Photography · Both in Dubai</div></div>
+      </div>
+
+      <!-- Work -->
+      <div class="card" style="padding:16px;">
+        <div class="lbl" style="margin-bottom:10px;">WORK</div>
+        <div style="display:flex;gap:10px;"><span style="color:#e879f9;">💼</span><div><div style="font-size:13px;font-weight:600;">Product Designer <span class="sub" style="font-weight:400;">· Nova Labs</span></div><div class="sub" style="font-size:11px;">Jan 2022 – Present</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

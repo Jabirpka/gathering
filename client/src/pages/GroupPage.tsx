@@ -22,14 +22,14 @@ function MemberRow({ member, currentUserId, groupId }: { member: GroupMember; cu
   const roleColors: Record<string, string> = {
     OWNER: 'bg-amber-500/15 text-amber-300',
     ADMIN: 'bg-blue-500/15 text-blue-300',
-    MEMBER: 'bg-white/10 text-slate-300',
+    MEMBER: 'bg-line/10 text-ink-soft',
   };
 
   const handlePoke = async () => {
     setPoking(true);
     try {
       await usersApi.poke(member.userId);
-      toast.success(`Poked ${member.user.name}! 👉`, { icon: '⚡' });
+      toast.success(`Knocked ${member.user.name}! 👋`, { icon: '⚡' });
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Failed to poke');
     } finally {
@@ -57,18 +57,18 @@ function MemberRow({ member, currentUserId, groupId }: { member: GroupMember; cu
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-white truncate">{member.user.name}</p>
+          <p className="text-sm font-medium text-ink truncate">{member.user.name}</p>
         </div>
       </div>
       <span className={`badge text-[10px] ${roleColors[member.role]}`}>{member.role}</span>
       {member.userId !== currentUserId && (
         <>
           <button onClick={handleMessage} title="Message"
-            className="p-2 rounded-lg hover:bg-brand-dim text-slate-500 hover:text-brand transition-colors active:scale-90">
+            className="p-2 rounded-lg hover:bg-brand-dim text-muted hover:text-brand transition-colors active:scale-90">
             <MessageSquare size={14} />
           </button>
-          <button onClick={handlePoke} disabled={poking} title="Poke"
-            className="p-2 rounded-lg hover:bg-amber-500/15 text-slate-500 hover:text-amber-300 transition-colors disabled:opacity-50 active:scale-90">
+          <button onClick={handlePoke} disabled={poking} title="Knock"
+            className="p-2 rounded-lg hover:bg-amber-500/15 text-muted hover:text-amber-300 transition-colors disabled:opacity-50 active:scale-90">
             <Zap size={14} />
           </button>
         </>
@@ -186,11 +186,11 @@ export default function GroupPage() {
   if (loading || !activeGroup) {
     return (
       <div className="h-full flex flex-col">
-        <div className="h-14 shrink-0 border-b border-white/10 glass-panel flex items-center px-3 gap-2 animate-pulse">
-          <div className="w-9 h-9 rounded-xl bg-white/5" />
+        <div className="h-14 shrink-0 border-b border-line/10 glass-panel flex items-center px-3 gap-2 animate-pulse">
+          <div className="w-9 h-9 rounded-xl bg-line/5" />
           <div className="flex-1 space-y-1.5">
-            <div className="h-3.5 bg-white/5 rounded w-32" />
-            <div className="h-2.5 bg-white/5 rounded w-20" />
+            <div className="h-3.5 bg-line/5 rounded w-32" />
+            <div className="h-2.5 bg-line/5 rounded w-20" />
           </div>
         </div>
         <div className="flex-1" />
@@ -207,7 +207,7 @@ export default function GroupPage() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* Compact chat header */}
-      <div className="h-14 shrink-0 border-b border-white/10 glass-panel flex items-center px-2 sm:px-3 gap-1.5 sm:gap-2">
+      <div className="h-14 shrink-0 border-b border-line/10 glass-panel flex items-center px-2 sm:px-3 gap-1.5 sm:gap-2">
         <button onClick={() => navigate('/dashboard')} className="btn-ghost p-1.5" title="Back">
           <ArrowLeft size={18} />
         </button>
@@ -218,7 +218,7 @@ export default function GroupPage() {
             {activeGroup.avatar ? (
               <img src={activeGroup.avatar} className="w-full h-full object-cover" alt={activeGroup.name} />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-accent to-brand flex items-center justify-center text-sm font-bold text-white">
+              <div className="w-full h-full bg-gradient-to-br from-accent to-brand flex items-center justify-center text-sm font-bold text-ink">
                 {activeGroup.name[0]}
               </div>
             )}
@@ -226,7 +226,7 @@ export default function GroupPage() {
           {isOwnerOrAdmin && (
             <button onClick={() => avatarRef.current?.click()}
               className="absolute inset-0 rounded-xl bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-              {uploadingAvatar ? <Loader2 size={13} className="animate-spin text-white" /> : <Camera size={13} className="text-white" />}
+              {uploadingAvatar ? <Loader2 size={13} className="animate-spin text-ink" /> : <Camera size={13} className="text-ink" />}
             </button>
           )}
           <input ref={avatarRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
@@ -234,7 +234,7 @@ export default function GroupPage() {
 
         {/* Tappable title → toggles the member panel */}
         <button onClick={() => setShowMembers((v) => !v)} className="flex-1 min-w-0 text-left">
-          <p className="text-sm font-semibold text-white truncate">{activeGroup.name}</p>
+          <p className="text-sm font-semibold text-ink truncate">{activeGroup.name}</p>
           <p className="text-[11px] text-brand flex items-center gap-1">
             {approvedMembers.length} member{approvedMembers.length !== 1 ? 's' : ''}
             {showMembers ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
@@ -244,7 +244,7 @@ export default function GroupPage() {
         {/* Search */}
         <button
           onClick={() => setChatSearchOpen((v) => !v)}
-          className={clsx('p-2 rounded-lg transition-colors shrink-0', chatSearchOpen ? 'bg-brand-dim text-brand' : 'text-slate-500 hover:text-slate-200')}
+          className={clsx('p-2 rounded-lg transition-colors shrink-0', chatSearchOpen ? 'bg-brand-dim text-brand' : 'text-muted hover:text-ink')}
           title="Search messages"
         >
           <Search size={16} />
@@ -253,7 +253,7 @@ export default function GroupPage() {
         {/* Quiz leaderboard */}
         <button
           onClick={() => setShowLeaderboard(true)}
-          className="p-2 rounded-lg text-slate-500 hover:text-amber-300 transition-colors shrink-0"
+          className="p-2 rounded-lg text-muted hover:text-amber-300 transition-colors shrink-0"
           title="Quiz leaderboard"
         >
           <Trophy size={16} />
@@ -279,18 +279,18 @@ export default function GroupPage() {
               <div className="fixed inset-0 z-10" onClick={() => setShowOwnerMenu(false)} />
               <div className="absolute right-0 top-11 z-20 w-52 card shadow-xl overflow-hidden py-1">
                 <button onClick={() => { setShowOwnerMenu(false); copyCode(); }}
-                  className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-slate-200 hover:bg-white/10 transition-colors text-left">
+                  className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-ink hover:bg-line/10 transition-colors text-left">
                   {copied ? <Check size={14} /> : <Copy size={14} />} Copy invite code
                 </button>
                 <button onClick={() => { setShowOwnerMenu(false); handleShare(); }}
-                  className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-slate-200 hover:bg-white/10 transition-colors text-left">
+                  className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-ink hover:bg-line/10 transition-colors text-left">
                   <Share2 size={14} /> Share invite
                 </button>
-                <div className="my-1 border-t border-white/10" />
+                <div className="my-1 border-t border-line/10" />
                 {isOwner ? (
                   <>
                     <button onClick={() => { setShowOwnerMenu(false); setShowTransfer(true); }}
-                      className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-slate-200 hover:bg-white/10 transition-colors text-left">
+                      className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-ink hover:bg-line/10 transition-colors text-left">
                       <Crown size={14} /> Transfer ownership
                     </button>
                     <button onClick={() => { setShowOwnerMenu(false); setShowDelete(true); }}
@@ -312,27 +312,27 @@ export default function GroupPage() {
 
       {/* Members panel — slides in from the header title */}
       {showMembers && (
-        <div className="shrink-0 max-h-[45%] overflow-y-auto glass-panel border-b border-white/10 animate-slide-up">
+        <div className="shrink-0 max-h-[45%] overflow-y-auto glass-panel border-b border-line/10 animate-slide-up">
           {isOwnerOrAdmin && pendingCount > 0 && (
             <button onClick={() => setShowApproval(true)}
-              className="w-full flex items-center gap-3 px-4 py-3 border-b border-white/10 hover:bg-white/5 transition-colors text-left">
+              className="w-full flex items-center gap-3 px-4 py-3 border-b border-line/10 hover:bg-line/5 transition-colors text-left">
               <div className="w-9 h-9 rounded-xl bg-amber-500/15 flex items-center justify-center shrink-0">
                 <UserCheck size={16} className="text-amber-300" />
               </div>
-              <p className="text-sm text-slate-200 flex-1">
+              <p className="text-sm text-ink flex-1">
                 <span className="font-semibold text-amber-300">{pendingCount}</span> pending request{pendingCount !== 1 ? 's' : ''}
               </p>
-              <span className="text-xs text-slate-400">Review →</span>
+              <span className="text-xs text-muted">Review →</span>
             </button>
           )}
-          <p className="px-4 pt-3 pb-1 text-[10px] font-semibold tracking-[0.2em] text-slate-500">MEMBERS</p>
-          <div className="px-4 pb-1 divide-y divide-white/5">
+          <p className="px-4 pt-3 pb-1 text-[10px] font-semibold tracking-[0.2em] text-muted">MEMBERS</p>
+          <div className="px-4 pb-1 divide-y divide-line/5">
             {approvedMembers.map((member) => (
               <MemberRow key={member.id} member={member} currentUserId={user?.id} groupId={activeGroup.id} />
             ))}
           </div>
           <button onClick={handleShare}
-            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-left">
+            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-line/5 transition-colors text-left">
             <div className="w-9 h-9 rounded-xl bg-brand-dim border border-dashed border-brand/60 flex items-center justify-center shrink-0">
               <UserPlus size={16} className="text-brand" />
             </div>

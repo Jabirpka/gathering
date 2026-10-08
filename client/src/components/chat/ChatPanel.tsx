@@ -160,16 +160,16 @@ export default function ChatPanel({ groupId, roomId, bordered = true, hideHeader
     : messages.filter((m) => !m.roomId);
 
   return (
-    <div className={clsx('flex flex-col h-full', bordered ? 'glass-panel border-l border-white/10' : 'bg-transparent')}>
+    <div className={clsx('flex flex-col h-full', bordered ? 'glass-panel border-l border-line/10' : 'bg-transparent')}>
       {/* Header (hidden when a parent screen provides its own) */}
       {!hideHeader && (
-        <div className="px-4 py-3 border-b border-white/10 flex items-center gap-2 shrink-0">
-          <MessageSquare size={15} className="text-slate-400" />
-          <span className="text-sm font-medium text-slate-200 flex-1">Chat</span>
+        <div className="px-4 py-3 border-b border-line/10 flex items-center gap-2 shrink-0">
+          <MessageSquare size={15} className="text-muted" />
+          <span className="text-sm font-medium text-ink flex-1">Chat</span>
           {!roomId && (
             <button
               onClick={() => setSearchOpen(!searchOpen)}
-              className={`p-1.5 rounded-lg transition-colors ${searchOpen ? 'bg-brand-dim text-brand' : 'text-slate-500 hover:text-slate-200'}`}
+              className={`p-1.5 rounded-lg transition-colors ${searchOpen ? 'bg-brand-dim text-brand' : 'text-muted hover:text-ink'}`}
               title="Search messages"
             >
               <Search size={14} />
@@ -180,10 +180,10 @@ export default function ChatPanel({ groupId, roomId, bordered = true, hideHeader
 
       {/* Search */}
       {searchOpen && (
-        <div className="px-3 py-2 border-b border-white/10 shrink-0 space-y-2">
+        <div className="px-3 py-2 border-b border-line/10 shrink-0 space-y-2">
           <input
             className="input text-sm"
-            placeholder="Search messages…"
+            aria-label="Search messages" placeholder="Search messages…"
             value={searchQuery}
             onChange={(e) => runSearch(e.target.value)}
             autoFocus
@@ -191,12 +191,12 @@ export default function ChatPanel({ groupId, roomId, bordered = true, hideHeader
           {searchQuery.trim() && (
             <div className="max-h-48 overflow-y-auto space-y-1">
               {searchResults.length === 0 ? (
-                <p className="text-xs text-slate-500 text-center py-2">No matches</p>
+                <p className="text-xs text-muted text-center py-2">No matches</p>
               ) : (
                 searchResults.map((m) => (
                   <div key={m.id} className="px-2.5 py-1.5 rounded-lg bg-surface-2 text-xs">
                     <span className="font-semibold text-brand mr-1.5">{m.user.name.split(' ')[0]}</span>
-                    <span className="text-slate-200">{m.content}</span>
+                    <span className="text-ink">{m.content}</span>
                   </div>
                 ))
               )}
@@ -210,7 +210,7 @@ export default function ChatPanel({ groupId, roomId, bordered = true, hideHeader
         {roomMessages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center pt-8">
             <MessageSquare size={28} className="text-slate-600 mb-2" />
-            <p className="text-slate-400 text-sm">No messages yet.<br />Say hello!</p>
+            <p className="text-muted text-sm">No messages yet.<br />Say hello!</p>
           </div>
         )}
         {roomMessages.map((msg) => {
@@ -253,7 +253,7 @@ export default function ChatPanel({ groupId, roomId, bordered = true, hideHeader
               <p className="text-[11px] font-semibold text-brand">
                 Replying to {replyingTo.userId === user?.id ? 'yourself' : replyingTo.user.name}
               </p>
-              <p className="text-xs text-slate-400 truncate">
+              <p className="text-xs text-muted truncate">
                 {replyingTo.kind === 'VOICE' ? '🎤 Voice message' : replyingTo.content}
               </p>
             </div>
@@ -263,29 +263,29 @@ export default function ChatPanel({ groupId, roomId, bordered = true, hideHeader
       )}
 
       {/* Input */}
-      <div className="p-3 border-t border-white/10 shrink-0">
+      <div className="p-3 border-t border-line/10 shrink-0">
         <div className="flex gap-2 items-end">
           {!roomId && (
             <div className="relative shrink-0">
               <button onClick={() => setAttachOpen((v) => !v)}
-                className="w-9 h-9 rounded-xl bg-surface-2 text-slate-300 hover:text-white flex items-center justify-center transition-colors"
+                className="w-9 h-9 rounded-xl bg-surface-2 text-ink-soft hover:text-ink flex items-center justify-center transition-colors"
                 title="Attach">
                 <Plus size={18} className={clsx('transition-transform', attachOpen && 'rotate-45')} />
               </button>
               {attachOpen && (
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setAttachOpen(false)} />
-                  <div className="absolute bottom-11 left-0 w-44 glass-panel border border-white/10 rounded-xl p-1 shadow-2xl z-20">
+                  <div className="absolute bottom-11 left-0 w-44 glass-panel border border-line/10 rounded-xl p-1 shadow-2xl z-20">
                     <button onClick={() => { setAttachOpen(false); setShowPoll(true); }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-white">
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-line/5 text-sm text-ink">
                       <BarChart3 size={15} className="text-brand" /> Poll
                     </button>
                     <button onClick={() => { setAttachOpen(false); setShowEvent(true); }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-white">
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-line/5 text-sm text-ink">
                       <CalendarPlus size={15} className="text-brand" /> Event
                     </button>
                     <button onClick={() => { setAttachOpen(false); setShowQuiz(true); }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-white">
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-line/5 text-sm text-ink">
                       <HelpCircle size={15} className="text-brand" /> Quiz
                     </button>
                   </div>
@@ -295,7 +295,7 @@ export default function ChatPanel({ groupId, roomId, bordered = true, hideHeader
           )}
           <textarea
             className="input resize-none text-sm min-h-[38px] max-h-24"
-            placeholder="Message…"
+            aria-label="Message" placeholder="Message…"
             value={input}
             onChange={(e) => { setInput(e.target.value); handleTyping(); }}
             onKeyDown={handleKeyDown}
@@ -306,7 +306,7 @@ export default function ChatPanel({ groupId, roomId, bordered = true, hideHeader
               onClick={send}
               className="w-9 h-9 rounded-xl bg-brand hover:bg-brand-light flex items-center justify-center transition-colors shrink-0"
             >
-              <Send size={15} className="text-white" />
+              <Send size={15} className="text-ink" />
             </button>
           ) : (
             <VoiceRecorderButton onSend={sendVoice} />

@@ -117,31 +117,31 @@ export default function ContactsSheet() {
             className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setOpen(false)} />
           <motion.div initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.94 }}
             transition={{ type: 'spring', damping: 26, stiffness: 340 }}
-            className="relative w-full max-w-sm glass-panel border border-white/10 rounded-2xl p-5 shadow-2xl max-h-[80vh] overflow-y-auto">
-            <h2 className="text-base font-bold text-white mb-4 flex items-center gap-2"><Users size={16} className="text-brand" /> People</h2>
+            className="relative w-full max-w-sm glass-panel border border-line/10 rounded-2xl p-5 shadow-2xl max-h-[80vh] overflow-y-auto">
+            <h2 className="text-base font-bold text-ink mb-4 flex items-center gap-2"><Users size={16} className="text-brand" /> People</h2>
 
             {loading ? (
               <div className="flex items-center justify-center py-8"><Loader2 size={22} className="animate-spin text-brand" /></div>
             ) : message ? (
-              <p className="text-sm text-slate-400 text-center py-6">{message}</p>
+              <p className="text-sm text-muted text-center py-6">{message}</p>
             ) : (
               <>
                 {registered.length > 0 && (
                   <>
-                    <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500 mb-2">ON GATHERING</p>
+                    <p className="text-[10px] font-bold tracking-[0.18em] text-muted mb-2">ON GATHERING</p>
                     <div className="space-y-1 mb-4">
                       {registered.map((u) => (
-                        <div key={u.id} className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-white/5 transition-colors">
+                        <div key={u.id} className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-line/5 transition-colors">
                           {u.avatar ? (
                             <img src={u.avatar} className="w-10 h-10 rounded-xl object-cover shrink-0" alt="" />
                           ) : (
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-brand flex items-center justify-center text-sm font-bold text-white shrink-0">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-brand flex items-center justify-center text-sm font-bold text-ink shrink-0">
                               {(u.nickname || u.name)[0]?.toUpperCase()}
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-white truncate">{u.nickname || u.name}</p>
-                            {u.username && <p className="text-xs text-slate-400 truncate">@{u.username}</p>}
+                            <p className="text-sm font-semibold text-ink truncate">{u.nickname || u.name}</p>
+                            {u.username && <p className="text-xs text-muted truncate">@{u.username}</p>}
                           </div>
                           <button onClick={() => startDm(u.id)} title="Message"
                             className="w-9 h-9 rounded-full bg-brand-dim text-brand hover:bg-brand hover:text-white flex items-center justify-center transition-colors">
@@ -155,16 +155,16 @@ export default function ContactsSheet() {
 
                 {invitees.length > 0 && (
                   <>
-                    <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500 mb-2">INVITE TO GATHERING</p>
+                    <p className="text-[10px] font-bold tracking-[0.18em] text-muted mb-2">INVITE TO GATHERING</p>
                     <div className="space-y-1">
                       {invitees.slice(0, 50).map((c, i) => (
-                        <div key={c.phone + i} className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-white/5 transition-colors">
-                          <div className="w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center text-sm font-bold text-slate-400 shrink-0">
+                        <div key={c.phone + i} className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-line/5 transition-colors">
+                          <div className="w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center text-sm font-bold text-muted shrink-0">
                             {c.name[0]?.toUpperCase()}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-slate-200 truncate">{c.name}</p>
-                            <p className="text-xs text-slate-500 truncate">{c.phone}</p>
+                            <p className="text-sm font-medium text-ink truncate">{c.name}</p>
+                            <p className="text-xs text-muted truncate">{c.phone}</p>
                           </div>
                           <button onClick={() => invite(c.phone)}
                             className="flex items-center gap-1.5 text-xs font-semibold text-brand bg-brand-dim border border-brand/30 rounded-lg px-3 py-1.5 active:scale-95 transition-transform">

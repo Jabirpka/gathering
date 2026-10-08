@@ -51,14 +51,14 @@ export default function EventCard({ message, isOwn }: { message: Message; isOwn:
     <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
       <div className="w-full max-w-[85%] rounded-2xl border border-brand/25 bg-surface-2 overflow-hidden">
         {/* date chip header */}
-        <div className="flex items-center gap-3 p-3.5 border-b border-white/10">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-brand to-accent flex flex-col items-center justify-center text-white shrink-0 leading-none">
+        <div className="flex items-center gap-3 p-3.5 border-b border-line/10">
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-brand to-accent flex flex-col items-center justify-center text-ink shrink-0 leading-none">
             <span className="text-[9px] font-bold uppercase">{when.toLocaleString([], { month: 'short' })}</span>
             <span className="text-base font-bold">{when.getDate()}</span>
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-bold text-white truncate">{ev.name}</p>
-            <p className="text-xs text-slate-400">
+            <p className="text-sm font-bold text-ink truncate">{ev.name}</p>
+            <p className="text-xs text-muted">
               {when.toLocaleString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' })}
               {ev.endsAt && ` – ${new Date(ev.endsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
             </p>
@@ -66,13 +66,13 @@ export default function EventCard({ message, isOwn }: { message: Message; isOwn:
         </div>
 
         <div className="p-3.5 space-y-2.5">
-          {ev.description && <p className="text-sm text-slate-300">{ev.description}</p>}
+          {ev.description && <p className="text-sm text-ink-soft">{ev.description}</p>}
           {ev.location && (
-            <div className="flex items-center gap-2 text-xs text-slate-400">
+            <div className="flex items-center gap-2 text-xs text-muted">
               <MapPin size={13} className="text-brand shrink-0" /> {ev.location}
             </div>
           )}
-          <div className="flex items-center gap-2 text-xs text-slate-400">
+          <div className="flex items-center gap-2 text-xs text-muted">
             <Calendar size={13} className="text-brand shrink-0" />
             {ev.goingCount} going{ev.rsvps.MAYBE.length > 0 ? ` · ${ev.rsvps.MAYBE.length} maybe` : ''}
           </div>
@@ -84,7 +84,7 @@ export default function EventCard({ message, isOwn }: { message: Message; isOwn:
               return (
                 <button key={key} onClick={() => rsvp(key)}
                   className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-colors ${
-                    active ? 'bg-gradient-to-br from-brand to-accent text-white' : 'bg-white/5 text-slate-300 hover:bg-white/10'
+                    active ? 'bg-gradient-to-br from-brand to-accent text-white' : 'bg-line/5 text-ink-soft hover:bg-line/10'
                   }`}>
                   <Icon size={13} /> {label}
                 </button>
@@ -93,9 +93,9 @@ export default function EventCard({ message, isOwn }: { message: Message; isOwn:
           </div>
 
           {ev.allowGuests && ev.myRsvp?.status === 'GOING' && (
-            <button onClick={toggleGuest} className="flex items-center gap-2 text-xs text-slate-300 pt-1">
-              <span className={`w-4 h-4 rounded border flex items-center justify-center ${ev.myRsvp.plusGuest ? 'bg-brand border-brand' : 'border-white/30'}`}>
-                {ev.myRsvp.plusGuest && <Check size={11} className="text-white" />}
+            <button onClick={toggleGuest} className="flex items-center gap-2 text-xs text-ink-soft pt-1">
+              <span className={`w-4 h-4 rounded border flex items-center justify-center ${ev.myRsvp.plusGuest ? 'bg-brand border-brand' : 'border-line/30'}`}>
+                {ev.myRsvp.plusGuest && <Check size={11} className="text-ink" />}
               </span>
               Bringing a guest
             </button>

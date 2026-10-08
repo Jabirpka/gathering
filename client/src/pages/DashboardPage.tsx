@@ -9,6 +9,7 @@ import { Group, DmThread } from '../types';
 import { profileCompletion, nextProfilePrompt } from '../utils/profile';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
+import StatusStrip from '../components/status/StatusStrip';
 
 /** WhatsApp-style timestamp: clock time today, short date otherwise. */
 function chatTime(iso: string) {
@@ -18,32 +19,41 @@ function chatTime(iso: string) {
 
 /** Flat conversation row (dark neon): rounded-square gradient avatar.
  *  onAvatarClick (DMs) opens the other person's profile instead of the chat. */
-function Row({ name, avatar, gradient, preview, time, unread, onClick, onAvatarClick }: {
-  name: string; avatar?: string | null; gradient: boolean; preview: string; time: string; unread: number; onClick: () => void; onAvatarClick?: () => void;
+function Row({ name, avatar, gradient, preview, time, unread, match, onClick, onAvatarClick }: {
+  name: string; avatar?: string | null; gradient: boolean; preview: string; time: string; unread: number; match?: number; onClick: () => void; onAvatarClick?: () => void;
 }) {
   return (
     <motion.div whileTap={{ scale: 0.98 }} onClick={onClick}
-      className="px-2 py-2.5 rounded-2xl cursor-pointer hover:bg-white/5 transition-colors flex items-center gap-3">
-      <div
-        onClick={onAvatarClick ? (e) => { e.stopPropagation(); onAvatarClick(); } : undefined}
-        className={clsx('w-12 h-12 rounded-2xl overflow-hidden shrink-0', onAvatarClick && 'cursor-pointer')}
-      >
-        {avatar ? (
-          <img src={avatar} className="w-full h-full object-cover" alt={name} />
-        ) : (
-          <div className={clsx('w-full h-full flex items-center justify-center text-lg font-bold text-white',
-            gradient ? 'bg-gradient-to-br from-brand to-accent' : 'bg-brand-dim !text-brand')}>
-            {name[0].toUpperCase()}
-          </div>
+      className="px-2 py-2.5 rounded-2xl cursor-pointer hover:bg-line/5 transition-colors flex items-center gap-3">
+      <div className="relative shrink-0">
+        <div
+          onClick={onAvatarClick ? (e) => { e.stopPropagation(); onAvatarClick(); } : undefined}
+          className={clsx('w-12 h-12 rounded-2xl overflow-hidden', onAvatarClick && 'cursor-pointer')}
+        >
+          {avatar ? (
+            <img src={avatar} className="w-full h-full object-cover" alt={name} />
+          ) : (
+            <div className={clsx('w-full h-full flex items-center justify-center text-lg font-bold text-ink',
+              gradient ? 'bg-gradient-to-br from-brand to-accent' : 'bg-brand-dim !text-brand')}>
+              {name[0].toUpperCase()}
+            </div>
+          )}
+        </div>
+        {/* "Match with you" — shown on DM rows, bottom-left of the avatar. */}
+        {typeof match === 'number' && (
+          <span className="absolute -bottom-1 -left-1 px-1.5 h-[18px] rounded-full bg-gradient-to-br from-brand to-accent text-white text-[10px] font-bold flex items-center justify-center leading-none shadow-md shadow-brand/40 ring-2 ring-[color:var(--bg)]"
+            title={`${match}% match with you`}>
+            {match}%
+          </span>
         )}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline justify-between gap-2">
-          <h3 className="font-semibold text-white text-sm truncate">{name}</h3>
-          <span className={clsx('text-[11px] shrink-0', unread > 0 ? 'text-brand font-semibold' : 'text-slate-500')}>{time}</span>
+          <h3 className="font-semibold text-ink text-sm truncate">{name}</h3>
+          <span className={clsx('text-[11px] shrink-0', unread > 0 ? 'text-brand font-semibold' : 'text-muted')}>{time}</span>
         </div>
         <div className="flex items-center justify-between gap-2 mt-0.5">
-          <p className={clsx('text-xs truncate', unread > 0 ? 'text-slate-200 font-medium' : 'text-slate-400')}>{preview}</p>
+          <p className={clsx('text-xs truncate', unread > 0 ? 'text-ink font-medium' : 'text-muted')}>{preview}</p>
           {unread > 0 && (
             <span className="min-w-[18px] h-[18px] px-1 rounded-lg bg-brand text-white text-[10px] font-bold flex items-center justify-center shrink-0">
               {unread > 99 ? '99+' : unread}
@@ -74,7 +84,7 @@ function DmRow({ thread, onClick, onAvatarClick }: { thread: DmThread; onClick: 
   return (
     <Row name={name} avatar={thread.partner.avatar} gradient={false}
       preview={last ? `${last.userId === myId ? 'You: ' : ''}${last.content}` : 'New conversation'}
-      time={last ? chatTime(last.createdAt) : ''} unread={unread} onClick={onClick} onAvatarClick={onAvatarClick} />
+      time={last ? chatTime(last.createdAt) : ''} unread={unread} match={thread.matchPercent} onClick={onClick} onAvatarClick={onAvatarClick} />
   );
 }
 
@@ -107,27 +117,30 @@ export default function DashboardPage() {
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto animate-fade-in pb-28">
       {/* Greeting (the GATHERING wordmark lives in the top bar now) */}
-      <h1 className="text-lg font-bold text-white mb-3">Hey, {firstName} <span className="text-brand">✦</span></h1>
+      <h1 className="text-lg font-bold text-ink mb-3">Hey, {firstName} <span className="text-brand">✦</span></h1>
+
+      {/* Stories — moved here from the bottom nav, where people expect them. */}
+      <StatusStrip />
 
       {/* Complete-your-profile nudge (shown until the profile is 100% done) */}
       {completion < 100 && !hideNudge && (
         <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
           className="relative mb-4 rounded-2xl border border-brand/30 bg-gradient-to-br from-brand/15 to-accent/10 p-3.5">
-          <button onClick={() => setHideNudge(true)} className="absolute top-2 right-2 text-slate-400 hover:text-white" aria-label="Dismiss">
+          <button onClick={() => setHideNudge(true)} className="absolute top-2 right-2 text-muted hover:text-ink" aria-label="Dismiss">
             <X size={14} />
           </button>
           <button onClick={() => navigate('/profile')} className="w-full flex items-center gap-3 text-left pr-5">
             <div className="relative w-11 h-11 shrink-0">
               <svg viewBox="0 0 36 36" className="w-11 h-11 -rotate-90">
                 <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="3" />
-                <circle cx="18" cy="18" r="15" fill="none" stroke="#e879f9" strokeWidth="3" strokeLinecap="round"
+                <circle cx="18" cy="18" r="15" fill="none" stroke="#FF6B5E" strokeWidth="3" strokeLinecap="round"
                   strokeDasharray={`${(completion / 100) * 94.2} 94.2`} />
               </svg>
-              <span className="absolute inset-0 flex items-center justify-center text-[11px] font-bold text-white">{completion}%</span>
+              <span className="absolute inset-0 flex items-center justify-center text-[11px] font-bold text-ink">{completion}%</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-white">Complete your profile</p>
-              <p className="text-xs text-slate-300">{nextPrompt ? `Next: ${nextPrompt.toLowerCase()} →` : 'Answer a few questions so people get to know you.'}</p>
+              <p className="text-sm font-semibold text-ink">Complete your profile</p>
+              <p className="text-xs text-ink-soft">{nextPrompt ? `Next: ${nextPrompt.toLowerCase()} →` : 'Answer a few questions so people get to know you.'}</p>
             </div>
             <ChevronRight size={18} className="text-brand shrink-0" />
           </button>
@@ -136,25 +149,25 @@ export default function DashboardPage() {
 
       {/* Group / DM segmented filter */}
       <div className="flex gap-1 p-1 rounded-2xl glass mb-4">
-        {([['group', 'Groups'], ['dm', 'DMs']] as const).map(([key, label]) => (
+        {([['group', 'Circles'], ['dm', 'DMs']] as const).map(([key, label]) => (
           <button key={key} onClick={() => setFilter(key)}
             className={clsx('flex-1 py-1.5 rounded-xl text-sm font-medium transition-all',
-              filter === key ? 'bg-gradient-to-br from-brand to-accent text-white shadow-lg shadow-brand/30' : 'text-slate-400 hover:text-white')}>
+              filter === key ? 'bg-gradient-to-br from-brand to-accent text-white shadow-lg shadow-brand/30' : 'text-muted hover:text-ink')}>
             {label}
           </button>
         ))}
       </div>
 
-      <h2 className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] mb-1.5 px-2">Chats</h2>
+      <h2 className="text-[11px] font-semibold text-muted uppercase tracking-[0.15em] mb-1.5 px-2">Chats</h2>
 
       {loading ? (
         <div className="space-y-1">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="px-2 py-2.5 flex items-center gap-3 animate-pulse">
-              <div className="w-12 h-12 rounded-2xl bg-white/5 shrink-0" />
+              <div className="w-12 h-12 rounded-2xl bg-line/5 shrink-0" />
               <div className="flex-1">
-                <div className="h-3.5 bg-white/5 rounded w-1/3 mb-2" />
-                <div className="h-3 bg-white/5 rounded w-2/3" />
+                <div className="h-3.5 bg-line/5 rounded w-1/3 mb-2" />
+                <div className="h-3 bg-line/5 rounded w-2/3" />
               </div>
             </div>
           ))}
@@ -162,8 +175,8 @@ export default function DashboardPage() {
       ) : chatItems.length === 0 ? (
         <div className="card p-10 text-center mt-2">
           <Users size={36} className="text-slate-600 mx-auto mb-3" />
-          <p className="text-slate-200 font-medium mb-1">No chats yet</p>
-          <p className="text-slate-400 text-sm mb-4">Create a group or join one with a code.</p>
+          <p className="text-ink font-medium mb-1">No chats yet</p>
+          <p className="text-muted text-sm mb-4">Create a group or join one with a code.</p>
           <button onClick={() => openSheet('create')} className="btn-primary mx-auto">
             <Plus size={15} />Create group
           </button>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
 import { App as CapApp } from '@capacitor/app';
@@ -11,22 +11,35 @@ import { getSocket } from './hooks/useSocket';
 import { usePushNotifications } from './hooks/usePushNotifications';
 import { useNotificationStore } from './store/notificationStore';
 import { CallRing } from './types';
-import LandingPage from './pages/LandingPage';
-import DashboardPage from './pages/DashboardPage';
-import FeedPage from './pages/FeedPage';
-import GroupPage from './pages/GroupPage';
-import RoomPage from './pages/RoomPage';
-import DmPage from './pages/DmPage';
-import DmCallPage from './pages/DmCallPage';
-import ProfilePage from './pages/ProfilePage';
-import UserProfilePage from './pages/UserProfilePage';
-import DiscoverPage from './pages/DiscoverPage';
-import ProfileSetup from './pages/ProfileSetup';
-import AuthCallback from './pages/AuthCallback';
 import Layout from './components/layout/Layout';
 import CallRingNotification from './components/call/CallRingNotification';
-import CallManager from './components/call/CallManager';
 import toast from 'react-hot-toast';
+
+// Route pages are code-split so each loads on demand instead of bloating the
+// first paint. CallManager pulls in the heavy LiveKit SDK, so it is split too
+// and only mounted while a call is active (see below).
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const FeedPage = lazy(() => import('./pages/FeedPage'));
+const GroupPage = lazy(() => import('./pages/GroupPage'));
+const RoomPage = lazy(() => import('./pages/RoomPage'));
+const DmPage = lazy(() => import('./pages/DmPage'));
+const DmCallPage = lazy(() => import('./pages/DmCallPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
+const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
+const ProfileSetup = lazy(() => import('./pages/ProfileSetup'));
+const AuthCallback = lazy(() => import('./pages/AuthCallback'));
+const CallManager = lazy(() => import('./components/call/CallManager'));
+
+/** Full-screen fallback while a lazily-loaded page chunk is fetched. */
+function PageLoader() {
+  return (
+    <div className="h-full flex items-center justify-center">
+      <div className="w-10 h-10 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+    </div>
+  );
+}
 
 function AppRoutes() {
   useSocket();
@@ -38,19 +51,29 @@ function AppRoutes() {
   const addNotification = useNotificationStore((s) => s.addNotification);
   const [incomingCall, setIncomingCall] = useState<CallRing | null>(null);
   const leaveCall = useCallStore((s) => s.leaveCall);
+  // Only mount CallManager (and pull in the LiveKit chunk) while a call is live.
+  const activeCall = useCallStore((s) => s.call);
 
   // Clear any active call when the user logs out
   useEffect(() => {
     if (!user) leaveCall();
   }, [user, leaveCall]);
 
-  // Make the Android status bar a solid, matching bar that sits ABOVE the
-  // WebView (no overlay), so there's no large empty gap under the notch.
+  // Keep the Android status bar in sync with the active theme: cream bar +
+  // dark icons in Warm Dawn (light), warm-charcoal bar + light icons in Dusk
+  // (dark). Re-runs whenever the theme is toggled (themechange event).
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
-    StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {});
-    StatusBar.setBackgroundColor({ color: '#0d0010' }).catch(() => {});
-    StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
+    const sync = () => {
+      const dark = (document.documentElement.getAttribute('data-theme') || 'light') === 'dark';
+      StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {});
+      StatusBar.setBackgroundColor({ color: dark ? '#1b1714' : '#FBF7F2' }).catch(() => {});
+      // Style.Dark = light icons (for a dark bar); Style.Light = dark icons.
+      StatusBar.setStyle({ style: dark ? Style.Dark : Style.Light }).catch(() => {});
+    };
+    sync();
+    window.addEventListener('themechange', sync);
+    return () => window.removeEventListener('themechange', sync);
   }, []);
 
   // Track the current path in a ref so the back-button handler below can be
@@ -147,7 +170,7 @@ function AppRoutes() {
       <div className="h-full flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 rounded-full border-2 border-brand border-t-transparent animate-spin" />
-          <p className="text-slate-400 text-sm">Loading…</p>
+          <p className="text-muted text-sm">Loading…</p>
         </div>
       </div>
     );
@@ -156,7 +179,12 @@ function AppRoutes() {
   return (
     <>
       <CallRingNotification ring={incomingCall} onDismiss={() => setIncomingCall(null)} />
-      {user && <CallManager />}
+      {user && activeCall && (
+        <Suspense fallback={null}>
+          <CallManager />
+        </Suspense>
+      )}
+      <Suspense fallback={<PageLoader />}>
       <Routes>
         <Route path="/" element={user ? <Navigate to={user.onboarded === false ? '/setup' : '/dashboard'} replace /> : <LandingPage />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
@@ -183,6 +211,7 @@ function AppRoutes() {
           <Route path="*" element={<Navigate to="/" replace />} />
         )}
       </Routes>
+      </Suspense>
     </>
   );
 }

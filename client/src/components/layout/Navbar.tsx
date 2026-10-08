@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Video, Bell, Plus } from 'lucide-react';
+import { Video, Bell, Plus, Sun, Moon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useNotificationStore } from '../../store/notificationStore';
 import NotificationPanel from '../notifications/NotificationPanel';
+import { currentTheme, toggleTheme } from '../../lib/theme';
 
 export default function Navbar() {
   const { unreadCount } = useNotificationStore();
   const [showNotifs, setShowNotifs] = useState(false);
+  const [theme, setThemeState] = useState(currentTheme());
 
   // The bottom-bar bell (if any) can open this panel via a window event.
   useEffect(() => {
@@ -17,25 +19,34 @@ export default function Navbar() {
 
   return (
     <header
-      className="border-b border-white/10 glass-panel flex items-center px-4 gap-3 shrink-0 z-20 h-14"
+      className="border-b border-line/10 glass-panel flex items-center px-4 gap-3 shrink-0 z-20 h-14"
     >
       <Link to="/dashboard" className="flex items-center gap-2.5">
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand to-accent flex items-center justify-center shrink-0">
           <Video size={15} className="text-white" />
         </div>
-        <div className="leading-none">
-          <div className="text-base font-extrabold tracking-wide text-white leading-none">GATHERING</div>
-          <div className="text-[9px] font-semibold tracking-[0.22em] text-brand/70 mt-0.5">YOUR PEOPLE</div>
+        <div className="leading-none font-display">
+          <div className="text-base font-extrabold tracking-wide text-ink leading-none">GATHERING</div>
+          <div className="text-[9px] font-semibold tracking-[0.22em] text-brand/80 mt-0.5">YOUR PEOPLE</div>
         </div>
       </Link>
 
       <div className="flex-1" />
 
+      {/* Light / dark toggle (Warm Dawn ↔ Dusk) */}
+      <button
+        onClick={() => setThemeState(toggleTheme())}
+        className="btn-ghost p-2"
+        aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+      >
+        {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+      </button>
+
       {/* Join / create a group */}
       <button
         onClick={() => window.dispatchEvent(new CustomEvent('open-group-sheet'))}
         className="btn-ghost p-2"
-        aria-label="Join or create a group"
+        aria-label="Join or create a Circle"
       >
         <Plus size={17} />
       </button>

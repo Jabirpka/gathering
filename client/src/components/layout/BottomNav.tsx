@@ -28,14 +28,16 @@ export default function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-30 glass-panel border-t border-white/10 flex items-center justify-around px-2"
+      className="fixed bottom-0 inset-x-0 z-30 glass-panel border-t border-line/10 flex items-center justify-around px-2"
       style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0.5rem)', paddingTop: '0.5rem' }}
     >
       <button
         onClick={() => navigate('/dashboard')}
-        className={clsx('relative flex flex-col items-center gap-1 w-12 py-1', isHome ? 'text-brand' : 'text-slate-400')}
+        aria-label={totalUnread > 0 ? `Chats, ${totalUnread} unread` : 'Chats'}
+        aria-current={isHome ? 'page' : undefined}
+        className={clsx('relative flex flex-col items-center justify-center gap-1 w-12 min-h-[44px] py-1', isHome ? 'text-brand' : 'text-muted')}
       >
-        <MessageSquare size={22} />
+        <MessageSquare size={22} aria-hidden="true" />
         <span className={clsx('w-1 h-1 rounded-full', isHome ? 'bg-brand' : 'bg-transparent')} />
         {totalUnread > 0 && (
           <span className="absolute top-0 right-2 min-w-[16px] h-4 px-1 rounded-full bg-brand text-white text-[9px] font-bold flex items-center justify-center">
@@ -44,43 +46,34 @@ export default function BottomNav() {
         )}
       </button>
 
-      <button onClick={() => navigate('/feed')}
-        className={clsx('flex flex-col items-center gap-1 w-12 py-1', isFeed ? 'text-brand' : 'text-slate-400')} title="Feed">
-        <Newspaper size={22} />
+      <button onClick={() => navigate('/feed')} aria-label="Digest" aria-current={isFeed ? 'page' : undefined}
+        className={clsx('flex flex-col items-center justify-center gap-1 w-12 min-h-[44px] py-1', isFeed ? 'text-brand' : 'text-muted')}>
+        <Newspaper size={22} aria-hidden="true" />
         <span className={clsx('w-1 h-1 rounded-full', isFeed ? 'bg-brand' : 'bg-transparent')} />
       </button>
 
-      <button onClick={() => window.dispatchEvent(new CustomEvent('open-contacts'))}
-        className="flex flex-col items-center gap-1 w-12 py-1 text-slate-400" title="People">
-        <Users size={22} />
+      <button onClick={() => window.dispatchEvent(new CustomEvent('open-contacts'))} aria-label="People"
+        className="flex flex-col items-center justify-center gap-1 w-12 min-h-[44px] py-1 text-muted">
+        <Users size={22} aria-hidden="true" />
         <span className="w-1 h-1 rounded-full bg-transparent" />
       </button>
 
-      <button onClick={() => navigate('/discover')}
-        className={clsx('flex flex-col items-center gap-1 w-12 py-1', isDiscover ? 'text-brand' : 'text-slate-400')} title="Discover">
-        <Compass size={22} />
+      <button onClick={() => navigate('/discover')} aria-label="Discover" aria-current={isDiscover ? 'page' : undefined}
+        className={clsx('flex flex-col items-center justify-center gap-1 w-12 min-h-[44px] py-1', isDiscover ? 'text-brand' : 'text-muted')}>
+        <Compass size={22} aria-hidden="true" />
         <span className={clsx('w-1 h-1 rounded-full', isDiscover ? 'bg-brand' : 'bg-transparent')} />
       </button>
 
       <button
-        onClick={() => window.dispatchEvent(new CustomEvent('open-status'))}
-        className="flex flex-col items-center gap-1 w-12 py-1 text-slate-400"
-        title="Status"
-      >
-        <div className="w-[22px] h-[22px] rounded-full border-2 border-dashed border-slate-400 flex items-center justify-center">
-          <User size={11} />
-        </div>
-        <span className="w-1 h-1 rounded-full bg-transparent" />
-      </button>
-
-      <button
         onClick={() => navigate('/profile')}
-        className={clsx('flex flex-col items-center gap-1 w-12 py-1', isProfile ? 'text-brand' : 'text-slate-400')}
+        aria-label="Profile"
+        aria-current={isProfile ? 'page' : undefined}
+        className={clsx('flex flex-col items-center justify-center gap-1 w-12 min-h-[44px] py-1', isProfile ? 'text-brand' : 'text-muted')}
       >
         {user?.avatar ? (
           <img src={user.avatar} className={clsx('w-6 h-6 rounded-lg object-cover', isProfile && 'ring-2 ring-brand')} alt="" />
         ) : (
-          <User size={22} />
+          <User size={22} aria-hidden="true" />
         )}
         <span className={clsx('w-1 h-1 rounded-full', isProfile ? 'bg-brand' : 'bg-transparent')} />
       </button>

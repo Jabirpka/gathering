@@ -45,9 +45,9 @@ function CommentsSheet({ post, onClose, onCount }: { post: FeedPost; onClose: ()
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
       <motion.div initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 80, opacity: 0 }}
-        className="relative w-full sm:max-w-md glass-panel border-t sm:border border-white/10 rounded-t-[24px] sm:rounded-2xl max-h-[75vh] flex flex-col">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
-          <span className="text-sm font-semibold text-white">
+        className="relative w-full sm:max-w-md glass-panel border-t sm:border border-line/10 rounded-t-[24px] sm:rounded-2xl max-h-[75vh] flex flex-col">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-line/10 shrink-0">
+          <span className="text-sm font-semibold text-ink">
             {post.kind === 'QUESTION' ? 'Answers' : 'Comments'}
           </span>
           <button onClick={onClose} className="btn-ghost p-1.5"><X size={15} /></button>
@@ -56,7 +56,7 @@ function CommentsSheet({ post, onClose, onCount }: { post: FeedPost; onClose: ()
           {!comments ? (
             <div className="flex justify-center py-6"><Loader2 size={18} className="animate-spin text-brand" /></div>
           ) : comments.length === 0 ? (
-            <p className="text-xs text-slate-500 text-center py-6">
+            <p className="text-xs text-muted text-center py-6">
               {post.kind === 'QUESTION' ? 'No answers yet — be the first!' : 'No comments yet.'}
             </p>
           ) : (
@@ -70,21 +70,21 @@ function CommentsSheet({ post, onClose, onCount }: { post: FeedPost; onClose: ()
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="text-[11px] text-slate-400">
-                    <span className="font-semibold text-slate-200">{c.user.nickname || c.user.name}</span> · {postAge(c.createdAt)}
+                  <p className="text-[11px] text-muted">
+                    <span className="font-semibold text-ink">{c.user.nickname || c.user.name}</span> · {postAge(c.createdAt)}
                   </p>
-                  <p className="text-sm text-slate-200 whitespace-pre-wrap break-words">{c.content}</p>
+                  <p className="text-sm text-ink whitespace-pre-wrap break-words">{c.content}</p>
                 </div>
               </div>
             ))
           )}
         </div>
-        <div className="p-3 border-t border-white/10 shrink-0 flex gap-2 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
-          <input className="input flex-1 text-sm" placeholder={post.kind === 'QUESTION' ? 'Write an answer…' : 'Write a comment…'}
+        <div className="p-3 border-t border-line/10 shrink-0 flex gap-2 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+          <input aria-label="Write a comment" className="input flex-1 text-sm" placeholder={post.kind === 'QUESTION' ? 'Write an answer…' : 'Write a comment…'}
             value={text} onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') send(); }} maxLength={500} />
           <button onClick={send} disabled={sending || !text.trim()}
-            className="w-10 h-10 rounded-xl bg-brand disabled:opacity-50 flex items-center justify-center text-white shrink-0">
+            className="w-10 h-10 rounded-xl bg-brand disabled:opacity-50 flex items-center justify-center text-ink shrink-0">
             <Send size={15} />
           </button>
         </div>
@@ -164,18 +164,18 @@ export default function PostCard({ post, myId, onDeleted }: { post: FeedPost; my
           {p.user.avatar ? (
             <img src={p.user.avatar} className="w-9 h-9 rounded-xl object-cover" alt={authorName} />
           ) : (
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-brand flex items-center justify-center text-sm font-bold text-white">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-brand flex items-center justify-center text-sm font-bold text-ink">
               {authorName[0]?.toUpperCase()}
             </div>
           )}
         </button>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-white truncate">{authorName}</p>
-          <p className="text-[11px] text-slate-500">{def.emoji} {def.label} · {postAge(p.createdAt)}</p>
+          <p className="text-sm font-semibold text-ink truncate">{authorName}</p>
+          <p className="text-[11px] text-muted">{def.emoji} {def.label} · {postAge(p.createdAt)}</p>
         </div>
         <span className="text-[10px] font-semibold text-brand bg-brand-dim px-2 py-1 rounded-lg shrink-0">{p.category}</span>
         {isOwn && (
-          <button onClick={remove} className="btn-ghost p-1.5 text-slate-500 hover:text-red-400 shrink-0" title="Delete">
+          <button onClick={remove} className="btn-ghost p-1.5 text-muted hover:text-red-400 shrink-0" title="Delete">
             <Trash2 size={14} />
           </button>
         )}
@@ -190,9 +190,9 @@ export default function PostCard({ post, myId, onDeleted }: { post: FeedPost; my
             {p.kind === 'JOB_FIND' ? '💼 Hiring' : '🔍 Looking for work'}
           </span>
         )}
-        {p.title && <p className="text-[15px] font-bold text-white leading-snug">{p.title}</p>}
+        {p.title && <p className="text-[15px] font-bold text-ink leading-snug">{p.title}</p>}
         {p.content && (
-          <p className={`text-sm text-slate-200 whitespace-pre-wrap break-words ${!expanded && longText ? 'line-clamp-5' : ''}`}>
+          <p className={`text-sm text-ink whitespace-pre-wrap break-words ${!expanded && longText ? 'line-clamp-5' : ''}`}>
             {p.content}
           </p>
         )}
@@ -204,7 +204,7 @@ export default function PostCard({ post, myId, onDeleted }: { post: FeedPost; my
 
         {/* Event details */}
         {p.kind === 'EVENT' && (p.extra?.when || p.extra?.location) && (
-          <div className="space-y-1 text-xs text-slate-300">
+          <div className="space-y-1 text-xs text-ink-soft">
             {p.extra?.when && (
               <p className="flex items-center gap-1.5"><Calendar size={12} className="text-brand" />
                 {new Date(p.extra.when).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
@@ -224,10 +224,10 @@ export default function PostCard({ post, myId, onDeleted }: { post: FeedPost; my
                 return (
                   <button key={i} onClick={() => vote(i)}
                     className={`flex flex-col items-center gap-0.5 py-2 rounded-xl text-xs font-semibold transition-colors ${
-                      active ? 'bg-gradient-to-br from-brand to-accent text-white' : 'bg-white/5 text-slate-300 hover:bg-white/10'
+                      active ? 'bg-gradient-to-br from-brand to-accent text-white' : 'bg-line/5 text-ink-soft hover:bg-line/10'
                     }`}>
                     <span className="flex items-center gap-1"><Icon size={13} /> {label}</span>
-                    {n > 0 && <span className={`text-[10px] ${active ? 'text-white/80' : 'text-slate-500'}`}>{n}</span>}
+                    {n > 0 && <span className={`text-[10px] ${active ? 'text-ink/80' : 'text-muted'}`}>{n}</span>}
                   </button>
                 );
               })}
@@ -240,7 +240,7 @@ export default function PostCard({ post, myId, onDeleted }: { post: FeedPost; my
           <div className="flex flex-wrap gap-1.5">
             {['company', 'location', 'salary', 'experience'].map((k) =>
               p.extra?.[k] ? (
-                <span key={k} className="text-[11px] text-slate-300 bg-white/5 border border-white/10 rounded-lg px-2 py-0.5">{p.extra[k]}</span>
+                <span key={k} className="text-[11px] text-ink-soft bg-line/5 border border-line/10 rounded-lg px-2 py-0.5">{p.extra[k]}</span>
               ) : null
             )}
           </div>
@@ -255,19 +255,19 @@ export default function PostCard({ post, myId, onDeleted }: { post: FeedPost; my
               const mine = p.myVote === i;
               return (
                 <button key={i} onClick={() => vote(i)}
-                  className="relative w-full text-left rounded-xl overflow-hidden border border-white/10">
+                  className="relative w-full text-left rounded-xl overflow-hidden border border-line/10">
                   <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-brand/30 to-accent/20 transition-all duration-300" style={{ width: `${pct}%` }} />
                   <div className="relative flex items-center gap-2 px-3 py-2">
-                    <span className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${mine ? 'bg-brand border-brand' : 'border-white/30'}`}>
-                      {mine && <Check size={11} className="text-white" />}
+                    <span className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${mine ? 'bg-brand border-brand' : 'border-line/30'}`}>
+                      {mine && <Check size={11} className="text-ink" />}
                     </span>
-                    <span className="flex-1 text-sm text-white truncate">{opt}</span>
-                    <span className="text-xs text-slate-400 tabular-nums shrink-0">{n}</span>
+                    <span className="flex-1 text-sm text-ink truncate">{opt}</span>
+                    <span className="text-xs text-muted tabular-nums shrink-0">{n}</span>
                   </div>
                 </button>
               );
             })}
-            <p className="text-[11px] text-slate-500">{totalVotes} vote{totalVotes !== 1 ? 's' : ''}</p>
+            <p className="text-[11px] text-muted">{totalVotes} vote{totalVotes !== 1 ? 's' : ''}</p>
           </div>
         )}
       </div>
@@ -280,17 +280,17 @@ export default function PostCard({ post, myId, onDeleted }: { post: FeedPost; my
       {/* Footer */}
       <div className="flex items-center gap-1 px-2 py-1.5">
         <button onClick={like}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm transition-colors ${p.likedByMe ? 'text-brand' : 'text-slate-400 hover:text-white'}`}>
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm transition-colors ${p.likedByMe ? 'text-brand' : 'text-muted hover:text-ink'}`}>
           <Heart size={17} fill={p.likedByMe ? 'currentColor' : 'none'} />
           <span className="tabular-nums">{p.likeCount > 0 ? p.likeCount : ''}</span>
         </button>
         <button onClick={() => setShowComments(true)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:text-white transition-colors">
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-muted hover:text-ink transition-colors">
           <MessageCircle size={17} />
           <span className="tabular-nums">{p.commentCount > 0 ? p.commentCount : ''}</span>
         </button>
         <button onClick={() => setShowShare(true)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:text-white transition-colors" title="Share">
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-muted hover:text-ink transition-colors" title="Share">
           <Share2 size={17} />
         </button>
         <div className="flex-1" />

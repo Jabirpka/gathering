@@ -16,7 +16,7 @@ import {
 function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
   return (
     <button type="button" onClick={() => onChange(!on)}
-      className={clsx('w-11 h-6 rounded-full relative transition-colors shrink-0', on ? 'bg-brand' : 'bg-white/15')}>
+      className={clsx('w-11 h-6 rounded-full relative transition-colors shrink-0', on ? 'bg-brand' : 'bg-line/15')}>
       <span className={clsx('absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all', on ? 'left-[22px]' : 'left-0.5')} />
     </button>
   );
@@ -26,8 +26,8 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
 function FieldInput({ field, value, onChange }: { field: FieldDef; value: any; onChange: (v: any) => void }) {
   return (
     <div>
-      <label className="text-xs font-medium text-slate-400 mb-1.5 block">
-        {field.label} {field.optional && <span className="text-slate-500">(optional)</span>}
+      <label className="text-xs font-medium text-muted mb-1.5 block">
+        {field.label} {field.optional && <span className="text-muted">(optional)</span>}
       </label>
       {field.type === 'select' ? (
         <select className="input" value={value ?? ''} onChange={(e) => onChange(e.target.value)}>
@@ -54,23 +54,23 @@ function InterestList({ value, onChange }: { value: string[]; onChange: (v: stri
   return (
     <div>
       <div className="relative mb-2">
-        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-        <input className="input pl-8 text-sm" placeholder="Search interests…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+        <input className="input pl-8 text-sm" aria-label="Search interests" placeholder="Search interests…" value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
-      <div className="max-h-64 overflow-y-auto rounded-xl border border-white/10 divide-y divide-white/5">
+      <div className="max-h-64 overflow-y-auto rounded-xl border border-line/10 divide-y divide-line/5">
         {list.map((opt) => {
           const on = value.includes(opt);
           return (
             <button key={opt} type="button" onClick={() => toggle(opt)}
-              className={clsx('w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-colors', on ? 'bg-brand/10' : 'hover:bg-white/5')}>
-              <span className={clsx('w-5 h-5 rounded-md border flex items-center justify-center shrink-0', on ? 'bg-brand border-brand' : 'border-white/25')}>
-                {on && <Check size={12} className="text-white" />}
+              className={clsx('w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-colors', on ? 'bg-brand/10' : 'hover:bg-line/5')}>
+              <span className={clsx('w-5 h-5 rounded-md border flex items-center justify-center shrink-0', on ? 'bg-brand border-brand' : 'border-line/25')}>
+                {on && <Check size={12} className="text-ink" />}
               </span>
-              <span className="text-sm text-slate-200">{opt}</span>
+              <span className="text-sm text-ink">{opt}</span>
             </button>
           );
         })}
-        {list.length === 0 && <p className="text-xs text-slate-500 text-center py-4">No matches</p>}
+        {list.length === 0 && <p className="text-xs text-muted text-center py-4">No matches</p>}
       </div>
     </div>
   );
@@ -88,10 +88,10 @@ function SkillsEditor({ skills, onChange }: { skills: SkillEntry[]; onChange: (v
   return (
     <div className="space-y-2">
       {skills.map((s, i) => (
-        <div key={i} className="rounded-xl bg-surface-2 border border-white/10 p-2.5 space-y-2">
+        <div key={i} className="rounded-xl bg-surface-2 border border-line/10 p-2.5 space-y-2">
           <div className="flex items-center gap-2">
-            <span className="flex-1 text-sm font-semibold text-white">{s.name}</span>
-            <button onClick={() => onChange(skills.filter((_, idx) => idx !== i))} className="btn-ghost p-1 text-slate-500 hover:text-red-400"><Trash2 size={13} /></button>
+            <span className="flex-1 text-sm font-semibold text-ink">{s.name}</span>
+            <button onClick={() => onChange(skills.filter((_, idx) => idx !== i))} className="btn-ghost p-1 text-muted hover:text-red-400"><Trash2 size={13} /></button>
           </div>
           <div className="flex gap-2">
             <select className="input flex-1 text-sm" value={s.level} onChange={(e) => update(i, { level: e.target.value })}>
@@ -111,7 +111,7 @@ function SkillsEditor({ skills, onChange }: { skills: SkillEntry[]; onChange: (v
       <div className="flex flex-wrap gap-1.5">
         {SKILL_SUGGESTIONS.filter((s) => !skills.some((k) => k.name === s)).slice(0, 8).map((s) => (
           <button key={s} type="button" onClick={() => add(s)}
-            className="px-2.5 py-1 rounded-full text-[11px] bg-surface-2 border border-white/10 text-slate-400">+ {s}</button>
+            className="px-2.5 py-1 rounded-full text-[11px] bg-surface-2 border border-line/10 text-muted">+ {s}</button>
         ))}
       </div>
     </div>
@@ -124,38 +124,38 @@ function WorkEditor({ work, hire, onWork, onHire }: { work: WorkEntry[]; hire: b
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-sm text-white">Available for hire</span>
+        <span className="text-sm text-ink">Available for hire</span>
         <Toggle on={hire} onChange={onHire} />
       </div>
       {work.map((w, i) => (
-        <div key={i} className="rounded-xl bg-surface-2 border border-white/10 p-3 space-y-2.5">
+        <div key={i} className="rounded-xl bg-surface-2 border border-line/10 p-3 space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold uppercase tracking-wider text-brand">Experience {i + 1}</span>
-            <button onClick={() => onWork(work.filter((_, idx) => idx !== i))} className="btn-ghost p-1 text-slate-500 hover:text-red-400"><Trash2 size={13} /></button>
+            <button onClick={() => onWork(work.filter((_, idx) => idx !== i))} className="btn-ghost p-1 text-muted hover:text-red-400"><Trash2 size={13} /></button>
           </div>
           <input className="input text-sm" placeholder="Designation (e.g. Welder)" value={w.designation ?? ''} onChange={(e) => update(i, { designation: e.target.value })} maxLength={80} />
           <input className="input text-sm" placeholder="Company" value={w.company ?? ''} onChange={(e) => update(i, { company: e.target.value })} maxLength={80} />
           <div className="flex gap-2">
             <div className="flex-1">
-              <label className="text-[10px] text-slate-500 mb-1 block">Joining date</label>
+              <label className="text-[10px] text-muted mb-1 block">Joining date</label>
               <input type="month" className="input text-sm" value={w.joinDate ?? ''} onChange={(e) => update(i, { joinDate: e.target.value })} />
             </div>
             <div className="flex-1">
-              <label className="text-[10px] text-slate-500 mb-1 block">{w.current ? 'Still working' : 'Last date'}</label>
+              <label className="text-[10px] text-muted mb-1 block">{w.current ? 'Still working' : 'Last date'}</label>
               <input type="month" className="input text-sm disabled:opacity-40" disabled={w.current} value={w.current ? '' : (w.endDate ?? '')} onChange={(e) => update(i, { endDate: e.target.value })} />
             </div>
           </div>
           <button type="button" onClick={() => update(i, { current: !w.current, endDate: w.current ? w.endDate : '' })}
-            className="flex items-center gap-2 text-xs text-slate-300">
-            <span className={clsx('w-4 h-4 rounded border flex items-center justify-center', w.current ? 'bg-brand border-brand' : 'border-white/30')}>
-              {w.current && <Check size={11} className="text-white" />}
+            className="flex items-center gap-2 text-xs text-ink-soft">
+            <span className={clsx('w-4 h-4 rounded border flex items-center justify-center', w.current ? 'bg-brand border-brand' : 'border-line/30')}>
+              {w.current && <Check size={11} className="text-ink" />}
             </span>
             I currently work here
           </button>
         </div>
       ))}
       <button type="button" onClick={() => onWork([...work, { designation: '', company: '', joinDate: '', current: false }])}
-        className="w-full input flex items-center justify-center gap-2 text-slate-400 hover:border-brand/50">
+        className="w-full input flex items-center justify-center gap-2 text-muted hover:border-brand/50">
         <Plus size={15} /> Add work experience
       </button>
     </div>
@@ -169,10 +169,10 @@ function EducationEditor({ items, onChange }: { items: EducationEntry[]; onChang
   return (
     <div className="space-y-3">
       {items.map((e, i) => (
-        <div key={i} className="rounded-xl bg-surface-2 border border-white/10 p-3 space-y-2.5">
+        <div key={i} className="rounded-xl bg-surface-2 border border-line/10 p-3 space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold uppercase tracking-wider text-brand">Education {i + 1}</span>
-            <button onClick={() => onChange(items.filter((_, idx) => idx !== i))} className="btn-ghost p-1 text-slate-500 hover:text-red-400"><Trash2 size={13} /></button>
+            <button onClick={() => onChange(items.filter((_, idx) => idx !== i))} className="btn-ghost p-1 text-muted hover:text-red-400"><Trash2 size={13} /></button>
           </div>
           <select className="input text-sm" value={e.level ?? ''} onChange={(ev) => update(i, { level: ev.target.value })}>
             <option value="">Choose level…</option>
@@ -181,16 +181,16 @@ function EducationEditor({ items, onChange }: { items: EducationEntry[]; onChang
           <input className="input text-sm" placeholder="Name of institution" value={e.institution ?? ''} onChange={(ev) => update(i, { institution: ev.target.value })} maxLength={100} />
           <div className="flex gap-2 items-end">
             <div className="flex-1">
-              <label className="text-[10px] text-slate-500 mb-1 block">{e.ongoing ? 'Still going' : 'Year of passout'}</label>
+              <label className="text-[10px] text-muted mb-1 block">{e.ongoing ? 'Still going' : 'Year of passout'}</label>
               <select className="input text-sm disabled:opacity-40" disabled={e.ongoing} value={e.ongoing ? '' : (e.endYear ?? '')} onChange={(ev) => update(i, { endYear: ev.target.value })}>
                 <option value="">Year…</option>
                 {years.map((y) => <option key={y} value={y}>{y}</option>)}
               </select>
             </div>
             <button type="button" onClick={() => update(i, { ongoing: !e.ongoing, endYear: e.ongoing ? e.endYear : '' })}
-              className="flex items-center gap-1.5 text-xs text-slate-300 pb-2.5">
-              <span className={clsx('w-4 h-4 rounded border flex items-center justify-center', e.ongoing ? 'bg-brand border-brand' : 'border-white/30')}>
-                {e.ongoing && <Check size={11} className="text-white" />}
+              className="flex items-center gap-1.5 text-xs text-ink-soft pb-2.5">
+              <span className={clsx('w-4 h-4 rounded border flex items-center justify-center', e.ongoing ? 'bg-brand border-brand' : 'border-line/30')}>
+                {e.ongoing && <Check size={11} className="text-ink" />}
               </span>
               Still going
             </button>
@@ -198,7 +198,7 @@ function EducationEditor({ items, onChange }: { items: EducationEntry[]; onChang
         </div>
       ))}
       <button type="button" onClick={() => onChange([...items, { level: '', institution: '', endYear: '', ongoing: false }])}
-        className="w-full input flex items-center justify-center gap-2 text-slate-400 hover:border-brand/50">
+        className="w-full input flex items-center justify-center gap-2 text-muted hover:border-brand/50">
         <Plus size={15} /> Add education
       </button>
     </div>
@@ -208,9 +208,9 @@ function EducationEditor({ items, onChange }: { items: EducationEntry[]; onChang
 function VerifyRow({ label, ok, hint }: { label: string; ok: boolean | null; hint: string }) {
   return (
     <div className="flex items-center gap-3 py-1.5">
-      {ok ? <BadgeCheck size={16} className="text-emerald-400 shrink-0" /> : <ShieldAlert size={16} className="text-slate-500 shrink-0" />}
-      <span className="flex-1 text-sm text-white">{label}</span>
-      <span className={clsx('text-xs', ok ? 'text-emerald-400' : 'text-slate-500')}>{ok ? 'Verified' : hint}</span>
+      {ok ? <BadgeCheck size={16} className="text-emerald-400 shrink-0" /> : <ShieldAlert size={16} className="text-muted shrink-0" />}
+      <span className="flex-1 text-sm text-ink">{label}</span>
+      <span className={clsx('text-xs', ok ? 'text-emerald-400' : 'text-muted')}>{ok ? 'Verified' : hint}</span>
     </div>
   );
 }
@@ -305,14 +305,14 @@ export default function ProfilePage() {
     return (
       <div key={section.id} className="card overflow-hidden mb-3">
         <button onClick={() => setOpenSection(open ? null : section.id)} className="w-full flex items-center gap-2 px-5 py-4 text-left">
-          <span className="text-sm font-bold text-white flex-1">{section.title}</span>
+          <span className="text-sm font-bold text-ink flex-1">{section.title}</span>
           <select value={privacyOf(section.id)} onChange={(e) => setPrivacy(section.id, e.target.value)} onClick={(e) => e.stopPropagation()}
-            className="appearance-none bg-surface-2 border border-white/10 rounded-lg text-[11px] text-slate-300 px-2 py-1 outline-none cursor-pointer">
+            className="appearance-none bg-surface-2 border border-line/10 rounded-lg text-[11px] text-ink-soft px-2 py-1 outline-none cursor-pointer">
             <option value="everyone">🌍 Everyone</option>
             <option value="groups">👥 My groups</option>
             <option value="me">🔒 Only me</option>
           </select>
-          {open ? <ChevronUp size={16} className="text-slate-400 shrink-0" /> : <ChevronDown size={16} className="text-slate-400 shrink-0" />}
+          {open ? <ChevronUp size={16} className="text-muted shrink-0" /> : <ChevronDown size={16} className="text-muted shrink-0" />}
         </button>
         {open && (
           <div className="px-5 pb-5 space-y-4">
@@ -336,21 +336,21 @@ export default function ProfilePage() {
     <div className="p-6 pt-0 max-w-lg mx-auto animate-fade-in pb-28">
       {/* Banner — full-bleed */}
       <div className="relative -mx-6">
-        <div className="h-36 overflow-hidden border-b border-white/10">
+        <div className="h-36 overflow-hidden border-b border-line/10">
           {banner ? (
             <img src={banner} alt="Banner" className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-brand/40 via-surface-2 to-accent/30 flex items-center justify-center">
-              <span className="text-xs text-slate-400">Add a banner image</span>
+              <span className="text-xs text-muted">Add a banner image</span>
             </div>
           )}
         </div>
         <div className="absolute top-2 right-3 flex gap-1.5">
-          <button onClick={() => bannerRef.current?.click()} className="w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-white" title={banner ? 'Change banner' : 'Add banner'}>
+          <button onClick={() => bannerRef.current?.click()} className="w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-ink" title={banner ? 'Change banner' : 'Add banner'}>
             <Camera size={14} />
           </button>
           {banner && (
-            <button onClick={() => setBanner(null)} className="w-8 h-8 rounded-full bg-black/60 hover:bg-red-500/80 flex items-center justify-center text-white" title="Remove banner">
+            <button onClick={() => setBanner(null)} className="w-8 h-8 rounded-full bg-black/60 hover:bg-red-500/80 flex items-center justify-center text-ink" title="Remove banner">
               <X size={14} />
             </button>
           )}
@@ -365,34 +365,34 @@ export default function ProfilePage() {
             {avatar ? (
               <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-accent to-brand flex items-center justify-center text-3xl font-bold text-white">
+              <div className="w-full h-full bg-gradient-to-br from-accent to-brand flex items-center justify-center text-3xl font-bold text-ink">
                 {displayName[0]?.toUpperCase()}
               </div>
             )}
           </div>
           <button onClick={() => fileRef.current?.click()} className="absolute inset-0 rounded-3xl bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-            <Camera size={20} className="text-white" />
+            <Camera size={20} className="text-ink" />
           </button>
-          <button onClick={() => fileRef.current?.click()} className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-brand border-2 border-surface flex items-center justify-center text-white sm:hidden" title="Change photo">
+          <button onClick={() => fileRef.current?.click()} className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-brand border-2 border-surface flex items-center justify-center text-ink sm:hidden" title="Change photo">
             <Camera size={12} />
           </button>
         </div>
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => pickImage(e, 'avatar')} />
-        <p className="text-xs text-slate-400 mt-2">Tap photo to change</p>
+        <p className="text-xs text-muted mt-2">Tap photo to change</p>
 
         <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/15 border border-amber-200/60">
           <Zap size={13} className="text-amber-300" />
-          <span className="text-xs font-semibold text-amber-300">{user?.strikePoints ?? 0} strike point{(user?.strikePoints ?? 0) !== 1 ? 's' : ''}</span>
+          <span className="text-xs font-semibold text-amber-300">{user?.strikePoints ?? 0} spark{(user?.strikePoints ?? 0) !== 1 ? 's' : ''}</span>
         </motion.div>
       </div>
 
       {/* Completion */}
       <div className="card p-4 mb-4">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-sm font-semibold text-white">Profile {completion}% complete</p>
+          <p className="text-sm font-semibold text-ink">Profile {completion}% complete</p>
           {completion === 100 ? <span className="text-xs font-medium text-emerald-400">All done ✓</span> : <span className="text-xs text-brand">Fill in more below</span>}
         </div>
-        <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+        <div className="h-2 rounded-full bg-line/10 overflow-hidden">
           <div className="h-full rounded-full bg-gradient-to-r from-brand to-accent transition-all duration-300" style={{ width: `${completion}%` }} />
         </div>
       </div>
@@ -402,26 +402,26 @@ export default function ProfilePage() {
         <div className="card p-4 mb-4">
           <div className="flex items-center gap-2 mb-2">
             <Eye size={14} className="text-brand" />
-            <p className="text-sm font-semibold text-white flex-1">{views.total} profile view{views.total !== 1 ? 's' : ''} <span className="text-slate-500 text-xs font-normal">· 30 days</span></p>
+            <p className="text-sm font-semibold text-ink flex-1">{views.total} profile view{views.total !== 1 ? 's' : ''} <span className="text-muted text-xs font-normal">· 30 days</span></p>
           </div>
           <div className="flex items-center gap-1.5">
             {views.visitors.slice(0, 8).map((v) => (
               v.user.avatar ? (
                 <img key={v.user.id} src={v.user.avatar} className="w-8 h-8 rounded-xl object-cover" alt={v.user.name} title={v.user.nickname || v.user.name} />
               ) : (
-                <div key={v.user.id} title={v.user.nickname || v.user.name} className="w-8 h-8 rounded-xl bg-gradient-to-br from-accent to-brand flex items-center justify-center text-xs font-bold text-white">
+                <div key={v.user.id} title={v.user.nickname || v.user.name} className="w-8 h-8 rounded-xl bg-gradient-to-br from-accent to-brand flex items-center justify-center text-xs font-bold text-ink">
                   {(v.user.nickname || v.user.name)[0]?.toUpperCase()}
                 </div>
               )
             ))}
-            {views.visitors.length > 8 && <span className="text-xs text-slate-400 ml-1">+{views.visitors.length - 8}</span>}
+            {views.visitors.length > 8 && <span className="text-xs text-muted ml-1">+{views.visitors.length - 8}</span>}
           </div>
         </div>
       )}
 
       {/* Verification */}
       <div className="card p-5 mb-4">
-        <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500 mb-2">VERIFICATION</p>
+        <p className="text-[10px] font-bold tracking-[0.18em] text-muted mb-2">VERIFICATION</p>
         <VerifyRow label="Email" ok={!!user?.email} hint="Sign in with Google to verify" />
         <VerifyRow label="Mobile" ok={!!user?.phone} hint="Sign in with phone to verify" />
         <VerifyRow label="Face verification" ok={null} hint="Coming soon" />
@@ -430,32 +430,32 @@ export default function ProfilePage() {
 
       {/* Basic info */}
       <div className="card p-5 space-y-4 mb-4">
-        <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500">BASIC INFO</p>
+        <p className="text-[10px] font-bold tracking-[0.18em] text-muted">BASIC INFO</p>
         <div>
-          <label className="text-xs font-medium text-slate-400 mb-1.5 block">Full name</label>
+          <label className="text-xs font-medium text-muted mb-1.5 block">Full name</label>
           <input className="input" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} placeholder="Your full name" />
         </div>
         <div>
-          <label className="text-xs font-medium text-slate-400 mb-1.5 block">Display name / nickname</label>
+          <label className="text-xs font-medium text-muted mb-1.5 block">Display name / nickname</label>
           <input className="input" value={nickname} onChange={(e) => setNickname(e.target.value)} maxLength={30} placeholder="Shown in chats & pokes" />
         </div>
 
         {/* Username — mandatory, set once, never editable */}
         <div>
-          <label className="text-xs font-medium text-slate-400 mb-1.5 block">
-            Username <span className="text-brand">*</span> {!usernameLocked && <span className="text-slate-500">(permanent — can’t be changed later)</span>}
+          <label className="text-xs font-medium text-muted mb-1.5 block">
+            Username <span className="text-brand">*</span> {!usernameLocked && <span className="text-muted">(permanent — can’t be changed later)</span>}
           </label>
           {usernameLocked ? (
             <div className="input flex items-center gap-1.5 opacity-80">
-              <span className="text-slate-500">@</span>
-              <span className="flex-1 text-white">{username}</span>
-              <Lock size={13} className="text-slate-500" />
+              <span className="text-muted">@</span>
+              <span className="flex-1 text-ink">{username}</span>
+              <Lock size={13} className="text-muted" />
             </div>
           ) : (
             <>
               <div className="input flex items-center gap-1.5 focus-within:border-brand/70">
-                <span className="text-slate-500">@</span>
-                <input className="flex-1 bg-transparent outline-none text-white placeholder-slate-500" value={username}
+                <span className="text-muted">@</span>
+                <input className="flex-1 bg-transparent outline-none text-ink placeholder-muted" value={username}
                   onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9._]/g, '').slice(0, 24))} placeholder="username" />
                 <button onClick={genUsername} disabled={suggesting} className="flex items-center gap-1 text-[11px] font-semibold text-brand shrink-0">
                   {suggesting ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />} Generate
@@ -466,30 +466,30 @@ export default function ProfilePage() {
         </div>
 
         <div>
-          <label className="text-xs font-medium text-slate-400 mb-1.5 block">Gender</label>
+          <label className="text-xs font-medium text-muted mb-1.5 block">Gender</label>
           <select className="input" value={extra.gender ?? ''} onChange={(e) => setX('gender', e.target.value)}>
             <option value="">—</option>
             {GENDER_OPTIONS.map((g) => <option key={g} value={g}>{g}</option>)}
           </select>
         </div>
         <div>
-          <label className="text-xs font-medium text-slate-400 mb-1.5 block">Short bio</label>
+          <label className="text-xs font-medium text-muted mb-1.5 block">Short bio</label>
           <textarea className="input resize-none" rows={2} maxLength={160} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Just hanging out ✨" />
         </div>
         <div>
-          <label className="text-xs font-medium text-slate-400 mb-1.5 block">Date of birth {zodiac && <span className="text-brand ml-1">{zodiac}</span>}</label>
+          <label className="text-xs font-medium text-muted mb-1.5 block">Date of birth {zodiac && <span className="text-brand ml-1">{zodiac}</span>}</label>
           <input type="date" className="input" value={dateOfBirth ?? ''} onChange={(e) => setDateOfBirth(e.target.value)} />
         </div>
         <div>
-          <label className="text-xs font-medium text-slate-400 mb-1.5 block">City</label>
+          <label className="text-xs font-medium text-muted mb-1.5 block">City</label>
           <input className="input" value={city} onChange={(e) => setCity(e.target.value)} maxLength={60} placeholder="Where you're based" />
         </div>
       </div>
 
       {/* Interests — list style */}
       <div className="card p-5 mb-4">
-        <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500 mb-2">
-          INTERESTS <span className="text-slate-500 normal-case">({interests.length}/20)</span>
+        <p className="text-[10px] font-bold tracking-[0.18em] text-muted mb-2">
+          INTERESTS <span className="text-muted normal-case">({interests.length}/20)</span>
         </p>
         <InterestList value={interests} onChange={setInterests} />
       </div>
@@ -506,7 +506,7 @@ export default function ProfilePage() {
         <div className="w-9 h-9 rounded-xl bg-red-500/15 flex items-center justify-center">
           <LogOut size={16} className="text-red-400" />
         </div>
-        <span className="text-sm font-medium text-slate-200 group-hover:text-red-400 transition-colors">Sign out</span>
+        <span className="text-sm font-medium text-ink group-hover:text-red-400 transition-colors">Sign out</span>
       </button>
 
       {adjust && (

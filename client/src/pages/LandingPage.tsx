@@ -140,39 +140,39 @@ export default function LandingPage() {
         {/* Logo */}
         <div className="flex items-center justify-center gap-2.5 mb-5">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-brand flex items-center justify-center">
-            <Video size={18} className="text-white" />
+            <Video size={18} className="text-ink" />
           </div>
-          <span className="font-bold text-xl text-white tracking-tight">Gathering</span>
+          <span className="font-bold text-xl text-ink tracking-tight">Gathering</span>
         </div>
 
         {/* Hero */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold leading-[1.1] tracking-tight text-white">
+          <h1 className="text-4xl font-bold leading-[1.1] tracking-tight text-ink">
             Stay close.<br />
             <span className="bg-gradient-to-r from-brand to-accent bg-clip-text text-transparent">Anywhere.</span>
           </h1>
-          <p className="text-sm text-slate-400 mt-3">Your people. One place.</p>
+          <p className="text-sm text-muted mt-3">Your people. One place.</p>
         </div>
 
         {phase === 'phone' ? (
           /* Phone entry */
           <div className="space-y-2.5">
             <div className="relative">
-              <div className="flex items-stretch bg-surface-2 border border-white/10 rounded-2xl overflow-hidden focus-within:border-brand/60 transition-colors">
+              <div className="flex items-stretch bg-surface-2 border border-line/10 rounded-2xl overflow-hidden focus-within:border-brand/60 transition-colors">
                 <button
                   type="button"
                   onClick={() => setCountryOpen((o) => !o)}
-                  className="flex items-center gap-1 px-3 text-sm font-semibold text-brand border-r border-white/10 whitespace-nowrap select-none hover:bg-white/5 transition-colors"
+                  className="flex items-center gap-1 px-3 text-sm font-semibold text-brand border-r border-line/10 whitespace-nowrap select-none hover:bg-line/5 transition-colors"
                 >
                   <span className="text-base leading-none">{country.flag}</span>
                   {country.dial}
-                  <ChevronDown size={13} className="text-slate-400" />
+                  <ChevronDown size={13} className="text-muted" />
                 </button>
                 <input
                   type="tel" inputMode="tel" placeholder="Phone number" value={phone}
                   onChange={(e) => setPhone(e.target.value.replace(/[^\d\s]/g, '').slice(0, 14))}
                   onKeyDown={(e) => e.key === 'Enter' && requestOtp()}
-                  className="flex-1 bg-transparent outline-none px-3.5 py-3.5 text-sm text-white placeholder-slate-500"
+                  className="flex-1 bg-transparent outline-none px-3.5 py-3.5 text-sm text-ink placeholder-muted"
                 />
               </div>
 
@@ -182,23 +182,23 @@ export default function LandingPage() {
                   <div className="absolute z-20 mt-1.5 left-0 right-0 card p-1.5 shadow-2xl max-h-72 flex flex-col">
                     <input
                       autoFocus value={countryQuery} onChange={(e) => setCountryQuery(e.target.value)}
-                      placeholder="Search country or code"
+                      aria-label="Search country or code" placeholder="Search country or code"
                       className="input mb-1.5 shrink-0"
                     />
                     <div className="overflow-y-auto">
                       {countryMatches.length === 0 ? (
-                        <p className="text-xs text-slate-500 text-center py-3">No match</p>
+                        <p className="text-xs text-muted text-center py-3">No match</p>
                       ) : countryMatches.map((c) => (
                         <button
                           key={c.code}
                           onClick={() => { setCountry(c); setCountryOpen(false); setCountryQuery(''); }}
                           className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-sm transition-colors ${
-                            c.code === country.code ? 'bg-brand-dim text-brand' : 'hover:bg-white/10 text-slate-200'
+                            c.code === country.code ? 'bg-brand-dim text-brand' : 'hover:bg-line/10 text-ink'
                           }`}
                         >
                           <span className="text-base leading-none">{c.flag}</span>
                           <span className="flex-1 truncate">{c.name}</span>
-                          <span className="text-slate-400">{c.dial}</span>
+                          <span className="text-muted">{c.dial}</span>
                         </button>
                       ))}
                     </div>
@@ -213,14 +213,14 @@ export default function LandingPage() {
         ) : (
           /* OTP entry */
           <div className="space-y-2.5">
-            <button onClick={() => setPhase('phone')} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors">
+            <button onClick={() => setPhase('phone')} className="flex items-center gap-1.5 text-xs text-muted hover:text-ink transition-colors">
               <ArrowLeft size={13} /> {fullPhone()}
             </button>
             <input
               type="tel" inputMode="numeric" placeholder="6-digit code" value={code} autoFocus
               onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               onKeyDown={(e) => e.key === 'Enter' && verifyOtp()}
-              className="w-full bg-surface-2 border border-white/10 rounded-2xl outline-none focus:border-brand/60 px-4 py-3.5 text-center text-lg font-semibold tracking-[0.4em] text-white placeholder-slate-600 placeholder:tracking-normal placeholder:text-sm placeholder:font-normal transition-colors"
+              className="w-full bg-surface-2 border border-line/10 rounded-2xl outline-none focus:border-brand/60 px-4 py-3.5 text-center text-lg font-semibold tracking-[0.4em] text-ink placeholder-slate-600 placeholder:tracking-normal placeholder:text-sm placeholder:font-normal transition-colors"
             />
             <button onClick={verifyOtp} disabled={verifying} className="btn-primary w-full justify-center py-3.5 text-[15px]">
               {verifying ? <Loader2 size={18} className="animate-spin" /> : 'Verify & sign in'}
@@ -233,9 +233,9 @@ export default function LandingPage() {
 
         {/* Divider */}
         <div className="flex items-center gap-2.5 my-5">
-          <div className="flex-1 h-px bg-white/10" />
-          <span className="text-xs text-slate-500">or</span>
-          <div className="flex-1 h-px bg-white/10" />
+          <div className="flex-1 h-px bg-line/10" />
+          <span className="text-xs text-muted">or</span>
+          <div className="flex-1 h-px bg-line/10" />
         </div>
 
         {/* Google */}
@@ -256,7 +256,7 @@ export default function LandingPage() {
           )}
         </button>
 
-        <p className="text-center text-xs text-slate-500 leading-relaxed mt-6">
+        <p className="text-center text-xs text-muted leading-relaxed mt-6">
           By continuing you agree to our <span className="text-brand">Terms</span> &amp; <span className="text-brand">Privacy</span>
         </p>
       </motion.div>

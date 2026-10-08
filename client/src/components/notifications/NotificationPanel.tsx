@@ -49,11 +49,11 @@ export default function NotificationPanel({ open, onClose }: Props) {
           className="fixed right-2 z-50 w-[calc(100vw-1rem)] max-w-sm card shadow-2xl overflow-hidden flex flex-col"
           style={{ top: '3.75rem', maxHeight: 'calc(100vh - 5rem)' }}
         >
-          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
-            <span className="text-sm font-semibold text-white">Notifications</span>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-line/10 shrink-0">
+            <span className="text-sm font-semibold text-ink">Notifications</span>
             <div className="flex items-center gap-1">
               {notifications.length > 0 && (
-                <button onClick={clear} className="text-xs text-slate-400 hover:text-white px-2 py-1 rounded">
+                <button onClick={clear} className="text-xs text-muted hover:text-ink px-2 py-1 rounded">
                   Clear all
                 </button>
               )}
@@ -67,7 +67,7 @@ export default function NotificationPanel({ open, onClose }: Props) {
             {notifications.length === 0 ? (
               <div className="py-10 text-center">
                 <Bell size={28} className="text-slate-600 mx-auto mb-2" />
-                <p className="text-sm text-slate-400">No notifications yet</p>
+                <p className="text-sm text-muted">No notifications yet</p>
               </div>
             ) : (
               notifications.map((n) => (
@@ -77,7 +77,7 @@ export default function NotificationPanel({ open, onClose }: Props) {
                     const dest = n.link ?? (n.groupId ? `/groups/${n.groupId}` : null);
                     if (dest) { navigate(dest); onClose(); }
                   }}
-                  className={`flex items-start gap-3 px-4 py-3 border-b border-white/10 last:border-0 transition-colors ${(n.link || n.groupId) ? 'cursor-pointer hover:bg-white/10' : ''} ${!n.read ? 'bg-brand/5' : ''}`}
+                  className={`flex items-start gap-3 px-4 py-3 border-b border-line/10 last:border-0 transition-colors ${(n.link || n.groupId) ? 'cursor-pointer hover:bg-line/10' : ''} ${!n.read ? 'bg-brand/5' : ''}`}
                 >
                   <div className="w-8 h-8 rounded-full bg-surface-3 flex items-center justify-center shrink-0 mt-0.5">
                     {n.from?.avatar ? (
@@ -87,13 +87,13 @@ export default function NotificationPanel({ open, onClose }: Props) {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-slate-200">{n.message}</p>
+                    <p className="text-sm text-ink">{n.message}</p>
                     {n.type === 'poke' && n.strikePoints !== undefined && (
                       <p className="text-xs text-amber-300 mt-0.5">
-                        You now have {n.strikePoints} strike point{n.strikePoints !== 1 ? 's' : ''}
+                        You now have {n.strikePoints} spark{n.strikePoints !== 1 ? 's' : ''}
                       </p>
                     )}
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-muted mt-0.5">
                       {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
                     </p>
                   </div>

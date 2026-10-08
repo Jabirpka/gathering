@@ -10,7 +10,7 @@ interface Props {
   onPosted: () => void;
 }
 
-const BG_COLORS = ['#7c3aed', '#2563eb', '#059669', '#dc2626', '#d97706', '#0f172a'];
+const BG_COLORS = ['#E0503F', '#2563eb', '#059669', '#dc2626', '#d97706', '#0f172a'];
 
 export default function AddStatusModal({ open, onClose, onPosted }: Props) {
   const [mode, setMode] = useState<'TEXT' | 'IMAGE'>('TEXT');
@@ -58,17 +58,17 @@ export default function AddStatusModal({ open, onClose, onPosted }: Props) {
           <motion.div initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 60 }}
             className="relative card w-full sm:max-w-md p-5 sm:p-6 shadow-2xl rounded-b-none sm:rounded-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-white text-lg">Add status</h2>
+              <h2 className="font-semibold text-ink text-lg">Add status</h2>
               <button onClick={onClose} className="btn-ghost p-1.5"><X size={16} /></button>
             </div>
 
             <div className="flex gap-2 mb-4">
               <button onClick={() => setMode('TEXT')}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition-all ${mode === 'TEXT' ? 'bg-brand text-white' : 'bg-surface-2 text-slate-300'}`}>
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition-all ${mode === 'TEXT' ? 'bg-brand text-white' : 'bg-surface-2 text-ink-soft'}`}>
                 <Type size={14} /> Text
               </button>
               <button onClick={() => fileRef.current?.click()}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition-all ${mode === 'IMAGE' ? 'bg-brand text-white' : 'bg-surface-2 text-slate-300'}`}>
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition-all ${mode === 'IMAGE' ? 'bg-brand text-white' : 'bg-surface-2 text-ink-soft'}`}>
                 <ImageIcon size={14} /> Photo
               </button>
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={pickImage} />
@@ -78,8 +78,8 @@ export default function AddStatusModal({ open, onClose, onPosted }: Props) {
               <>
                 <div className="rounded-2xl p-6 mb-3 min-h-[140px] flex items-center justify-center" style={{ background: bg }}>
                   <textarea
-                    className="w-full bg-transparent text-white text-center text-lg font-semibold placeholder-white/60 focus:outline-none resize-none"
-                    placeholder="Type a status…"
+                    className="w-full bg-transparent text-ink text-center text-lg font-semibold placeholder-white/60 focus:outline-none resize-none"
+                    aria-label="Status text" placeholder="Type a status…"
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     maxLength={500}
@@ -96,11 +96,11 @@ export default function AddStatusModal({ open, onClose, onPosted }: Props) {
                 </div>
               </>
             ) : (
-              <div className="rounded-2xl overflow-hidden mb-4 bg-white/[0.06] min-h-[140px] flex items-center justify-center">
+              <div className="rounded-2xl overflow-hidden mb-4 bg-line/[0.06] min-h-[140px] flex items-center justify-center">
                 {image ? (
                   <img src={image} className="max-h-72 w-full object-contain" alt="Status" />
                 ) : (
-                  <p className="text-sm text-slate-500 py-10">Pick a photo above</p>
+                  <p className="text-sm text-muted py-10">Pick a photo above</p>
                 )}
               </div>
             )}

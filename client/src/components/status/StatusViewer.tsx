@@ -127,7 +127,7 @@ export default function StatusViewer({ groups, startIndex, myId, onClose, onAddM
         {status.kind === 'IMAGE' ? (
           <img src={status.content} className="max-h-full max-w-full object-contain" alt="Status" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center p-8" style={{ background: status.bg || '#7c3aed' }}>
+          <div className="w-full h-full flex items-center justify-center p-8" style={{ background: status.bg || '#E0503F' }}>
             <p className="text-white text-2xl font-semibold text-center leading-relaxed break-words max-w-lg">
               {status.content}
             </p>

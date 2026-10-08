@@ -60,7 +60,7 @@ export default function DmCallPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <div className="h-14 shrink-0 border-b border-white/10 glass-panel flex items-center px-3 gap-2">
+      <div className="h-14 shrink-0 border-b border-line/10 glass-panel flex items-center px-3 gap-2">
         {/* Back minimizes the call (keeps it running); Leave (in the controls) ends it. */}
         <button onClick={() => popOrReplace(navigate, `/dm/${threadId}`)} className="btn-ghost p-1.5">
           <ArrowLeft size={16} />
@@ -68,12 +68,12 @@ export default function DmCallPage() {
         {partner?.avatar ? (
           <img src={partner.avatar} className="w-9 h-9 rounded-xl object-cover shrink-0" alt={partnerName} />
         ) : (
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-brand flex items-center justify-center text-sm font-bold text-white shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-brand flex items-center justify-center text-sm font-bold text-ink shrink-0">
             {partnerName[0]?.toUpperCase()}
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-white truncate">{partnerName}</p>
+          <p className="text-sm font-semibold text-ink truncate">{partnerName}</p>
           <p className="text-[11px] text-emerald-400">{type === 'audio' ? 'Voice call' : 'Video call'}</p>
         </div>
       </div>

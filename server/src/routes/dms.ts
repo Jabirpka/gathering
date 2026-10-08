@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { authMiddleware } from '../middleware/auth';
 import { prisma } from '../index';
 import { getIO } from '../socket/index';
+import { computeMatchPercent, gatherInteractionStats } from '../services/match';
 
 const router = Router();
 router.use(authMiddleware);
@@ -29,19 +30,28 @@ function shapeThread(thread: any, myId: string) {
 // group chats list.
 router.get('/', async (req: Request, res: Response) => {
   const myId = req.user!.id;
-  const threads = await prisma.dmThread.findMany({
-    where: { OR: [{ userAId: myId }, { userBId: myId }] },
-    include: {
-      userA: { select: { id: true, name: true, nickname: true, avatar: true } },
-      userB: { select: { id: true, name: true, nickname: true, avatar: true } },
-    },
-    orderBy: { updatedAt: 'desc' },
-  });
+  // My full profile, loaded once, to score the "Match with you" per chat.
+  const partnerSelect = {
+    id: true, name: true, nickname: true, avatar: true,
+    interests: true, city: true, dateOfBirth: true, bio: true, profileExtra: true,
+  };
+  const [me, threads] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: myId },
+      select: { id: true, interests: true, city: true, dateOfBirth: true, bio: true, profileExtra: true },
+    }),
+    prisma.dmThread.findMany({
+      where: { OR: [{ userAId: myId }, { userBId: myId }] },
+      include: { userA: { select: partnerSelect }, userB: { select: partnerSelect } },
+      orderBy: { updatedAt: 'desc' },
+    }),
+  ]);
 
   const shaped = await Promise.all(
     threads.map(async (t) => {
       const myLastRead = t.userAId === myId ? t.lastReadA : t.lastReadB;
       const myClearedAt = t.userAId === myId ? t.clearedAtA : t.clearedAtB;
+      const partner: any = t.userAId === myId ? t.userB : t.userA;
       const [unreadCount, lastMessage] = await Promise.all([
         prisma.message.count({
           where: {
@@ -67,7 +77,13 @@ router.get('/', async (req: Request, res: Response) => {
             : lastMessage.kind === 'PROFILE' ? '👤 Shared a profile'
             : lastMessage.content }
         : null;
-      return { ...shapeThread(t, myId), unreadCount, lastMessage: preview, cleared: !!myClearedAt && !lastMessage };
+      // "Match with you" for this chat: both profiles + how you poke/chat here.
+      let matchPercent: number | undefined;
+      if (me) {
+        const stats = await gatherInteractionStats(prisma, myId, partner.id, t.id);
+        matchPercent = computeMatchPercent(me as any, partner, stats).percent;
+      }
+      return { ...shapeThread(t, myId), unreadCount, lastMessage: preview, matchPercent, cleared: !!myClearedAt && !lastMessage };
     })
   );
 

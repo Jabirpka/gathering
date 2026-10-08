@@ -24,7 +24,7 @@ function GroupItem({ group, onNavigate }: { group: Group; onNavigate: () => void
         'w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-colors text-left mb-1',
         groupId === group.id
           ? 'bg-brand-dim text-brand'
-          : 'text-slate-400 hover:text-white hover:bg-white/10'
+          : 'text-muted hover:text-ink hover:bg-line/10'
       )}
     >
       <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0">
@@ -63,23 +63,23 @@ export default function Sidebar({ onClose }: Props) {
 
   return (
     <>
-      <aside className="w-64 h-full border-r border-white/10 glass-panel flex flex-col overflow-hidden">
+      <aside className="w-64 h-full border-r border-line/10 glass-panel flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="p-3 border-b border-white/10 flex items-center gap-1">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex-1 px-2">
+        <div className="p-3 border-b border-line/10 flex items-center gap-1">
+          <span className="text-xs font-semibold text-muted uppercase tracking-wider flex-1 px-2">
             Groups
           </span>
           <button
             onClick={() => setShowJoin(true)}
             title="Join group"
-            className="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+            className="p-2 rounded-lg hover:bg-line/10 text-muted hover:text-ink transition-colors"
           >
             <LogIn size={14} />
           </button>
           <button
             onClick={() => setShowCreate(true)}
             title="Create group"
-            className="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+            className="p-2 rounded-lg hover:bg-line/10 text-muted hover:text-ink transition-colors"
           >
             <Plus size={14} />
           </button>
@@ -87,7 +87,7 @@ export default function Sidebar({ onClose }: Props) {
           {onClose && (
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors lg:hidden"
+              className="p-2 rounded-lg hover:bg-line/10 text-muted hover:text-ink transition-colors lg:hidden"
             >
               <X size={14} />
             </button>
@@ -98,7 +98,7 @@ export default function Sidebar({ onClose }: Props) {
         <div className="flex-1 overflow-y-auto p-2">
           {groups.length === 0 ? (
             <div className="px-3 py-10 text-center">
-              <p className="text-xs text-slate-400">No groups yet.<br />Create or join one.</p>
+              <p className="text-xs text-muted">No groups yet.<br />Create or join one.</p>
             </div>
           ) : (
             groups.map((g) => (
@@ -108,7 +108,7 @@ export default function Sidebar({ onClose }: Props) {
         </div>
 
         {/* Footer */}
-        <div className="p-3 border-t border-white/10">
+        <div className="p-3 border-t border-line/10">
           <button
             onClick={() => setShowCreate(true)}
             className="btn-primary w-full justify-center text-sm py-2.5"

@@ -4,21 +4,37 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Dark neon: surfaces are translucent whites layered over the deep
-        // purple-black backdrop (see body background in index.css).
+        // Palette is driven by CSS variables defined in src/index.css (:root),
+        // so the whole theme can be changed — or a light mode added — in one
+        // place. Brand/accent use channel triplets so Tailwind opacity
+        // modifiers (brand/30, to-accent/20, …) still resolve.
+        // Subtle elevated fills — theme-aware via --line (white-alpha in dark,
+        // black-alpha in light), so they read correctly on either background.
         surface: {
-          DEFAULT: '#0a0510',
-          1: 'rgba(255,255,255,0.05)',
-          2: 'rgba(255,255,255,0.08)',
-          3: 'rgba(255,255,255,0.12)',
+          DEFAULT: 'rgb(var(--line) / 0.06)',
+          1: 'rgb(var(--line) / 0.05)',
+          2: 'rgb(var(--line) / 0.08)',
+          3: 'rgb(var(--line) / 0.12)',
         },
         brand: {
-          DEFAULT: '#a855f7',
-          light: '#c084fc',
-          dim: 'rgba(168,85,247,0.16)',
+          DEFAULT: 'rgb(var(--c-brand) / <alpha-value>)',
+          light: 'rgb(var(--c-brand-light) / <alpha-value>)',
+          dim: 'rgb(var(--c-brand) / 0.16)',
         },
-        // Gradient partner — magenta, so from-brand→accent runs violet→magenta.
-        accent: '#d946ef',
+        // Gradient partner — deeper coral, so from-brand→accent runs a warm ramp.
+        accent: 'rgb(var(--c-accent) / <alpha-value>)',
+        // Secondary warm tokens: sage = presence/positive, amber = sparks.
+        sage: 'rgb(var(--c-sage) / <alpha-value>)',
+        amber: 'rgb(var(--c-amber) / <alpha-value>)',
+        // Semantic text + hairline tokens that flip between light & dark.
+        // ink = primary text, ink-soft = secondary, muted = tertiary,
+        // line = theme-aware hairline/overlay (black-alpha in light, white in dark).
+        ink: {
+          DEFAULT: 'rgb(var(--ink) / <alpha-value>)',
+          soft: 'rgb(var(--ink-soft) / <alpha-value>)',
+        },
+        muted: 'rgb(var(--muted) / <alpha-value>)',
+        line: 'rgb(var(--line) / <alpha-value>)',
         border: 'rgba(255,255,255,0.08)',
       },
       fontFamily: {

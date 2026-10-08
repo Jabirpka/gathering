@@ -44,36 +44,36 @@ export default function ShareSheet({ postId, onClose }: { postId: string; onClos
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
       <motion.div initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 80, opacity: 0 }}
-        className="relative w-full sm:max-w-md glass-panel border-t sm:border border-white/10 rounded-t-[24px] sm:rounded-2xl max-h-[75vh] flex flex-col">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
-          <span className="text-sm font-semibold text-white">Share to…</span>
+        className="relative w-full sm:max-w-md glass-panel border-t sm:border border-line/10 rounded-t-[24px] sm:rounded-2xl max-h-[75vh] flex flex-col">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-line/10 shrink-0">
+          <span className="text-sm font-semibold text-ink">Share to…</span>
           <button onClick={onClose} className="btn-ghost p-1.5"><X size={15} /></button>
         </div>
         <div className="p-3 shrink-0">
           <div className="relative">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input className="input pl-8 text-sm" placeholder="Search groups & people…" value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+            <input className="input pl-8 text-sm" aria-label="Search groups and people" placeholder="Search groups & people…" value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
           </div>
         </div>
         <div className="flex-1 overflow-y-auto px-2 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
           {items.length === 0 ? (
-            <p className="text-xs text-slate-500 text-center py-8">No groups or chats yet.</p>
+            <p className="text-xs text-muted text-center py-8">No groups or chats yet.</p>
           ) : (
             items.map((i) => (
               <button key={i.key} onClick={() => share(i)} disabled={done.has(i.key)}
-                className="w-full flex items-center gap-3 px-2.5 py-2 rounded-xl hover:bg-white/5 transition-colors text-left disabled:opacity-60">
+                className="w-full flex items-center gap-3 px-2.5 py-2 rounded-xl hover:bg-line/5 transition-colors text-left disabled:opacity-60">
                 <div className={`w-10 h-10 rounded-xl overflow-hidden shrink-0 ${i.isGroup ? 'rounded-xl' : ''}`}>
                   {i.avatar ? (
                     <img src={i.avatar} className="w-full h-full object-cover" alt="" />
                   ) : (
-                    <div className={`w-full h-full flex items-center justify-center text-sm font-bold text-white ${i.isGroup ? 'bg-gradient-to-br from-brand to-accent' : 'bg-brand-dim !text-brand'}`}>
+                    <div className={`w-full h-full flex items-center justify-center text-sm font-bold text-ink ${i.isGroup ? 'bg-gradient-to-br from-brand to-accent' : 'bg-brand-dim !text-brand'}`}>
                       {i.isGroup ? <Users size={16} /> : i.name[0]?.toUpperCase()}
                     </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">{i.name}</p>
-                  <p className="text-[11px] text-slate-500">{i.sub}</p>
+                  <p className="text-sm font-medium text-ink truncate">{i.name}</p>
+                  <p className="text-[11px] text-muted">{i.sub}</p>
                 </div>
                 {busy === i.key ? <Loader2 size={15} className="animate-spin text-brand" />
                   : done.has(i.key) ? <span className="text-xs text-emerald-400 font-semibold">Sent</span>

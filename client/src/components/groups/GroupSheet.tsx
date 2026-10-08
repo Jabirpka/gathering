@@ -83,16 +83,16 @@ export default function GroupSheet({ open, initialTab = 'join', onClose }: Props
             className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
           <motion.div initial={{ opacity: 0, y: 80 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 80 }}
             transition={{ type: 'spring', damping: 30, stiffness: 320 }}
-            className="relative w-full sm:max-w-md glass-panel border-t border-white/10 sm:border sm:rounded-2xl rounded-t-[28px] p-5 pb-9 sm:pb-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+            className="relative w-full sm:max-w-md glass-panel border-t border-line/10 sm:border sm:rounded-2xl rounded-t-[28px] p-5 pb-9 sm:pb-5 shadow-2xl max-h-[90vh] overflow-y-auto">
             {/* Drag handle */}
-            <div className="w-9 h-1 rounded-full bg-white/20 mx-auto mb-4 sm:hidden" />
+            <div className="w-9 h-1 rounded-full bg-line/20 mx-auto mb-4 sm:hidden" />
 
             {/* Toggle */}
-            <div className="flex gap-1 p-1 rounded-2xl bg-surface-2 border border-white/10 mb-5">
+            <div className="flex gap-1 p-1 rounded-2xl bg-surface-2 border border-line/10 mb-5">
               {(['join', 'create'] as const).map((t) => (
                 <button key={t} onClick={() => setTab(t)}
                   className={clsx('flex-1 py-2 rounded-xl text-sm font-semibold capitalize transition-all',
-                    tab === t ? 'bg-gradient-to-br from-brand to-accent text-white shadow-lg shadow-brand/30' : 'text-slate-400')}>
+                    tab === t ? 'bg-gradient-to-br from-brand to-accent text-white shadow-lg shadow-brand/30' : 'text-muted')}>
                   {t} group
                 </button>
               ))}
@@ -100,9 +100,9 @@ export default function GroupSheet({ open, initialTab = 'join', onClose }: Props
 
             {tab === 'join' ? (
               <form onSubmit={join} className="space-y-3">
-                <p className="text-sm text-slate-400">Enter an invite code to join a group.</p>
+                <p className="text-sm text-muted">Enter an invite code to join a Circle.</p>
                 <div className="relative">
-                  <Hash size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Hash size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
                   <input
                     className="input pl-8 font-mono uppercase tracking-widest"
                     placeholder="XXXXXXXX"
@@ -118,17 +118,17 @@ export default function GroupSheet({ open, initialTab = 'join', onClose }: Props
               </form>
             ) : (
               <form onSubmit={create} className="space-y-3">
-                <p className="text-sm text-slate-400">Start a new gathering for your people.</p>
+                <p className="text-sm text-muted">Start a new gathering for your people.</p>
                 <div>
-                  <label className="text-xs font-medium text-slate-400 mb-1.5 block">Group name</label>
+                  <label className="text-xs font-medium text-muted mb-1.5 block">Group name</label>
                   <input className="input" placeholder="Family, Work Squad…" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} autoFocus />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-400 mb-1.5 block">Description <span className="text-slate-500">(optional)</span></label>
+                  <label className="text-xs font-medium text-muted mb-1.5 block">Description <span className="text-muted">(optional)</span></label>
                   <input className="input" placeholder="What's this group about?" value={description} onChange={(e) => setDescription(e.target.value)} maxLength={300} />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-400 mb-1.5 block">Type</label>
+                  <label className="text-xs font-medium text-muted mb-1.5 block">Type</label>
                   <div className="grid grid-cols-2 gap-2">
                     {[
                       { val: false, icon: Lock, label: 'Private' },
@@ -136,7 +136,7 @@ export default function GroupSheet({ open, initialTab = 'join', onClose }: Props
                     ].map(({ val, icon: Icon, label }) => (
                       <button key={label} type="button" onClick={() => setIsPublic(val)}
                         className={clsx('p-2.5 rounded-xl border text-center text-sm font-semibold flex items-center justify-center gap-1.5 transition-all',
-                          isPublic === val ? 'border-brand/60 bg-brand/10 text-brand' : 'border-white/10 bg-surface-2 text-slate-400')}>
+                          isPublic === val ? 'border-brand/60 bg-brand/10 text-brand' : 'border-line/10 bg-surface-2 text-muted')}>
                         <Icon size={14} /> {label}
                       </button>
                     ))}
@@ -144,12 +144,12 @@ export default function GroupSheet({ open, initialTab = 'join', onClose }: Props
                 </div>
                 {isPublic && (
                   <div>
-                    <label className="text-xs font-medium text-slate-400 mb-1.5 block">Category <span className="text-slate-500">(helps people discover it)</span></label>
+                    <label className="text-xs font-medium text-muted mb-1.5 block">Category <span className="text-muted">(helps people discover it)</span></label>
                     <div className="flex flex-wrap gap-1.5">
                       {GROUP_CATEGORIES.map((c) => (
                         <button key={c} type="button" onClick={() => setCategory((cur) => (cur === c ? '' : c))}
                           className={clsx('px-2.5 py-1 rounded-full text-xs font-semibold transition-all',
-                            category === c ? 'bg-gradient-to-br from-brand to-accent text-white' : 'bg-surface-2 border border-white/10 text-slate-400')}>
+                            category === c ? 'bg-gradient-to-br from-brand to-accent text-white' : 'bg-surface-2 border border-line/10 text-muted')}>
                           {c}
                         </button>
                       ))}
@@ -157,7 +157,7 @@ export default function GroupSheet({ open, initialTab = 'join', onClose }: Props
                   </div>
                 )}
                 <button type="submit" disabled={loading || !name.trim()} className="btn-primary w-full justify-center py-3">
-                  {loading ? <Loader2 size={15} className="animate-spin" /> : 'Create group 🚀'}
+                  {loading ? <Loader2 size={15} className="animate-spin" /> : 'Create Circle 🚀'}
                 </button>
               </form>
             )}

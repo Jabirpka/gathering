@@ -39,10 +39,10 @@ function AudioStage() {
           <div key={p.identity} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
             <div style={{
               width: size, height: size, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #e879f9, #a855f7)',
+              background: 'linear-gradient(135deg, #FF6B5E, #E0503F)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: Math.round(size * 0.4), fontWeight: 700, color: '#fff',
-              boxShadow: speaking ? '0 0 0 3px #e879f9, 0 0 30px rgba(232,121,249,0.6)' : '0 4px 20px rgba(0,0,0,0.4)',
+              boxShadow: speaking ? '0 0 0 3px #FF6B5E, 0 0 30px rgba(255,107,94,0.6)' : '0 4px 20px rgba(0,0,0,0.4)',
               transition: 'box-shadow .15s ease',
             }}>
               {label[0]?.toUpperCase()}
@@ -74,7 +74,7 @@ function OneOnOneStage({ remote, selfTrack }: { remote: TrackReferenceOrPlacehol
           style={{
             position: 'absolute', top: 14, right: 14, width: 104, height: 152,
             borderRadius: 16, overflow: 'hidden', zIndex: 15,
-            border: '2px solid rgba(232,121,249,0.7)',
+            border: '2px solid rgba(255,107,94,0.7)',
             boxShadow: '0 8px 30px rgba(0,0,0,0.55)',
             cursor: 'grab', touchAction: 'none',
           }}
@@ -163,9 +163,9 @@ function CallLoader() {
   const state = useConnectionState();
   if (state === ConnectionState.Connecting || state === ConnectionState.Reconnecting) {
     return (
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[#0a0a0f] pointer-events-none z-20">
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[color:var(--call-bg)] pointer-events-none z-20">
         <Loader2 size={24} className="animate-spin text-brand" />
-        <p className="text-slate-500 text-xs">Connecting…</p>
+        <p className="text-white/70 text-xs">Connecting…</p>
       </div>
     );
   }
@@ -250,17 +250,17 @@ export default function CallManager() {
   let body: ReactNode;
   if (error) {
     body = (
-      <div className="flex flex-col items-center justify-center h-full gap-2 text-center px-4 bg-[#0a0a0f]">
+      <div className="flex flex-col items-center justify-center h-full gap-2 text-center px-4 bg-[color:var(--call-bg)]">
         <AlertCircle size={24} className="text-red-400" />
         <p className="text-red-400 text-xs font-medium">{error}</p>
-        <button onClick={leaveCall} className="text-xs text-slate-500 hover:text-slate-200 underline">
+        <button onClick={leaveCall} className="text-xs text-white/70 hover:text-white underline">
           Close
         </button>
       </div>
     );
   } else if (!token) {
     body = (
-      <div className="flex items-center justify-center h-full bg-[#0a0a0f]">
+      <div className="flex items-center justify-center h-full bg-[color:var(--call-bg)]">
         <Loader2 size={22} className="animate-spin text-brand" />
       </div>
     );

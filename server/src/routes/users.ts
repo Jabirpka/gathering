@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { authMiddleware } from '../middleware/auth';
 import { prisma } from '../index';
 import { getIO } from '../socket/index';
+import { computeMatchPercent, gatherInteractionStats } from '../services/match';
 
 const router = Router();
 router.use(authMiddleware);
@@ -292,6 +293,25 @@ router.get('/:id', async (req: Request, res: Response) => {
       }
     }
 
+    // Single "Match with you" score vs. the viewer — blends both full profiles
+    // (interests + all data) with how the two actually poke/chat. Uses the
+    // unfiltered `extra` so hidden fields still inform the match, never leak.
+    let match: { percent: number; reason: string } | undefined;
+    if (!isSelf) {
+      const me = await prisma.user.findUnique({
+        where: { id: req.user!.id },
+        select: { id: true, interests: true, city: true, dateOfBirth: true, bio: true, profileExtra: true },
+      });
+      if (me) {
+        const stats = await gatherInteractionStats(prisma, req.user!.id, user.id);
+        match = computeMatchPercent(
+          me as any,
+          { id: user.id, interests: user.interests, city: user.city, dateOfBirth: user.dateOfBirth, bio: user.bio, profileExtra: extra },
+          stats,
+        );
+      }
+    }
+
     const { email, phone, ...rest } = user;
     res.json({
       ...rest,
@@ -299,6 +319,7 @@ router.get('/:id', async (req: Request, res: Response) => {
       emailVerified: !!email,
       phoneVerified: !!phone,
       strikePoints: user._count.pokesReceived,
+      match,
     });
   } catch {
     res.status(500).json({ error: 'Failed to fetch user' });

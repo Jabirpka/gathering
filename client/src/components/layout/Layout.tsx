@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import BottomNav from './BottomNav';
-import StatusSheet from '../status/StatusSheet';
 import ContactsSheet from '../contacts/ContactsSheet';
 import GroupSheet from '../groups/GroupSheet';
 
@@ -26,7 +25,6 @@ export default function Layout() {
         <Outlet />
       </main>
       <BottomNav />
-      <StatusSheet />
       <ContactsSheet />
       <GroupSheet open={sheet.open} initialTab={sheet.tab} onClose={() => setSheet((s) => ({ ...s, open: false }))} />
     </div>

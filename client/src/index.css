@@ -5,7 +5,51 @@
 
 @layer base {
   :root {
+    color-scheme: light;
+
+    /* ---- Design tokens: single source of truth ---------------------------
+       Light ("Warm Dawn") is the default; Dusk (dark) applies via
+       [data-theme="dark"] or the OS preference below. Brand/accent/ink/line
+       are RGB channel triplets so Tailwind opacity modifiers keep working
+       (rgb(var(--x) / <alpha-value>) -> text-ink/70, border-line/10, etc). */
+
+    /* Warm, human accents — shared across light & dark. */
+    --c-brand: 255 107 94;          /* coral #FF6B5E — primary identity */
+    --c-brand-light: 255 142 115;   /* #FF8E73 */
+    --c-accent: 224 80 63;          /* coral-deep #E0503F — gradient end + buttons */
+    --c-accent-bright: 255 138 91;  /* #FF8A5B — warm glow */
+    --c-sage: 78 156 131;           /* #4E9C83 — presence / positive */
+    --c-amber: 242 169 59;          /* #F2A93B — sparks / highlights */
+
+    /* Warm Dawn (light) surfaces + text */
+    --bg: #FBF7F2;
+    --card: #FFFFFF;
+    --card-border: #ECE4D9;
+    --field: #F3EDE4;
+    --glass: rgba(255, 255, 255, 0.82);
+    --glass-panel: rgba(255, 251, 246, 0.86);
+    --call-bg: #141110;             /* calls stay dark in both themes */
+    --ink: 43 38 34;                /* #2B2622 primary text */
+    --ink-soft: 74 66 58;           /* secondary text */
+    --muted: 138 128 117;           /* #8A8075 tertiary text */
+    --line: 0 0 0;                  /* black-alpha for borders / overlays */
+  }
+
+  /* Dusk (dark) — explicit choice via [data-theme="dark"]. */
+  :root[data-theme="dark"] {
     color-scheme: dark;
+    --bg: #1b1714; --card: #262019; --card-border: #3a332b; --field: #241f19;
+    --glass: rgba(38, 32, 25, 0.82); --glass-panel: rgba(27, 23, 20, 0.86);
+    --ink: 242 236 228; --ink-soft: 203 195 185; --muted: 154 143 130; --line: 255 255 255;
+  }
+  /* Follow the OS when the user hasn't explicitly forced light. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #1b1714; --card: #262019; --card-border: #3a332b; --field: #241f19;
+      --glass: rgba(38, 32, 25, 0.82); --glass-panel: rgba(27, 23, 20, 0.86);
+      --ink: 242 236 228; --ink-soft: 203 195 185; --muted: 154 143 130; --line: 255 255 255;
+    }
   }
 
   * {
@@ -24,18 +68,33 @@
     height: 100%;
     /* Synthwave backdrop: deep magenta-black with a magenta glow bleeding from
        the top and soft violet pools, so surfaces glow over it. */
-    background-color: #0d0010;
+    background-color: var(--bg);
     background-image:
-      radial-gradient(55rem 34rem at 50% -12%, rgba(232, 121, 249, 0.22), transparent 62%),
-      radial-gradient(40rem 40rem at 108% 8%, rgba(168, 85, 247, 0.16), transparent 60%),
-      radial-gradient(42rem 42rem at -8% 45%, rgba(124, 58, 237, 0.12), transparent 60%);
+      radial-gradient(55rem 34rem at 50% -12%, rgb(var(--c-accent-bright) / 0.20), transparent 62%),
+      radial-gradient(40rem 40rem at 108% 8%, rgb(var(--c-brand) / 0.14), transparent 60%),
+      radial-gradient(42rem 42rem at -8% 45%, rgb(var(--c-sage) / 0.12), transparent 60%);
     background-attachment: fixed;
-    color: #ffffff;
-    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    color: rgb(var(--ink));
+    /* Body / long text uses Inter (readable). Headings + the brand wordmark
+       use the Space Grotesk display face via the rule below. */
+    font-family: 'Inter', 'Space Grotesk', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  }
+
+  /* Visible keyboard-focus ring for all interactive elements. :where() keeps
+     specificity at 0 so components can still override, and :focus-visible means
+     it only shows for keyboard users, not on touch/mouse taps. */
+  :where(a, button, [role="button"], input, select, textarea):focus-visible {
+    outline: 2px solid rgb(var(--c-brand));
+    outline-offset: 2px;
+    border-radius: 6px;
   }
 
   #root {
@@ -64,24 +123,26 @@
 @layer components {
   /* Synthwave surface sheet — modals, floating panels */
   .glass {
-    background: rgba(34, 0, 64, 0.82);
+    background: var(--glass);
     backdrop-filter: blur(20px) saturate(150%);
     -webkit-backdrop-filter: blur(20px) saturate(150%);
-    border: 1px solid rgba(232, 121, 249, 0.18);
+    border: 1px solid rgb(var(--c-accent-bright) / 0.18);
   }
 
   /* Structural surface — navbar, sidebar, headers, bottom bar */
   .glass-panel {
-    background: rgba(22, 0, 32, 0.86);
+    background: var(--glass-panel);
     backdrop-filter: blur(24px) saturate(150%);
     -webkit-backdrop-filter: blur(24px) saturate(150%);
   }
 
   .btn-primary {
-    @apply text-white font-medium px-4 py-2 rounded-xl transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed;
-    background: linear-gradient(135deg, #e879f9, #a855f7);
+    @apply text-white font-semibold px-4 py-2 rounded-xl transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    /* Gradient runs brand -> accent (the darker magenta) rather than the very
+       bright #e879f9 end, so white label text keeps a usable contrast. */
+    background: linear-gradient(135deg, rgb(var(--c-brand)), rgb(var(--c-accent)));
     border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: 0 6px 20px rgba(232, 121, 249, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    box-shadow: 0 6px 20px rgb(var(--c-accent-bright) / 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
   }
 
   .btn-primary:hover {
@@ -89,33 +150,37 @@
   }
 
   .btn-secondary {
-    @apply text-slate-200 font-medium px-4 py-2 rounded-xl transition-all duration-200 flex items-center gap-2;
-    background: #220040;
-    border: 1px solid #330060;
+    @apply text-ink font-medium px-4 py-2 rounded-xl transition-all duration-200 flex items-center gap-2;
+    background: var(--field);
+    border: 1px solid var(--card-border);
   }
 
   .btn-secondary:hover {
-    background: #2c0a52;
+    filter: brightness(0.97);
   }
 
   .btn-ghost {
-    @apply hover:bg-white/10 text-slate-400 hover:text-white font-medium px-3 py-2 rounded-xl transition-all duration-200 flex items-center gap-2;
+    @apply hover:bg-line/10 text-muted hover:text-ink font-medium px-3 py-2 rounded-xl transition-all duration-200 flex items-center justify-center gap-2;
+    /* WCAG 2.5.5: a comfortable 44x44 minimum tap target even when a caller
+       shrinks the padding (e.g. `btn-ghost p-1.5` header icon buttons). */
+    min-width: 44px;
+    min-height: 44px;
   }
 
   /* Synthwave card: solid deep-magenta surface with a neon edge */
   .card {
     @apply rounded-2xl;
-    background: #1c0333;
-    border: 1px solid #330060;
+    background: var(--card);
+    border: 1px solid var(--card-border);
     box-shadow:
       0 10px 34px rgba(0, 0, 0, 0.5),
-      inset 0 1px 0 rgba(232, 121, 249, 0.08);
+      inset 0 1px 0 rgb(var(--c-accent-bright) / 0.08);
   }
 
   .input {
-    @apply rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand/70 focus:ring-1 focus:ring-brand/40 transition-all w-full;
-    background: #220040;
-    border: 1px solid #330060;
+    @apply rounded-xl px-3 py-2 text-sm text-ink placeholder-muted focus:outline-none focus:border-brand/70 focus:ring-1 focus:ring-brand/40 transition-all w-full;
+    background: var(--field);
+    border: 1px solid var(--card-border);
   }
 
   .badge {
@@ -162,7 +227,7 @@
 
 /* LiveKit overrides */
 .lk-room-container {
-  background: #0a0a0f !important;
+  background: var(--call-bg) !important;
 }
 
 /* Video grid responsive */

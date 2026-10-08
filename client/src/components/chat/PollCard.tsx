@@ -50,7 +50,7 @@ export default function PollCard({ message, isOwn }: { message: Message; isOwn: 
           <BarChart3 size={14} />
           <span className="text-[10px] font-bold tracking-[0.15em] uppercase">Poll{poll.multiple ? ' · multi' : ''}</span>
         </div>
-        <p className="text-sm font-semibold text-white mb-3">{poll.question}</p>
+        <p className="text-sm font-semibold text-ink mb-3">{poll.question}</p>
 
         <div className="space-y-1.5">
           {poll.options.map((opt, i) => {
@@ -59,22 +59,22 @@ export default function PollCard({ message, isOwn }: { message: Message; isOwn: 
             const chosen = poll.myVotes.includes(i);
             return (
               <button key={i} onClick={() => vote(i)} disabled={ended}
-                className="relative w-full text-left rounded-xl overflow-hidden border border-white/10 disabled:cursor-default">
+                className="relative w-full text-left rounded-xl overflow-hidden border border-line/10 disabled:cursor-default">
                 <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-brand/30 to-accent/20 transition-all duration-300"
                   style={{ width: `${pct}%` }} />
                 <div className="relative flex items-center gap-2 px-3 py-2">
-                  <span className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${chosen ? 'bg-brand border-brand' : 'border-white/30'}`}>
-                    {chosen && <Check size={11} className="text-white" />}
+                  <span className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${chosen ? 'bg-brand border-brand' : 'border-line/30'}`}>
+                    {chosen && <Check size={11} className="text-ink" />}
                   </span>
-                  <span className="flex-1 text-sm text-white truncate">{opt}</span>
-                  <span className="text-xs text-slate-300 tabular-nums shrink-0">{count}</span>
+                  <span className="flex-1 text-sm text-ink truncate">{opt}</span>
+                  <span className="text-xs text-ink-soft tabular-nums shrink-0">{count}</span>
                 </div>
               </button>
             );
           })}
         </div>
 
-        <div className="flex items-center justify-between mt-2.5 text-[11px] text-slate-400">
+        <div className="flex items-center justify-between mt-2.5 text-[11px] text-muted">
           <span>{total} vote{total !== 1 ? 's' : ''}{poll.hideVoters ? ' · anonymous' : ''}</span>
           {poll.endsAt && (
             <span>{ended ? 'Ended' : `Ends ${new Date(poll.endsAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`}</span>

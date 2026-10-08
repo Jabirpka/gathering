@@ -1,0 +1,191 @@
+<!-- @dsCard group="Gathering — Screens (v3)" name="Gathering v3 (all screens)" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gathering — All screens (v3)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #08000c; padding: 40px 24px; font-family: 'Space Grotesk', system-ui, sans-serif; color:#fff; }
+  h1 { font-size: 26px; font-weight: 800; letter-spacing:.5px; margin-bottom: 4px; }
+  .tag { color:#9b7abd; font-size: 13px; margin-bottom: 28px; }
+  .grid { display: flex; flex-wrap: wrap; gap: 30px; }
+  .screen { display:flex; flex-direction:column; gap:10px; }
+  .screen > .name { font-size: 13px; font-weight: 700; color:#cbb6e0; padding-left:4px; }
+  .phone { width: 300px; height: 620px; border-radius: 32px; overflow: hidden; position: relative; background: #0d0010;
+    background-image: radial-gradient(24rem 14rem at 50% -8%, rgba(232,121,249,0.16), transparent 62%);
+    border: 1px solid #330060; box-shadow: 0 18px 60px rgba(0,0,0,0.6); display: flex; flex-direction: column; }
+  .avatar { border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .grad { background: linear-gradient(135deg, #e879f9, #a855f7); }
+  .sub { color: #9b7abd; }
+  .card { background: #1c0333; border: 1px solid #330060; border-radius: 14px; }
+  .chip { flex-shrink:0; padding:5px 11px; border-radius:999px; font-size:11px; font-weight:600; background:#220040; border:1px solid rgba(232,121,249,0.18); color:#9b7abd; }
+  .chip.on { background: linear-gradient(135deg,#e879f9,#a855f7); color:#fff; border-color:transparent; }
+  .lbl { font-size:9px;font-weight:700;letter-spacing:1.4px;color:#7c6690; }
+  .nav { display:flex;flex-direction:column;align-items:center;gap:2px;color:#9b7abd;font-size:18px; }
+  .navbar { flex-shrink:0;height:58px;background:rgba(13,0,16,0.95);border-top:1px solid #330060;display:flex;align-items:center;justify-content:space-around;padding:0 6px 6px; }
+  .topbar { flex-shrink:0;height:50px;background:rgba(13,0,16,0.92);border-bottom:1px solid #330060;display:flex;align-items:center;gap:8px;padding:0 12px; }
+  .cbtn { width:30px;height:30px;border-radius:9px;background:rgba(232,121,249,0.12);color:#e879f9;display:flex;align-items:center;justify-content:center;font-size:13px; }
+  .recv { background:rgba(232,121,249,0.08);border:1px solid rgba(232,121,249,0.20);border-radius:3px 14px 14px 14px;padding:8px 11px;font-size:12px; }
+  .mine { border-radius:14px 3px 14px 14px;padding:8px 11px;font-size:12px;box-shadow:0 4px 16px rgba(232,121,249,0.4); }
+  .bar { height:5px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden; }
+  .fill { height:100%;border-radius:999px;background:linear-gradient(90deg,#e879f9,#a855f7); }
+</style>
+</head>
+<body>
+  <h1>Gathering — v3</h1>
+  <div class="tag">Updated Android app screens · dark synthwave · #0d0010 / #a855f7 / #d946ef · Space Grotesk</div>
+  <div class="grid">
+
+    <!-- LOGIN -->
+    <div class="screen"><div class="name">Login</div><div class="phone">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 26px;text-align:center;">
+        <div class="avatar grad" style="width:56px;height:56px;font-size:24px;border-radius:16px;margin-bottom:16px;">▶</div>
+        <div style="font-size:30px;font-weight:800;line-height:1.1;">Stay close.<br><span style="background:linear-gradient(90deg,#e879f9,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent;">Anywhere.</span></div>
+        <div class="sub" style="font-size:13px;margin-top:8px;">Your people. One place.</div>
+        <div style="width:100%;margin-top:26px;display:flex;align-items:center;background:#220040;border:1px solid #440080;border-radius:14px;overflow:hidden;"><div style="padding:12px;font-size:13px;font-weight:600;color:#e879f9;border-right:1px solid #440080;">🔍 +91 ⌄</div><div class="sub" style="padding:12px;font-size:13px;">Phone number</div></div>
+        <div style="width:100%;margin-top:10px;padding:13px;border-radius:14px;background:linear-gradient(135deg,#e879f9,#a855f7);font-weight:700;font-size:14px;">Continue →</div>
+        <div style="display:flex;align-items:center;gap:10px;width:100%;margin:16px 0;"><div style="flex:1;height:1px;background:#330060;"></div><span class="sub" style="font-size:11px;">or</span><div style="flex:1;height:1px;background:#330060;"></div></div>
+        <div style="width:100%;padding:12px;border-radius:14px;background:#fff;color:#1a0030;font-weight:600;font-size:13px;">G  Continue with Google</div>
+      </div>
+    </div></div>
+
+    <!-- HOME -->
+    <div class="screen"><div class="name">Home</div><div class="phone">
+      <div class="topbar"><div class="avatar grad" style="width:30px;height:30px;font-size:14px;">▶</div><div style="flex:1;line-height:1;"><div style="font-size:15px;font-weight:800;">GATHERING</div><div class="sub" style="font-size:7px;letter-spacing:2px;margin-top:2px;">YOUR PEOPLE</div></div><span style="color:#cbb6e0;font-size:17px;">＋</span><span style="color:#cbb6e0;font-size:16px;">🔔</span></div>
+      <div style="flex-shrink:0;padding:12px 14px 6px;"><div style="font-size:16px;font-weight:700;margin-bottom:10px;">Hey, Jabir <span style="color:#e879f9;">✦</span></div><div style="display:flex;gap:4px;padding:4px;border-radius:12px;background:rgba(34,0,64,0.7);"><div style="flex:1;text-align:center;padding:6px;border-radius:9px;font-size:12px;font-weight:600;background:linear-gradient(135deg,#e879f9,#a855f7);">Groups</div><div class="sub" style="flex:1;text-align:center;padding:6px;font-size:12px;">DMs</div></div></div>
+      <div style="flex:1;overflow:hidden;">
+        <div class="lbl" style="padding:6px 14px;">CHATS</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;"><div class="avatar grad" style="width:42px;height:42px;">F</div><div style="flex:1;"><div style="display:flex;justify-content:space-between;"><span style="font-size:13px;font-weight:700;">Family 🏠</span><span class="sub" style="font-size:9px;">12:42</span></div><div style="display:flex;justify-content:space-between;margin-top:2px;"><span class="sub" style="font-size:11px;">Sana: On my way 🚗</span><span style="min-width:16px;height:16px;border-radius:6px;background:#e879f9;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;">3</span></div></div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;"><div class="avatar" style="width:42px;height:42px;background:linear-gradient(135deg,#7c3aed,#a855f7);">W</div><div style="flex:1;"><div style="display:flex;justify-content:space-between;"><span style="font-size:13px;font-weight:700;">Work Squad</span><span class="sub" style="font-size:9px;">11:18</span></div><div class="sub" style="font-size:11px;margin-top:2px;">You: 🎙 Voice message</div></div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;"><div class="avatar" style="width:42px;height:42px;background:linear-gradient(135deg,#34d399,#7c3aed);">T</div><div style="flex:1;"><div style="display:flex;justify-content:space-between;"><span style="font-size:13px;font-weight:700;">Trip Planning ✈️</span><span class="sub" style="font-size:9px;">Yst</span></div><div class="sub" style="font-size:11px;margin-top:2px;">📊 Poll</div></div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;"><div class="avatar" style="width:42px;height:42px;background:linear-gradient(135deg,#60a5fa,#7c3aed);">G</div><div style="flex:1;"><div style="display:flex;justify-content:space-between;"><span style="font-size:13px;font-weight:700;">Gamers 🎮</span><span class="sub" style="font-size:9px;">Sun</span></div><div class="sub" style="font-size:11px;margin-top:2px;">❓ Quiz</div></div></div>
+      </div>
+      <div class="navbar"><div class="nav" style="color:#e879f9;">💬</div><div class="nav">📰</div><div class="nav">👥</div><div class="nav">🧭</div><div class="nav" style="font-size:16px;">◔</div><div class="nav">👤</div></div>
+    </div></div>
+
+    <!-- FEED -->
+    <div class="screen"><div class="name">Feed</div><div class="phone">
+      <div style="flex-shrink:0;padding:12px;border-bottom:1px solid #330060;display:flex;gap:6px;overflow:hidden;"><div class="chip on">All</div><div class="chip">Sports</div><div class="chip">Business</div><div class="chip">Jobs</div></div>
+      <div style="flex:1;overflow:hidden;padding:10px;display:flex;flex-direction:column;gap:10px;">
+        <div class="card"><div style="display:flex;align-items:center;gap:8px;padding:10px 10px 0;"><div class="avatar grad" style="width:32px;height:32px;font-size:12px;">A</div><div style="flex:1;"><div style="font-size:12px;font-weight:700;">Aisha K.</div><div class="sub" style="font-size:10px;">💼 Hiring · 2h</div></div><span style="font-size:9px;color:#e879f9;background:rgba(232,121,249,0.14);padding:2px 6px;border-radius:6px;">Jobs</span></div>
+          <div style="padding:8px 10px;"><span style="font-size:9px;font-weight:700;color:#34d399;background:rgba(52,211,153,0.12);padding:2px 6px;border-radius:5px;">💼 HIRING</span><div style="font-size:14px;font-weight:700;margin-top:5px;">Senior React Developer</div><div style="font-size:12px;color:#d8c7e8;margin-top:2px;">Remote-first team · 4+ yrs.</div></div>
+          <div style="display:flex;align-items:center;gap:14px;padding:6px 10px;color:#9b7abd;font-size:11px;"><span>♡ 18</span><span>💬 5</span><span>↗</span><span style="margin-left:auto;background:linear-gradient(135deg,#e879f9,#a855f7);color:#fff;font-weight:700;padding:5px 12px;border-radius:9px;">✓ Apply</span></div></div>
+        <div class="card"><div style="display:flex;align-items:center;gap:8px;padding:10px 10px 0;"><div class="avatar" style="width:32px;height:32px;background:linear-gradient(135deg,#60a5fa,#7c3aed);font-size:12px;">R</div><div style="flex:1;"><div style="font-size:12px;font-weight:700;">Rahul V.</div><div class="sub" style="font-size:10px;">📊 Poll · 18m</div></div></div>
+          <div style="padding:8px 10px;"><div style="font-size:13px;font-weight:600;margin-bottom:6px;">Best framework?</div><div style="position:relative;border:1px solid #330060;border-radius:9px;overflow:hidden;margin-bottom:5px;"><div style="position:absolute;inset:0 40% 0 0;background:rgba(232,121,249,0.25);"></div><div style="position:relative;display:flex;align-items:center;gap:6px;padding:6px 9px;font-size:12px;"><span style="width:14px;height:14px;border-radius:50%;background:#e879f9;"></span>React<span style="margin-left:auto;color:#9b7abd;">12</span></div></div><div style="position:relative;border:1px solid #330060;border-radius:9px;overflow:hidden;"><div style="display:flex;align-items:center;gap:6px;padding:6px 9px;font-size:12px;"><span style="width:14px;height:14px;border-radius:50%;border:1px solid #4a3560;"></span>Flutter<span style="margin-left:auto;color:#9b7abd;">6</span></div></div></div></div>
+      </div>
+      <div style="position:absolute;right:12px;bottom:70px;width:46px;height:46px;border-radius:16px;background:linear-gradient(135deg,#e879f9,#a855f7);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 8px 20px rgba(232,121,249,0.5);">＋</div>
+      <div class="navbar"><div class="nav">💬</div><div class="nav" style="color:#e879f9;">📰</div><div class="nav">👥</div><div class="nav">🧭</div><div class="nav" style="font-size:16px;">◔</div><div class="nav">👤</div></div>
+    </div></div>
+
+    <!-- DISCOVER -->
+    <div class="screen"><div class="name">Discover</div><div class="phone">
+      <div class="topbar"><span class="sub" style="font-size:16px;">‹</span><span>🧭</span><span style="font-size:14px;font-weight:700;">Discover</span></div>
+      <div style="flex-shrink:0;padding:10px 12px;border-bottom:1px solid #330060;"><div style="display:flex;align-items:center;gap:8px;background:#220040;border:1px solid #440080;border-radius:11px;padding:9px 11px;margin-bottom:8px;"><span class="sub">⌕</span><span class="sub" style="font-size:12px;">Search public groups…</span></div><div style="display:flex;gap:6px;overflow:hidden;"><div class="chip on">All</div><div class="chip">Gaming</div><div class="chip">Music</div><div class="chip">Sports</div></div></div>
+      <div style="flex:1;overflow:hidden;padding:10px 12px;display:flex;flex-direction:column;gap:9px;">
+        <div class="card" style="padding:10px;display:flex;align-items:center;gap:10px;"><div class="avatar grad" style="width:42px;height:42px;border-radius:13px;">P</div><div style="flex:1;"><div style="font-size:13px;font-weight:700;">Photography Club</div><div class="sub" style="font-size:11px;">👥 1,240 members</div></div><div style="font-size:11px;font-weight:700;padding:6px 12px;border-radius:9px;background:linear-gradient(135deg,#e879f9,#a855f7);">Join</div></div>
+        <div class="card" style="padding:10px;display:flex;align-items:center;gap:10px;"><div class="avatar" style="width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#60a5fa,#7c3aed);">D</div><div style="flex:1;"><div style="font-size:13px;font-weight:700;">Dev Talk</div><div class="sub" style="font-size:11px;">👥 890 members</div></div><div style="font-size:11px;padding:6px 12px;border-radius:9px;background:#220040;color:#9b7abd;">Requested</div></div>
+        <div class="card" style="padding:10px;display:flex;align-items:center;gap:10px;"><div class="avatar" style="width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#34d399,#7c3aed);">F</div><div style="flex:1;"><div style="font-size:13px;font-weight:700;">Football Fans ⚽</div><div class="sub" style="font-size:11px;">👥 3,102 members</div></div><div style="font-size:11px;font-weight:700;padding:6px 12px;border-radius:9px;background:linear-gradient(135deg,#e879f9,#a855f7);">Join</div></div>
+      </div>
+      <div class="navbar"><div class="nav">💬</div><div class="nav">📰</div><div class="nav">👥</div><div class="nav" style="color:#e879f9;">🧭</div><div class="nav" style="font-size:16px;">◔</div><div class="nav">👤</div></div>
+    </div></div>
+
+    <!-- GROUP CHAT -->
+    <div class="screen"><div class="name">Group chat</div><div class="phone">
+      <div class="topbar" style="gap:6px;"><span class="sub">‹</span><div class="avatar grad" style="width:30px;height:30px;">F</div><div style="flex:1;"><div style="font-size:13px;font-weight:700;">Family 🏠</div><div style="font-size:10px;color:#e879f9;">5 members ⌄</div></div><span class="sub" style="font-size:13px;">⌕</span><span style="font-size:14px;">🏆</span><div class="cbtn">▷</div><div class="cbtn">☏</div></div>
+      <div style="flex:1;overflow:hidden;padding:10px 12px;display:flex;flex-direction:column;gap:9px;">
+        <div style="align-self:flex-start;max-width:80%;"><div style="font-size:10px;color:#e879f9;font-weight:700;margin-bottom:2px;">Sana</div><div class="recv">Movie night Friday? 🍿</div></div>
+        <div style="align-self:flex-end;max-width:80%;"><div class="mine grad">I'm in! Bringing snacks 😄</div></div>
+        <!-- poll card -->
+        <div style="align-self:flex-start;max-width:88%;border:1px solid rgba(232,121,249,0.25);background:#1c0333;border-radius:14px;padding:10px;">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#e879f9;margin-bottom:4px;">📊 POLL</div><div style="font-size:12px;font-weight:600;margin-bottom:6px;">What time?</div>
+          <div style="position:relative;border:1px solid #330060;border-radius:9px;overflow:hidden;margin-bottom:4px;"><div style="position:absolute;inset:0 45% 0 0;background:rgba(232,121,249,0.25);"></div><div style="position:relative;display:flex;gap:6px;padding:5px 8px;font-size:11px;"><span style="width:13px;height:13px;border-radius:50%;background:#e879f9;"></span>7 PM<span style="margin-left:auto;color:#9b7abd;">3</span></div></div>
+          <div style="border:1px solid #330060;border-radius:9px;padding:5px 8px;font-size:11px;display:flex;gap:6px;"><span style="width:13px;height:13px;border-radius:50%;border:1px solid #4a3560;"></span>9 PM<span style="margin-left:auto;color:#9b7abd;">1</span></div>
+        </div>
+      </div>
+      <div style="flex-shrink:0;padding:10px 12px 16px;background:rgba(13,0,16,0.95);border-top:1px solid #330060;display:flex;align-items:center;gap:8px;"><div style="width:32px;height:32px;border-radius:11px;background:#220040;color:#cbb6e0;display:flex;align-items:center;justify-content:center;">＋</div><div class="sub" style="flex:1;background:#220040;border-radius:11px;padding:9px 12px;font-size:12px;">Message…</div><div class="avatar grad" style="width:34px;height:34px;font-size:14px;">➤</div></div>
+    </div></div>
+
+    <!-- DM -->
+    <div class="screen"><div class="name">DM thread</div><div class="phone">
+      <div class="topbar" style="gap:8px;"><span class="sub">‹</span><div class="avatar grad" style="width:30px;height:30px;">S</div><div style="flex:1;"><div style="font-size:13px;font-weight:700;">Sana</div><div style="font-size:10px;color:#e879f9;">typing…</div></div><span class="cbtn">☏</span><span class="cbtn">▷</span></div>
+      <div style="flex:1;overflow:hidden;padding:12px;display:flex;flex-direction:column;gap:10px;">
+        <div style="align-self:flex-start;max-width:78%;"><div class="recv">Did you finish the design? ✨</div><div class="sub" style="font-size:9px;margin-top:3px;">8:58</div></div>
+        <div style="align-self:flex-end;max-width:78%;"><div class="mine grad">Just pushed it — check Figma 💜</div><div class="sub" style="font-size:9px;text-align:right;margin-top:3px;">9:02 ✓✓</div></div>
+        <!-- shared post card -->
+        <div style="align-self:flex-start;max-width:82%;border:1px solid rgba(232,121,249,0.25);background:#1c0333;border-radius:14px;overflow:hidden;"><div style="height:70px;background:linear-gradient(135deg,#2a1030,#5c1ea8);"></div><div style="padding:8px 10px;"><div style="font-size:9px;color:#e879f9;font-weight:700;">📰 NEWS</div><div style="font-size:12px;font-weight:700;margin-top:2px;">New app launch 🚀</div><div style="font-size:11px;color:#e879f9;margin-top:4px;">Open in feed ›</div></div></div>
+      </div>
+      <div style="flex-shrink:0;padding:10px 12px 16px;background:rgba(13,0,16,0.95);border-top:1px solid #330060;display:flex;align-items:center;gap:8px;"><div class="sub" style="flex:1;background:#220040;border-radius:11px;padding:9px 12px;font-size:12px;">Message…</div><div class="avatar grad" style="width:34px;height:34px;font-size:14px;">➤</div></div>
+    </div></div>
+
+    <!-- CALL -->
+    <div class="screen"><div class="name">Call room (1:1)</div><div class="phone" style="background:#0a0a0f;">
+      <div style="flex:1;position:relative;background:linear-gradient(160deg,#1a0030,#0a0a0f);display:flex;align-items:center;justify-content:center;">
+        <div class="avatar grad" style="width:96px;height:96px;border-radius:50%;font-size:38px;box-shadow:0 4px 28px rgba(232,121,249,.5);">S</div>
+        <div style="position:absolute;top:14px;left:14px;background:linear-gradient(135deg,#e879f9,#a855f7);padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;">🔊 Sana</div>
+        <!-- self PiP -->
+        <div style="position:absolute;top:14px;right:14px;width:74px;height:104px;border-radius:14px;border:2px solid rgba(232,121,249,0.7);background:linear-gradient(135deg,#7c3aed,#a855f7);display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.5);">You</div>
+      </div>
+      <div style="flex-shrink:0;padding:16px 0 26px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);display:flex;justify-content:center;gap:16px;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:18px;">🎤</div><span style="font-size:9px;color:#ffffffaa;">Mute</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:18px;">📷</div><span style="font-size:9px;color:#ffffffaa;">Flip</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:16px;">⤡</div><span style="font-size:9px;color:#ffffffaa;">Minimize</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="width:56px;height:46px;border-radius:23px;background:#ef4444;display:flex;align-items:center;justify-content:center;font-size:18px;">📞</div><span style="font-size:9px;color:#f87171;font-weight:700;">Leave</span></div>
+      </div>
+    </div></div>
+
+    <!-- STATUS -->
+    <div class="screen"><div class="name">Status</div><div class="phone" style="background:radial-gradient(circle at 30% 0%,#2a1240,#0d0616 60%,#06030c);align-items:center;justify-content:center;">
+      <div style="position:absolute;top:14px;left:14px;font-size:13px;font-weight:700;">Status</div>
+      <div style="position:absolute;top:12px;right:14px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;">✕</div>
+      <!-- polaroid -->
+      <div style="width:210px;height:300px;background:#fdfaf3;border-radius:8px;padding:12px 12px 0;display:flex;flex-direction:column;transform:rotate(-2deg);box-shadow:0 16px 50px rgba(0,0,0,.55);">
+        <div style="flex:1;border-radius:2px;background:linear-gradient(135deg,#c084fc,#7c3aed);display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:80px;color:rgba(255,255,255,.9);font-weight:800;">M</div>
+        <div style="height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 4px;"><div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#c084fc,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;position:relative;">M<span style="position:absolute;right:-3px;bottom:-3px;width:15px;height:15px;border-radius:50%;background:#a855f7;border:2px solid #fdfaf3;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;">+</span></div><span style="font-family:cursive;color:#3a2f28;font-size:13px;">Add status</span></div>
+      </div>
+      <div style="position:absolute;bottom:22px;display:flex;align-items:center;gap:18px;"><span style="color:#fff;font-size:20px;opacity:.7;">‹</span><span class="sub" style="font-size:12px;">1 / 6</span><span style="color:#fff;font-size:20px;opacity:.7;">›</span></div>
+    </div></div>
+
+    <!-- PROFILE -->
+    <div class="screen"><div class="name">Profile</div><div class="phone">
+      <div style="flex:1;overflow:hidden;">
+        <div style="height:90px;background:linear-gradient(135deg,rgba(232,121,249,0.5),#2a1030,rgba(168,85,247,0.4));"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;margin-top:-36px;">
+          <div class="avatar grad" style="width:74px;height:74px;border-radius:20px;font-size:28px;border:3px solid #0d0010;">J</div>
+          <div style="display:flex;align-items:center;gap:5px;margin-top:8px;"><span style="font-size:17px;font-weight:800;">Jabir</span><span style="color:#a855f7;">✔</span></div>
+          <div class="sub" style="font-size:12px;">@jabird7x2</div>
+          <span style="margin-top:5px;font-size:10px;font-weight:600;color:#34d399;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);border-radius:999px;padding:2px 9px;">Available for hire</span>
+        </div>
+        <div style="padding:12px 14px;display:flex;flex-direction:column;gap:10px;">
+          <div class="card" style="padding:12px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:12px;font-weight:700;">Profile 75% complete</span></div><div class="bar"><div class="fill" style="width:75%;"></div></div></div>
+          <div class="card" style="padding:12px;"><div class="lbl" style="margin-bottom:6px;">VERIFICATION</div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:12px;"><span style="color:#34d399;">✔</span><span style="flex:1;">Email</span><span style="font-size:10px;color:#34d399;">Verified</span></div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:12px;"><span style="color:#34d399;">✔</span><span style="flex:1;">Mobile</span><span style="font-size:10px;color:#34d399;">Verified</span></div></div>
+          <div class="card" style="padding:12px;"><div class="lbl" style="margin-bottom:6px;">BASIC INFO</div><div class="sub" style="font-size:10px;">Username 🔒</div><div style="background:#220040;border:1px solid #330060;border-radius:10px;padding:8px 10px;font-size:12px;margin-top:3px;">@jabird7x2</div></div>
+          <div class="card" style="padding:12px;display:flex;align-items:center;"><span style="flex:1;font-size:13px;font-weight:700;">Work</span><span style="font-size:9px;color:#9b7abd;background:#220040;border:1px solid #330060;border-radius:7px;padding:2px 6px;">🌍 Everyone</span><span class="sub" style="margin-left:6px;">⌄</span></div>
+          <div class="card" style="padding:12px;display:flex;align-items:center;"><span style="flex:1;font-size:13px;font-weight:700;">Education</span><span class="sub">⌄</span></div>
+        </div>
+      </div>
+    </div></div>
+
+    <!-- PROFILE VIEW + MATCH -->
+    <div class="screen"><div class="name">Profile view + Match</div><div class="phone">
+      <div style="flex:1;overflow:hidden;">
+        <div style="height:80px;background:linear-gradient(135deg,rgba(96,165,250,0.4),#2a1030,rgba(168,85,247,0.4));"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;margin-top:-32px;"><div class="avatar" style="width:68px;height:68px;border-radius:20px;background:linear-gradient(135deg,#f472b6,#7c3aed);font-size:26px;border:3px solid #0d0010;">M</div><div style="display:flex;align-items:center;gap:5px;margin-top:6px;"><span style="font-size:16px;font-weight:800;">Meera S.</span><span style="color:#a855f7;">✔</span></div><div class="sub" style="font-size:12px;">@meeras</div></div>
+        <div style="padding:12px 14px;display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;gap:8px;"><div style="flex:1;text-align:center;padding:9px;border-radius:12px;background:linear-gradient(135deg,#e879f9,#a855f7);font-weight:700;font-size:12px;">⚡ Poke</div><div style="flex:1;text-align:center;padding:9px;border-radius:12px;background:rgba(232,121,249,0.14);border:1px solid rgba(232,121,249,0.3);color:#e879f9;font-weight:700;font-size:12px;">💬 Message</div></div>
+          <div class="card" style="padding:13px;"><div class="lbl" style="margin-bottom:10px;">MATCH WITH YOU</div>
+            <div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:12px;"><span>❤️ Relationship</span><span style="font-weight:700;color:#e879f9;">92%</span></div><div class="bar"><div class="fill" style="width:92%;"></div></div></div>
+            <div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:12px;"><span>💼 Job</span><span style="font-weight:700;color:#e879f9;">88%</span></div><div class="bar"><div class="fill" style="width:88%;"></div></div></div>
+            <div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:12px;"><span>🤝 Business</span><span style="font-weight:700;color:#e879f9;">94%</span></div><div class="bar"><div class="fill" style="width:94%;"></div></div></div>
+            <div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:12px;"><span>🎓 Mentor</span><span style="font-weight:700;color:#e879f9;">81%</span></div><div class="bar"><div class="fill" style="width:81%;"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:12px;"><span>👥 Friendship</span><span style="font-weight:700;color:#e879f9;">89%</span></div><div class="bar"><div class="fill" style="width:89%;"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+
+  </div>
+</body>
+</html>

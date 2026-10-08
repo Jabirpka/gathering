@@ -81,8 +81,8 @@ export default function ProfileSetup() {
         {/* Header + progress */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-bold text-white">Set up profile</h1>
-            <p className="text-xs text-slate-400 mt-0.5">Step 2 of 2</p>
+            <h1 className="text-xl font-bold text-ink">Set up profile</h1>
+            <p className="text-xs text-muted mt-0.5">Step 2 of 2</p>
           </div>
           <div className="flex gap-1">
             <div className="w-7 h-1 rounded-full bg-surface-3" />
@@ -97,11 +97,11 @@ export default function ProfileSetup() {
               {avatar ? (
                 <img src={avatar} className="w-full h-full object-cover" alt="" />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-accent to-brand flex items-center justify-center text-3xl font-bold text-white">{initial}</div>
+                <div className="w-full h-full bg-gradient-to-br from-accent to-brand flex items-center justify-center text-3xl font-bold text-ink">{initial}</div>
               )}
             </div>
             <button onClick={() => fileRef.current?.click()} disabled={uploading}
-              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-xl bg-gradient-to-br from-accent to-brand border-2 border-surface flex items-center justify-center text-white">
+              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-xl bg-gradient-to-br from-accent to-brand border-2 border-surface flex items-center justify-center text-ink">
               {uploading ? <Loader2 size={13} className="animate-spin" /> : <Camera size={13} />}
             </button>
           </div>
@@ -110,42 +110,42 @@ export default function ProfileSetup() {
         </div>
 
         <div className="space-y-4">
-          <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500">BASIC INFO</p>
+          <p className="text-[10px] font-bold tracking-[0.18em] text-muted">BASIC INFO</p>
 
           <div>
-            <label className="text-xs font-medium text-slate-400 mb-1.5 block">Full name</label>
+            <label className="text-xs font-medium text-muted mb-1.5 block">Full name</label>
             <input className="input" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} placeholder="Your name" autoFocus />
           </div>
 
           <div>
-            <label className="text-xs font-medium text-slate-400 mb-1.5 block">Username <span className="text-slate-500">(optional)</span></label>
+            <label className="text-xs font-medium text-muted mb-1.5 block">Username <span className="text-muted">(optional)</span></label>
             <div className="input flex items-center gap-1.5">
-              <span className="text-slate-500">@</span>
-              <input className="flex-1 bg-transparent outline-none text-white placeholder-slate-500"
+              <span className="text-muted">@</span>
+              <input className="flex-1 bg-transparent outline-none text-ink placeholder-muted"
                 value={username} onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9._]/g, '').slice(0, 24))} placeholder="username" />
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-medium text-slate-400 mb-1.5 block">Date of birth</label>
+            <label className="text-xs font-medium text-muted mb-1.5 block">Date of birth</label>
             <input type="date" className="input" value={dateOfBirth ?? ''} onChange={(e) => setDateOfBirth(e.target.value)} />
           </div>
 
-          <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500 pt-1">PERSONAL DETAILS</p>
+          <p className="text-[10px] font-bold tracking-[0.18em] text-muted pt-1">PERSONAL DETAILS</p>
 
           <div>
-            <label className="text-xs font-medium text-slate-400 mb-1.5 block">Bio</label>
+            <label className="text-xs font-medium text-muted mb-1.5 block">Bio</label>
             <textarea className="input resize-none" rows={2} maxLength={160} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Just hanging out ✨" />
           </div>
 
           <div>
-            <label className="text-xs font-medium text-slate-400 mb-2 block">Interests <span className="text-slate-500">({interests.length}/5)</span></label>
+            <label className="text-xs font-medium text-muted mb-2 block">Interests <span className="text-muted">({interests.length}/5)</span></label>
             <div className="flex flex-wrap gap-2">
               {INTEREST_OPTIONS.map((opt) => {
                 const on = interests.includes(opt);
                 return (
                   <button key={opt} type="button" onClick={() => toggleInterest(opt)}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${on ? 'bg-gradient-to-br from-brand to-accent text-white' : 'bg-surface-2 border border-white/10 text-slate-400'}`}>
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${on ? 'bg-gradient-to-br from-brand to-accent text-white' : 'bg-surface-2 border border-line/10 text-muted'}`}>
                     {opt}
                   </button>
                 );
@@ -154,31 +154,31 @@ export default function ProfileSetup() {
           </div>
 
           <div>
-            <label className="text-xs font-medium text-slate-400 mb-1.5 block">Favorite song</label>
+            <label className="text-xs font-medium text-muted mb-1.5 block">Favorite song</label>
             <div className="input flex items-center gap-2">
               <Music size={14} className="text-brand shrink-0" />
-              <input className="flex-1 bg-transparent outline-none text-white placeholder-slate-500" value={favoriteSong} onChange={(e) => setFavoriteSong(e.target.value)} maxLength={80} placeholder="A song you love" />
+              <input className="flex-1 bg-transparent outline-none text-ink placeholder-muted" value={favoriteSong} onChange={(e) => setFavoriteSong(e.target.value)} maxLength={80} placeholder="A song you love" />
             </div>
           </div>
           <div>
-            <label className="text-xs font-medium text-slate-400 mb-1.5 block">Favorite movie</label>
+            <label className="text-xs font-medium text-muted mb-1.5 block">Favorite movie</label>
             <div className="input flex items-center gap-2">
               <Film size={14} className="text-brand shrink-0" />
-              <input className="flex-1 bg-transparent outline-none text-white placeholder-slate-500" value={favoriteMovie} onChange={(e) => setFavoriteMovie(e.target.value)} maxLength={80} placeholder="A movie you love" />
+              <input className="flex-1 bg-transparent outline-none text-ink placeholder-muted" value={favoriteMovie} onChange={(e) => setFavoriteMovie(e.target.value)} maxLength={80} placeholder="A movie you love" />
             </div>
           </div>
           <div>
-            <label className="text-xs font-medium text-slate-400 mb-1.5 block">City</label>
+            <label className="text-xs font-medium text-muted mb-1.5 block">City</label>
             <div className="input flex items-center gap-2">
               <MapPin size={14} className="text-brand shrink-0" />
-              <input className="flex-1 bg-transparent outline-none text-white placeholder-slate-500" value={city} onChange={(e) => setCity(e.target.value)} maxLength={60} placeholder="Where you're based" />
+              <input className="flex-1 bg-transparent outline-none text-ink placeholder-muted" value={city} onChange={(e) => setCity(e.target.value)} maxLength={60} placeholder="Where you're based" />
             </div>
           </div>
 
           <button onClick={handleSave} disabled={saving} className="btn-primary w-full justify-center py-3.5 text-[15px] mt-2">
             {saving ? <Loader2 size={16} className="animate-spin" /> : "Let's go 🚀"}
           </button>
-          <button onClick={() => logout()} className="w-full text-center text-xs text-slate-500 hover:text-slate-300">
+          <button onClick={() => logout()} className="w-full text-center text-xs text-muted hover:text-ink-soft">
             Sign out
           </button>
         </div>

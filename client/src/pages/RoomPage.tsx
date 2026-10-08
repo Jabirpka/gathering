@@ -64,22 +64,22 @@ export default function RoomPage() {
   };
 
   if (!room || !groupId || !roomId) {
-    return <div className="flex items-center justify-center h-full"><p className="text-slate-400">Room not found</p></div>;
+    return <div className="flex items-center justify-center h-full"><p className="text-muted">Room not found</p></div>;
   }
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* Header — back minimizes the call (keeps it running) */}
-      <div className="h-14 shrink-0 border-b border-white/10 glass-panel flex items-center px-3 gap-2">
+      <div className="h-14 shrink-0 border-b border-line/10 glass-panel flex items-center px-3 gap-2">
         <button onClick={() => popOrReplace(navigate, `/groups/${groupId}`)} className="btn-ghost p-1.5">
           <ArrowLeft size={16} />
         </button>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold text-white truncate">{activeGroup?.name ?? room.name}</div>
+          <div className="text-sm font-semibold text-ink truncate">{activeGroup?.name ?? room.name}</div>
           <div className="flex items-center gap-1.5 mt-0.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-[11px] font-medium text-emerald-400">Live</span>
-            <span className="text-[11px] text-slate-500">· {room.type === 'AUDIO_CALL' ? 'Voice' : 'Video'} call</span>
+            <span className="text-[11px] text-muted">· {room.type === 'AUDIO_CALL' ? 'Voice' : 'Video'} call</span>
           </div>
         </div>
         <button onClick={inviteToCall}

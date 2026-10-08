@@ -1,0 +1,86 @@
+<!-- @dsCard group="Gathering — Screens (v3)" name="Feed" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gathering — Feed</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #08000c; padding: 28px; font-family: 'Space Grotesk', system-ui, sans-serif; }
+  .phone { width: 360px; height: 740px; border-radius: 36px; overflow: hidden; position: relative; background: #0d0010;
+    background-image: radial-gradient(28rem 16rem at 50% -8%, rgba(232,121,249,0.16), transparent 62%);
+    border: 1px solid #330060; box-shadow: 0 24px 80px rgba(0,0,0,0.6); color: #fff; display: flex; flex-direction: column; }
+  .avatar { border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .grad { background: linear-gradient(135deg, #e879f9, #a855f7); }
+  .sub { color: #9b7abd; }
+  .card { background: #1c0333; border: 1px solid #330060; border-radius: 18px; overflow: hidden; }
+  .chip { flex-shrink:0; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:600; background:#220040; border:1px solid rgba(232,121,249,0.18); color:#9b7abd; }
+  .chip.on { background: linear-gradient(135deg,#e879f9,#a855f7); color:#fff; border-color:transparent; }
+  .cat { font-size:10px; font-weight:700; color:#e879f9; background:rgba(232,121,249,0.14); padding:3px 8px; border-radius:8px; }
+  .foot { display:flex; align-items:center; gap:16px; padding:8px 12px; color:#9b7abd; font-size:12px; }
+  .nav { display:flex; flex-direction:column; align-items:center; gap:3px; color:#9b7abd; font-size:20px; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div style="height:26px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:11px;color:#9b7abd;"><span>9:41</span><span>◗ ▂ ▍ 47%</span></div>
+
+  <!-- Category chips -->
+  <div style="flex-shrink:0;padding:12px 12px;border-bottom:1px solid #330060;display:flex;gap:8px;overflow-x:auto;">
+    <div class="chip on">All</div><div class="chip">Sports</div><div class="chip">Business</div><div class="chip">Tech</div><div class="chip">Jobs</div><div class="chip">News</div>
+  </div>
+
+  <div style="flex:1;overflow-y:auto;min-height:0;padding:12px;display:flex;flex-direction:column;gap:12px;">
+    <!-- Job (hiring) post -->
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:9px;padding:12px 12px 0;">
+        <div class="avatar grad" style="width:36px;height:36px;font-size:14px;">A</div>
+        <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">Aisha K.</div><div class="sub" style="font-size:11px;">💼 Hiring · 2h</div></div>
+        <span class="cat">Jobs</span>
+      </div>
+      <div style="padding:10px 12px 4px;">
+        <span style="display:inline-block;font-size:10px;font-weight:700;color:#34d399;background:rgba(52,211,153,0.12);padding:2px 8px;border-radius:6px;margin-bottom:6px;">💼 HIRING</span>
+        <div style="font-size:15px;font-weight:700;">Senior React Developer</div>
+        <div style="font-size:13px;color:#d8c7e8;margin-top:3px;">Remote-first team, building a social app. 4+ yrs experience.</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;"><span style="font-size:11px;color:#cbb6e0;background:rgba(255,255,255,.05);border:1px solid #330060;border-radius:8px;padding:2px 8px;">Nova Labs</span><span style="font-size:11px;color:#cbb6e0;background:rgba(255,255,255,.05);border:1px solid #330060;border-radius:8px;padding:2px 8px;">Remote</span><span style="font-size:11px;color:#cbb6e0;background:rgba(255,255,255,.05);border:1px solid #330060;border-radius:8px;padding:2px 8px;">$4k/mo</span></div>
+      </div>
+      <div class="foot"><span>♡ 18</span><span>💬 5</span><span>↗</span><span style="margin-left:auto;background:linear-gradient(135deg,#e879f9,#a855f7);color:#fff;font-weight:700;padding:6px 14px;border-radius:10px;font-size:12px;">✓ Apply</span></div>
+    </div>
+
+    <!-- Poll post -->
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:9px;padding:12px 12px 0;"><div class="avatar" style="width:36px;height:36px;background:linear-gradient(135deg,#60a5fa,#7c3aed);font-size:14px;">R</div><div style="flex:1;"><div style="font-size:13px;font-weight:700;">Rahul V.</div><div class="sub" style="font-size:11px;">📊 Poll · 18m</div></div><span class="cat">Tech</span></div>
+      <div style="padding:10px 12px 4px;">
+        <div style="font-size:14px;font-weight:600;margin-bottom:8px;">Best framework for a new app?</div>
+        <div style="position:relative;border:1px solid #330060;border-radius:10px;overflow:hidden;margin-bottom:6px;"><div style="position:absolute;inset:0 40% 0 0;background:linear-gradient(90deg,rgba(232,121,249,0.3),rgba(168,85,247,0.15));"></div><div style="position:relative;display:flex;align-items:center;gap:8px;padding:8px 10px;font-size:13px;"><span style="width:16px;height:16px;border-radius:50%;background:#e879f9;display:flex;align-items:center;justify-content:center;font-size:9px;">✓</span>React <span style="margin-left:auto;color:#9b7abd;">12</span></div></div>
+        <div style="position:relative;border:1px solid #330060;border-radius:10px;overflow:hidden;margin-bottom:6px;"><div style="position:absolute;inset:0 70% 0 0;background:linear-gradient(90deg,rgba(232,121,249,0.2),transparent);"></div><div style="position:relative;display:flex;align-items:center;gap:8px;padding:8px 10px;font-size:13px;"><span style="width:16px;height:16px;border-radius:50%;border:1px solid #4a3560;"></span>Flutter <span style="margin-left:auto;color:#9b7abd;">6</span></div></div>
+        <div class="sub" style="font-size:11px;">18 votes</div>
+      </div>
+      <div class="foot"><span>♡ 9</span><span>💬 3</span><span>↗</span></div>
+    </div>
+
+    <!-- Photo post -->
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:9px;padding:12px 12px 8px;"><div class="avatar" style="width:36px;height:36px;background:linear-gradient(135deg,#f472b6,#7c3aed);font-size:14px;">M</div><div style="flex:1;"><div style="font-size:13px;font-weight:700;">Meera S.</div><div class="sub" style="font-size:11px;">📷 Photo · 41m</div></div><span class="cat">Travel</span></div>
+      <div style="height:150px;background:linear-gradient(135deg,#2a1030,#5c1ea8);display:flex;align-items:center;justify-content:center;font-size:40px;">🏔️</div>
+      <div style="padding:8px 12px 0;font-size:13px;color:#d8c7e8;">Sunset from the summit 🌄</div>
+      <div class="foot"><span style="color:#e879f9;">♥ 42</span><span>💬 7</span><span>↗</span></div>
+    </div>
+  </div>
+
+  <!-- Compose FAB -->
+  <div style="position:absolute;right:16px;bottom:80px;width:52px;height:52px;border-radius:18px;background:linear-gradient(135deg,#e879f9,#a855f7);display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 8px 24px rgba(232,121,249,0.5);">＋</div>
+
+  <div style="flex-shrink:0;height:64px;background:rgba(13,0,16,0.95);border-top:1px solid #330060;display:flex;align-items:center;justify-content:space-around;padding:0 6px 8px;">
+    <div class="nav">💬</div>
+    <div class="nav" style="color:#e879f9;">📰<span style="width:4px;height:4px;border-radius:50%;background:#e879f9;"></span></div>
+    <div class="nav">👥</div>
+    <div class="nav">🧭</div>
+    <div class="nav" style="font-size:18px;">◔</div>
+    <div class="nav">👤</div>
+  </div>
+</div>
+</body>
+</html>

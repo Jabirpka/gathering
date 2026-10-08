@@ -40,7 +40,7 @@ function SectionView({ section, extra }: { section: SectionDef; extra: Record<st
     if (work.length === 0 && !extra.availableForHire) return null;
     return (
       <div className="card p-5 mb-4">
-        <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500 mb-3">WORK</p>
+        <p className="text-[10px] font-bold tracking-[0.18em] text-muted mb-3">WORK</p>
         {extra.availableForHire && (
           <span className="inline-block mb-3 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-400/30 rounded-full px-2.5 py-0.5">Available for hire</span>
         )}
@@ -49,9 +49,9 @@ function SectionView({ section, extra }: { section: SectionDef; extra: Record<st
             <div key={i} className="flex items-start gap-3">
               <Briefcase size={15} className="text-brand shrink-0 mt-0.5" />
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-white">{w.designation}{w.company ? <span className="text-slate-400 font-normal"> · {w.company}</span> : ''}</p>
+                <p className="text-sm font-semibold text-ink">{w.designation}{w.company ? <span className="text-muted font-normal"> · {w.company}</span> : ''}</p>
                 {(w.joinDate || w.current || w.endDate) && (
-                  <p className="text-xs text-slate-500">{monthLabel(w.joinDate)} – {w.current ? 'Present' : monthLabel(w.endDate) || '—'}</p>
+                  <p className="text-xs text-muted">{monthLabel(w.joinDate)} – {w.current ? 'Present' : monthLabel(w.endDate) || '—'}</p>
                 )}
               </div>
             </div>
@@ -66,14 +66,14 @@ function SectionView({ section, extra }: { section: SectionDef; extra: Record<st
     if (items.length === 0) return null;
     return (
       <div className="card p-5 mb-4">
-        <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500 mb-3">EDUCATION</p>
+        <p className="text-[10px] font-bold tracking-[0.18em] text-muted mb-3">EDUCATION</p>
         <div className="space-y-3">
           {items.map((e, i) => (
             <div key={i} className="flex items-start gap-3">
               <GraduationCap size={15} className="text-brand shrink-0 mt-0.5" />
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-white">{e.level}</p>
-                <p className="text-xs text-slate-400">{e.institution}{e.institution && (e.endYear || e.ongoing) ? ' · ' : ''}{e.ongoing ? 'Ongoing' : e.endYear || ''}</p>
+                <p className="text-sm font-semibold text-ink">{e.level}</p>
+                <p className="text-xs text-muted">{e.institution}{e.institution && (e.endYear || e.ongoing) ? ' · ' : ''}{e.ongoing ? 'Ongoing' : e.endYear || ''}</p>
               </div>
             </div>
           ))}
@@ -87,13 +87,13 @@ function SectionView({ section, extra }: { section: SectionDef; extra: Record<st
     if (skills.length === 0) return null;
     return (
       <div className="card p-5 mb-4">
-        <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500 mb-3">SKILLS</p>
+        <p className="text-[10px] font-bold tracking-[0.18em] text-muted mb-3">SKILLS</p>
         <div className="space-y-2">
           {skills.map((s, i) => (
             <div key={i} className="flex items-center gap-2">
-              <span className="flex-1 text-sm text-white">{s.name}</span>
+              <span className="flex-1 text-sm text-ink">{s.name}</span>
               <span className="text-xs font-semibold text-brand bg-brand-dim rounded-lg px-2 py-0.5">{s.level}</span>
-              {s.years != null && <span className="text-xs text-slate-400">{s.years} yr{s.years !== 1 ? 's' : ''}</span>}
+              {s.years != null && <span className="text-xs text-muted">{s.years} yr{s.years !== 1 ? 's' : ''}</span>}
             </div>
           ))}
         </div>
@@ -105,12 +105,12 @@ function SectionView({ section, extra }: { section: SectionDef; extra: Record<st
   if (filledFields.length === 0) return null;
   return (
     <div className="card p-5 mb-4">
-      <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500 mb-3">{section.title.toUpperCase()}</p>
+      <p className="text-[10px] font-bold tracking-[0.18em] text-muted mb-3">{section.title.toUpperCase()}</p>
       <div className="space-y-2.5">
         {filledFields.map((f) => (
           <div key={f.key} className="flex items-center justify-between gap-3">
-            <p className="text-sm text-slate-400">{f.label}</p>
-            <p className="text-sm text-white text-right">{String(extra[f.key])}</p>
+            <p className="text-sm text-muted">{f.label}</p>
+            <p className="text-sm text-ink text-right">{String(extra[f.key])}</p>
           </div>
         ))}
       </div>
@@ -152,7 +152,7 @@ export default function UserProfilePage() {
     try {
       const res = await usersApi.poke(userId);
       setStrikes(res.data.strikePoints ?? strikes + 1);
-      toast.success(`Poked ${u?.nickname || u?.name || ''}! 👉`);
+      toast.success(`Knocked ${u?.nickname || u?.name || ''}! 👋`);
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Failed to poke');
     } finally {
@@ -176,25 +176,32 @@ export default function UserProfilePage() {
   const name = u?.nickname || u?.name || '';
   const extra = (u?.profileExtra ?? {}) as Record<string, any>;
   const zodiac = zodiacFrom(u?.dateOfBirth);
-  const matches = me && u ? computeMatches(me, u) : [];
+  // Single "Match with you" score. Prefer the server value (it also factors in
+  // pokes + chat activity); fall back to an on-device profile-only average so
+  // the card still shows something against an older server.
+  const clientMatches = me && u ? computeMatches(me, u) : [];
+  const match = u?.match
+    ?? (clientMatches.length > 0
+      ? { percent: Math.round(clientMatches.reduce((s, m) => s + m.score, 0) / clientMatches.length), reason: clientMatches[0].reason }
+      : null);
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="h-14 shrink-0 border-b border-white/10 glass-panel flex items-center px-3 gap-2">
+      <div className="h-14 shrink-0 border-b border-line/10 glass-panel flex items-center px-3 gap-2">
         <button onClick={() => navigate(-1)} className="btn-ghost p-1.5"><ArrowLeft size={16} /></button>
-        <div className="text-sm font-semibold text-white truncate">Profile</div>
+        <div className="text-sm font-semibold text-ink truncate">Profile</div>
       </div>
 
       {loading ? (
         <div className="flex-1 flex items-center justify-center"><Loader2 size={22} className="animate-spin text-brand" /></div>
       ) : !u ? (
-        <div className="flex-1 flex items-center justify-center"><p className="text-slate-400 text-sm">Profile not found</p></div>
+        <div className="flex-1 flex items-center justify-center"><p className="text-muted text-sm">Profile not found</p></div>
       ) : (
         <div className="flex-1 overflow-y-auto p-6 pt-0 max-w-lg mx-auto w-full pb-28 animate-fade-in">
           {/* Banner — full-bleed across the app width */}
           {u.banner ? (
-            <div className="h-36 overflow-hidden border-b border-white/10 -mx-6">
+            <div className="h-36 overflow-hidden border-b border-line/10 -mx-6">
               <img src={u.banner} alt="" className="w-full h-full object-cover" />
             </div>
           ) : (
@@ -207,12 +214,12 @@ export default function UserProfilePage() {
               {u.avatar ? (
                 <img src={u.avatar} alt={name} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-accent to-brand flex items-center justify-center text-3xl font-bold text-white">
+                <div className="w-full h-full bg-gradient-to-br from-accent to-brand flex items-center justify-center text-3xl font-bold text-ink">
                   {name[0]?.toUpperCase()}
                 </div>
               )}
             </div>
-            <h1 className="text-xl font-bold text-white mt-3 flex items-center gap-1.5">
+            <h1 className="text-xl font-bold text-ink mt-3 flex items-center gap-1.5">
               {name}
               {(u.emailVerified || u.phoneVerified) && (
                 <BadgeCheck size={17} className="text-brand" aria-label="Verified" />
@@ -223,14 +230,14 @@ export default function UserProfilePage() {
                 Available for hire
               </span>
             )}
-            {u.username && <p className="text-sm text-slate-400">@{u.username}</p>}
-            {u.bio && <p className="text-sm text-slate-300 text-center mt-2 max-w-xs">{u.bio}</p>}
+            {u.username && <p className="text-sm text-muted">@{u.username}</p>}
+            {u.bio && <p className="text-sm text-ink-soft text-center mt-2 max-w-xs">{u.bio}</p>}
 
             <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }}
               className="mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/15 border border-amber-200/60">
               <Zap size={13} className="text-amber-300" />
               <span className="text-xs font-semibold text-amber-300">
-                {strikes} strike point{strikes !== 1 ? 's' : ''}
+                {strikes} spark{strikes !== 1 ? 's' : ''}
               </span>
             </motion.div>
           </div>
@@ -240,7 +247,7 @@ export default function UserProfilePage() {
             <button onClick={poke} disabled={poking}
               className="flex-1 justify-center flex items-center gap-2 rounded-2xl py-3 font-semibold text-white bg-gradient-to-br from-brand to-accent shadow-lg shadow-brand/30 active:scale-[0.98] transition-transform disabled:opacity-60">
               {poking ? <Loader2 size={16} className="animate-spin" /> : <Zap size={16} />}
-              Poke
+              Knock
             </button>
             <button onClick={message} disabled={opening}
               className="flex-1 justify-center flex items-center gap-2 rounded-2xl py-3 font-semibold text-brand bg-brand-dim border border-brand/30 active:scale-[0.98] transition-transform disabled:opacity-60">
@@ -249,59 +256,64 @@ export default function UserProfilePage() {
             </button>
           </div>
 
-          {/* Match with you */}
-          {matches.length > 0 && (
+          {/* Match with you — a single blended score */}
+          {match && (
             <div className="card p-5 mb-4">
-              <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500 mb-3">MATCH WITH YOU</p>
-              <div className="space-y-2.5">
-                {matches.map((m) => (
-                  <div key={m.key}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-slate-200">{m.emoji} {m.label}</span>
-                      <span className="text-sm font-bold text-brand tabular-nums">{m.score}%</span>
-                    </div>
-                    <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
-                      <div className="h-full rounded-full bg-gradient-to-r from-brand to-accent transition-all duration-500"
-                        style={{ width: `${m.score}%` }} />
-                    </div>
-                    <p className="text-[10px] text-slate-500 mt-0.5">{m.reason}</p>
-                  </div>
-                ))}
+              <p className="text-[10px] font-bold tracking-[0.18em] text-muted mb-3">MATCH WITH YOU</p>
+              <div className="flex items-center gap-4">
+                <div className="relative w-16 h-16 shrink-0">
+                  <svg viewBox="0 0 36 36" className="w-16 h-16 -rotate-90">
+                    <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="3.5" />
+                    <circle cx="18" cy="18" r="15" fill="none" stroke="url(#matchgrad)" strokeWidth="3.5" strokeLinecap="round"
+                      strokeDasharray={`${(match.percent / 100) * 94.2} 94.2`} className="transition-all duration-700" />
+                    <defs>
+                      <linearGradient id="matchgrad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor="#FF6B5E" />
+                        <stop offset="100%" stopColor="#E0503F" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  <span className="absolute inset-0 flex items-center justify-center text-base font-extrabold text-ink tabular-nums">{match.percent}%</span>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-ink">You&apos;re a {match.percent}% match</p>
+                  <p className="text-xs text-muted mt-0.5">{match.reason}</p>
+                </div>
               </div>
-              <p className="text-[10px] text-slate-500 mt-3">Based on both profiles — complete yours for sharper matches.</p>
+              <p className="text-[10px] text-muted mt-3">Based on your interests, shared profile details, and how you knock &amp; chat.</p>
             </div>
           )}
 
           {/* Basic info */}
           {((u.nickname && u.name && u.nickname !== u.name) || u.dateOfBirth || u.city || extra.gender) && (
             <div className="card p-5 space-y-3 mb-4">
-              <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500">BASIC INFO</p>
+              <p className="text-[10px] font-bold tracking-[0.18em] text-muted">BASIC INFO</p>
               {u.nickname && u.name && u.nickname !== u.name && (
                 <div className="flex items-center gap-3">
                   <UserIcon size={15} className="text-brand shrink-0" />
-                  <span className="text-sm text-slate-200">{u.name}</span>
+                  <span className="text-sm text-ink">{u.name}</span>
                 </div>
               )}
               {u.dateOfBirth && (
                 <div className="flex items-center gap-3">
                   <Cake size={15} className="text-brand shrink-0" />
-                  <span className="text-sm text-slate-200">
+                  <span className="text-sm text-ink">
                     {format(new Date(u.dateOfBirth), 'MMMM d, yyyy')}
-                    {ageFrom(u.dateOfBirth) !== null && <span className="text-slate-400"> · {ageFrom(u.dateOfBirth)} yrs</span>}
-                    {zodiac && <span className="text-slate-400"> · {zodiac}</span>}
+                    {ageFrom(u.dateOfBirth) !== null && <span className="text-muted"> · {ageFrom(u.dateOfBirth)} yrs</span>}
+                    {zodiac && <span className="text-muted"> · {zodiac}</span>}
                   </span>
                 </div>
               )}
               {extra.gender && (
                 <div className="flex items-center gap-3">
                   <UserIcon size={15} className="text-brand shrink-0" />
-                  <span className="text-sm text-slate-200">{extra.gender}</span>
+                  <span className="text-sm text-ink">{extra.gender}</span>
                 </div>
               )}
               {u.city && (
                 <div className="flex items-center gap-3">
                   <MapPin size={15} className="text-brand shrink-0" />
-                  <span className="text-sm text-slate-200">{u.city}</span>
+                  <span className="text-sm text-ink">{u.city}</span>
                 </div>
               )}
             </div>
@@ -310,10 +322,10 @@ export default function UserProfilePage() {
           {/* Interests (core column) */}
           {u.interests && u.interests.length > 0 && (
             <div className="card p-5 mb-4">
-              <p className="text-[10px] font-bold tracking-[0.18em] text-slate-500 mb-3">INTERESTS</p>
+              <p className="text-[10px] font-bold tracking-[0.18em] text-muted mb-3">INTERESTS</p>
               <div className="flex flex-wrap gap-1.5">
                 {u.interests.map((i) => (
-                  <span key={i} className="px-2.5 py-1 rounded-full text-xs font-semibold bg-surface-2 border border-white/10 text-slate-200">{i}</span>
+                  <span key={i} className="px-2.5 py-1 rounded-full text-xs font-semibold bg-surface-2 border border-line/10 text-ink">{i}</span>
                 ))}
               </div>
             </div>
@@ -323,7 +335,7 @@ export default function UserProfilePage() {
           {PROFILE_SECTIONS.map((s) => <SectionView key={s.id} section={s} extra={extra} />)}
 
           {u.createdAt && (
-            <p className="text-center text-xs text-slate-500">Member since {format(new Date(u.createdAt), 'MMMM yyyy')}</p>
+            <p className="text-center text-xs text-muted">Member since {format(new Date(u.createdAt), 'MMMM yyyy')}</p>
           )}
         </div>
       )}

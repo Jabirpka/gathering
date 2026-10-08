@@ -28,6 +28,9 @@ export interface User {
   onboarded?: boolean;
   strikePoints?: number;
   createdAt?: string;
+  /** Single "Match with you" score vs. the viewer (only on another user's
+   *  public profile). Blends both profiles with poke/chat activity. */
+  match?: { percent: number; reason: string };
 }
 
 export interface AppNotification {
@@ -156,6 +159,8 @@ export interface DmThread {
   lastMessage?: { content: string; createdAt: string; userId: string } | null;
   updatedAt: string;
   createdAt: string;
+  /** "Match with you" percentage with this partner (profile + poke/chat). */
+  matchPercent?: number;
 }
 
 export interface PollState {

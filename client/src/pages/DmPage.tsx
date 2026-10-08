@@ -137,7 +137,7 @@ export default function DmPage() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="h-14 shrink-0 border-b border-white/10 glass-panel flex items-center px-3 gap-2">
+      <div className="h-14 shrink-0 border-b border-line/10 glass-panel flex items-center px-3 gap-2">
         <Link to="/dashboard" className="btn-ghost p-1.5"><ArrowLeft size={16} /></Link>
         {thread?.partner.avatar ? (
           <img src={thread.partner.avatar} className="w-9 h-9 rounded-xl object-cover" alt={partnerName} />
@@ -147,7 +147,7 @@ export default function DmPage() {
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-white truncate">{partnerName}</p>
+          <p className="text-sm font-semibold text-ink truncate">{partnerName}</p>
           {partnerTyping && <p className="text-[11px] text-brand animate-pulse">typing…</p>}
         </div>
         <button onClick={() => navigate(`/dm/${threadId}/call?type=video`)} title="Video call"
@@ -160,7 +160,7 @@ export default function DmPage() {
         </button>
         <button
           onClick={() => { setSearchOpen((v) => !v); setSearchQuery(''); setSearchResults([]); }}
-          className={`p-2 rounded-lg transition-colors ${searchOpen ? 'bg-brand-dim text-brand' : 'text-slate-500 hover:text-slate-200'}`}
+          className={`p-2 rounded-lg transition-colors ${searchOpen ? 'bg-brand-dim text-brand' : 'text-muted hover:text-ink'}`}
           title="Search messages"
         >
           <Search size={16} />
@@ -187,10 +187,10 @@ export default function DmPage() {
 
       {/* Search */}
       {searchOpen && (
-        <div className="px-3 py-2 border-b border-white/10 glass-panel shrink-0 space-y-2">
+        <div className="px-3 py-2 border-b border-line/10 glass-panel shrink-0 space-y-2">
           <input
             className="input text-sm"
-            placeholder="Search messages…"
+            aria-label="Search messages" placeholder="Search messages…"
             value={searchQuery}
             onChange={(e) => runSearch(e.target.value)}
             autoFocus
@@ -198,14 +198,14 @@ export default function DmPage() {
           {searchQuery.trim() && (
             <div className="max-h-48 overflow-y-auto space-y-1">
               {searchResults.length === 0 ? (
-                <p className="text-xs text-slate-500 text-center py-2">No matches</p>
+                <p className="text-xs text-muted text-center py-2">No matches</p>
               ) : (
                 searchResults.map((m) => (
                   <div key={m.id} className="px-2.5 py-1.5 rounded-lg bg-surface-2 text-xs">
                     <span className="font-semibold text-brand mr-1.5">
                       {m.userId === user?.id ? 'You' : partnerName.split(' ')[0]}
                     </span>
-                    <span className="text-slate-200">{m.content}</span>
+                    <span className="text-ink">{m.content}</span>
                   </div>
                 ))
               )}
@@ -217,7 +217,7 @@ export default function DmPage() {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.length === 0 && (
-          <p className="text-center text-slate-500 text-sm pt-10">
+          <p className="text-center text-muted text-sm pt-10">
             Say hi to {partnerName} 👋
           </p>
         )}
@@ -248,7 +248,7 @@ export default function DmPage() {
               <p className="text-[11px] font-semibold text-brand">
                 Replying to {replyingTo.userId === user?.id ? 'yourself' : partnerName}
               </p>
-              <p className="text-xs text-slate-400 truncate">
+              <p className="text-xs text-muted truncate">
                 {replyingTo.kind === 'VOICE' ? '🎤 Voice message' : replyingTo.content}
               </p>
             </div>
@@ -258,11 +258,11 @@ export default function DmPage() {
       )}
 
       {/* Input */}
-      <div className="p-3 border-t border-white/10 glass-panel shrink-0">
+      <div className="p-3 border-t border-line/10 glass-panel shrink-0">
         <div className="flex gap-2 items-end max-w-3xl mx-auto">
           <textarea
             className="input resize-none text-sm min-h-[40px] max-h-28"
-            placeholder="Message…"
+            aria-label="Message" placeholder="Message…"
             value={input}
             onChange={(e) => {
               setInput(e.target.value);
@@ -281,7 +281,7 @@ export default function DmPage() {
               onClick={send}
               className="w-10 h-10 rounded-xl bg-brand hover:bg-brand-light flex items-center justify-center transition-colors shrink-0"
             >
-              <Send size={16} className="text-white" />
+              <Send size={16} className="text-ink" />
             </button>
           ) : (
             <VoiceRecorderButton onSend={sendVoice} />

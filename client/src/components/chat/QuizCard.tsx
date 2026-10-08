@@ -54,7 +54,7 @@ export default function QuizCard({ message, isOwn }: { message: Message; isOwn: 
             <Trophy size={12} /> Leaderboard
           </button>
         </div>
-        <p className="text-sm font-semibold text-white mb-3">{quiz.question}</p>
+        <p className="text-sm font-semibold text-ink mb-3">{quiz.question}</p>
 
         <div className="space-y-1.5">
           {quiz.options.map((opt, i) => {
@@ -65,24 +65,24 @@ export default function QuizCard({ message, isOwn }: { message: Message; isOwn: 
             return (
               <button key={i} onClick={() => answer(i)} disabled={answered || quiz.ended}
                 className={`relative w-full text-left rounded-xl overflow-hidden border disabled:cursor-default ${
-                  isCorrect ? 'border-emerald-400/60' : isMyWrong ? 'border-red-400/60' : 'border-white/10'
+                  isCorrect ? 'border-emerald-400/60' : isMyWrong ? 'border-red-400/60' : 'border-line/10'
                 }`}>
                 {reveal && (
-                  <div className={`absolute inset-y-0 left-0 transition-all duration-300 ${isCorrect ? 'bg-emerald-500/20' : isMyWrong ? 'bg-red-500/15' : 'bg-white/[0.05]'}`}
+                  <div className={`absolute inset-y-0 left-0 transition-all duration-300 ${isCorrect ? 'bg-emerald-500/20' : isMyWrong ? 'bg-red-500/15' : 'bg-line/[0.05]'}`}
                     style={{ width: `${pct}%` }} />
                 )}
                 <div className="relative flex items-center gap-2 px-3 py-2">
-                  <span className="flex-1 text-sm text-white truncate">{opt}</span>
+                  <span className="flex-1 text-sm text-ink truncate">{opt}</span>
                   {isCorrect && <Check size={14} className="text-emerald-400 shrink-0" />}
                   {isMyWrong && <XIcon size={14} className="text-red-400 shrink-0" />}
-                  {reveal && <span className="text-xs text-slate-300 tabular-nums shrink-0">{count}</span>}
+                  {reveal && <span className="text-xs text-ink-soft tabular-nums shrink-0">{count}</span>}
                 </div>
               </button>
             );
           })}
         </div>
 
-        <div className="flex items-center justify-between mt-2.5 text-[11px] text-slate-400">
+        <div className="flex items-center justify-between mt-2.5 text-[11px] text-muted">
           <span>{quiz.totalAnswers} answered</span>
           {answered && (
             <span className={quiz.myAnswer!.correct ? 'text-emerald-400 font-semibold' : 'text-red-400 font-semibold'}>

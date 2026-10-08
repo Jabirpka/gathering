@@ -74,9 +74,9 @@ export default function CallRingNotification({ ring, onDismiss }: Props) {
               </div>
 
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-slate-400">Incoming {isVideo ? 'video' : 'audio'} call</p>
-                <p className="text-sm font-semibold text-white truncate">{ring.caller.name}</p>
-                {!ring.threadId && <p className="text-xs text-slate-400 truncate">{ring.groupName}</p>}
+                <p className="text-xs text-muted">Incoming {isVideo ? 'video' : 'audio'} call</p>
+                <p className="text-sm font-semibold text-ink truncate">{ring.caller.name}</p>
+                {!ring.threadId && <p className="text-xs text-muted truncate">{ring.groupName}</p>}
               </div>
             </div>
 

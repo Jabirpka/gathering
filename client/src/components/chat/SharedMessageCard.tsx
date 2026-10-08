@@ -30,16 +30,16 @@ export default function SharedMessageCard({ message, isOwn }: { message: Message
           {data.avatar ? (
             <img src={data.avatar} className="w-11 h-11 rounded-xl object-cover shrink-0" alt="" />
           ) : (
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-accent to-brand flex items-center justify-center text-white shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-accent to-brand flex items-center justify-center text-ink shrink-0">
               <UserCircle size={22} />
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-white truncate">{data.name || 'Profile'}</p>
+            <p className="text-sm font-semibold text-ink truncate">{data.name || 'Profile'}</p>
             {data.subtitle && <p className="text-xs text-brand truncate">{data.subtitle}</p>}
-            {data.headline && <p className="text-[11px] text-slate-400 truncate">{data.headline}</p>}
+            {data.headline && <p className="text-[11px] text-muted truncate">{data.headline}</p>}
           </div>
-          <ChevronRight size={16} className="text-slate-500 shrink-0" />
+          <ChevronRight size={16} className="text-muted shrink-0" />
         </button>
       </div>
     );
@@ -66,24 +66,24 @@ export default function SharedMessageCard({ message, isOwn }: { message: Message
           {authorAvatar ? (
             <img src={authorAvatar} className="w-7 h-7 rounded-lg object-cover shrink-0" alt="" />
           ) : (
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-accent to-brand flex items-center justify-center text-[11px] font-bold text-white shrink-0">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-accent to-brand flex items-center justify-center text-[11px] font-bold text-ink shrink-0">
               {(authorName || '?')[0]?.toUpperCase()}
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-white truncate">{authorName}</p>
-            <p className="text-[10px] text-slate-500 flex items-center gap-1"><Newspaper size={10} /> {label}</p>
+            <p className="text-xs font-semibold text-ink truncate">{authorName}</p>
+            <p className="text-[10px] text-muted flex items-center gap-1"><Newspaper size={10} /> {label}</p>
           </div>
           {category && <span className="text-[10px] font-semibold text-brand bg-brand-dim px-1.5 py-0.5 rounded shrink-0">{category}</span>}
         </div>
 
         <button onClick={open} className="w-full text-left active:opacity-90 transition-opacity">
           <div className="px-3 pt-2 pb-1">
-            {title && <p className="text-sm font-bold text-white leading-snug mb-1">{title}</p>}
-            {content && <p className="text-sm text-slate-200 whitespace-pre-wrap break-words">{content}</p>}
+            {title && <p className="text-sm font-bold text-ink leading-snug mb-1">{title}</p>}
+            {content && <p className="text-sm text-ink whitespace-pre-wrap break-words">{content}</p>}
           </div>
           {image && <img src={image} className="w-full max-h-72 object-cover mt-1" alt="" loading="lazy" />}
-          <div className="flex items-center gap-3 px-3 py-2 text-[11px] text-slate-500">
+          <div className="flex items-center gap-3 px-3 py-2 text-[11px] text-muted">
             {full && <><span className="flex items-center gap-1"><Heart size={12} /> {full.likeCount}</span>
               <span className="flex items-center gap-1"><MessageCircle size={12} /> {full.commentCount}</span></>}
             <span className="ml-auto flex items-center gap-1 text-brand font-semibold">Open in feed <ChevronRight size={11} /></span>

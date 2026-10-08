@@ -42,7 +42,7 @@ export default function MemberApproval({ groupId, onClose }: Props) {
       <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }}
         className="relative card w-full max-w-md p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-semibold text-white text-lg flex items-center gap-2">
+          <h2 className="font-semibold text-ink text-lg flex items-center gap-2">
             <UserCheck size={18} className="text-brand" />
             Join Requests
           </h2>
@@ -52,7 +52,7 @@ export default function MemberApproval({ groupId, onClose }: Props) {
         {loading ? (
           <div className="py-8 flex justify-center"><Loader2 size={24} className="animate-spin text-brand" /></div>
         ) : pending.length === 0 ? (
-          <p className="text-center text-slate-400 py-8">No pending requests</p>
+          <p className="text-center text-muted py-8">No pending requests</p>
         ) : (
           <div className="space-y-2">
             {pending.map((member) => (
@@ -65,8 +65,8 @@ export default function MemberApproval({ groupId, onClose }: Props) {
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white">{member.user.name}</p>
-                  <p className="text-xs text-slate-400">{(member.user as any).email}</p>
+                  <p className="text-sm font-medium text-ink">{member.user.name}</p>
+                  <p className="text-xs text-muted">{(member.user as any).email}</p>
                 </div>
                 <div className="flex gap-1.5 shrink-0">
                   <button

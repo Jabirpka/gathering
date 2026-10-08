@@ -58,25 +58,25 @@ export default function DiscoverPage() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="h-14 shrink-0 border-b border-white/10 glass-panel flex items-center px-3 gap-2">
+      <div className="h-14 shrink-0 border-b border-line/10 glass-panel flex items-center px-3 gap-2">
         <button onClick={() => navigate(-1)} className="btn-ghost p-1.5"><ArrowLeft size={16} /></button>
         <div className="flex items-center gap-2">
           <Compass size={16} className="text-brand" />
-          <span className="text-sm font-semibold text-white">Discover</span>
+          <span className="text-sm font-semibold text-ink">Discover</span>
         </div>
       </div>
 
       {/* Search + categories */}
-      <div className="shrink-0 p-3 space-y-3 border-b border-white/10">
+      <div className="shrink-0 p-3 space-y-3 border-b border-line/10">
         <div className="relative">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input className="input pl-8" placeholder="Search public groups…" value={q} onChange={(e) => setQ(e.target.value)} />
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+          <input className="input pl-8" aria-label="Search public groups" placeholder="Search public groups…" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
           {CATS.map((c) => (
             <button key={c} onClick={() => setCat(c)}
               className={clsx('shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all',
-                cat === c ? 'bg-gradient-to-br from-brand to-accent text-white' : 'bg-surface-2 border border-white/10 text-slate-400')}>
+                cat === c ? 'bg-gradient-to-br from-brand to-accent text-white' : 'bg-surface-2 border border-line/10 text-muted')}>
               {c}
             </button>
           ))}
@@ -90,8 +90,8 @@ export default function DiscoverPage() {
         ) : items.length === 0 ? (
           <div className="text-center py-14">
             <Compass size={34} className="text-slate-600 mx-auto mb-3" />
-            <p className="text-slate-300 font-medium">No public groups found</p>
-            <p className="text-slate-500 text-sm">Try another category or search term.</p>
+            <p className="text-ink-soft font-medium">No public groups found</p>
+            <p className="text-muted text-sm">Try another category or search term.</p>
           </div>
         ) : (
           <div className="space-y-2 max-w-lg mx-auto">
@@ -101,18 +101,18 @@ export default function DiscoverPage() {
                   {g.avatar ? (
                     <img src={g.avatar} className="w-full h-full object-cover" alt={g.name} />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-brand to-accent flex items-center justify-center text-lg font-bold text-white">
+                    <div className="w-full h-full bg-gradient-to-br from-brand to-accent flex items-center justify-center text-lg font-bold text-ink">
                       {g.name[0]?.toUpperCase()}
                     </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-white truncate">{g.name}</p>
+                    <p className="text-sm font-semibold text-ink truncate">{g.name}</p>
                     {g.category && <span className="text-[10px] font-semibold text-brand bg-brand-dim px-1.5 py-0.5 rounded-md shrink-0">{g.category}</span>}
                   </div>
-                  <p className="text-xs text-slate-400 truncate">{g.description || 'No description'}</p>
-                  <p className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5"><Users size={11} /> {g.memberCount} member{g.memberCount !== 1 ? 's' : ''}</p>
+                  <p className="text-xs text-muted truncate">{g.description || 'No description'}</p>
+                  <p className="text-[11px] text-muted flex items-center gap-1 mt-0.5"><Users size={11} /> {g.memberCount} member{g.memberCount !== 1 ? 's' : ''}</p>
                 </div>
                 {g.myStatus === 'BANNED' ? (
                   <span className="text-xs text-red-400 shrink-0">Banned</span>
@@ -120,7 +120,7 @@ export default function DiscoverPage() {
                   <button onClick={() => join(g)} disabled={joining === g.id || g.myStatus === 'PENDING'}
                     className={clsx('shrink-0 text-xs font-semibold rounded-lg px-3 py-2 transition-colors disabled:opacity-70',
                       g.myStatus === 'APPROVED' ? 'bg-surface-2 text-brand'
-                        : g.myStatus === 'PENDING' ? 'bg-surface-2 text-slate-400'
+                        : g.myStatus === 'PENDING' ? 'bg-surface-2 text-muted'
                           : 'bg-gradient-to-br from-brand to-accent text-white')}>
                     {joining === g.id ? <Loader2 size={13} className="animate-spin" />
                       : g.myStatus === 'APPROVED' ? 'Open'

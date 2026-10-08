@@ -13,15 +13,28 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:background">@null</item>
-        <!-- Match the app's dark background so the status bar isn't a white strip. -->
-        <item name="android:statusBarColor">#0D0010</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <!-- Match the app's dark background so the status bar isn't a white strip.
+             On Android 15+ (API 35+) statusBarColor is ignored under forced
+             edge-to-edge, so the status-bar strip shows the WINDOW background.
+             Force that dark here (it was white in light mode via DayNight),
+             which is what removes the white bar behind the status-bar icons. -->
+        <item name="android:windowBackground">#FBF7F2</item>
+        <item name="android:statusBarColor">#FBF7F2</item>
+        <item name="android:navigationBarColor">#FBF7F2</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
 
 
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="android:background">@drawable/splash</item>
-        <item name="android:statusBarColor">#0D0010</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowBackground">#FBF7F2</item>
+        <item name="android:statusBarColor">#FBF7F2</item>
+        <item name="android:navigationBarColor">#FBF7F2</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <!-- After the splash dismisses, run on the dark app theme so the
+             status-bar strip stays dark instead of a white default. -->
+        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
     </style>
 </resources>

@@ -46,7 +46,7 @@ export default function MessageBubble({ message, isOwn, senderName, avatar, read
     <div className={clsx('flex gap-2.5 items-end', isOwn && 'flex-row-reverse')}>
       {avatar}
       <div className={clsx('max-w-[75%]', isOwn && 'items-end flex flex-col')}>
-        {senderName && <p className="text-[10px] text-slate-400 mb-0.5 ml-1">{senderName}</p>}
+        {senderName && <p className="text-[10px] text-muted mb-0.5 ml-1">{senderName}</p>}
 
         <div
           onClick={() => !deleted && setShowActions((v) => !v)}
@@ -55,20 +55,20 @@ export default function MessageBubble({ message, isOwn, senderName, avatar, read
             !deleted && 'cursor-pointer',
             isOwn
               // 1b own bubble: magenta→violet gradient, tail at the top-right, magenta glow.
-              ? 'bg-gradient-to-br from-accent to-brand text-white rounded-tr-sm shadow-lg shadow-accent/40'
+              ? 'bg-gradient-to-br from-accent to-brand text-ink rounded-tr-sm shadow-lg shadow-accent/40'
               // 1b received bubble: glassy magenta-tinted sheet with a neon edge, tail top-left.
-              : 'bg-accent/[0.08] border border-accent/20 text-slate-100 rounded-tl-sm backdrop-blur-sm'
+              : 'bg-accent/[0.08] border border-accent/20 text-ink rounded-tl-sm backdrop-blur-sm'
           )}
         >
           {message.replyTo && !deleted && (
             <div className={clsx(
               'mb-1.5 px-2 py-1 rounded-lg border-l-2 text-xs',
-              isOwn ? 'bg-white/15 border-white/60' : 'bg-white/[0.06] border-brand'
+              isOwn ? 'bg-line/15 border-line/60' : 'bg-line/[0.06] border-brand'
             )}>
-              <p className={clsx('font-semibold', isOwn ? 'text-white/90' : 'text-brand')}>
+              <p className={clsx('font-semibold', isOwn ? 'text-ink/90' : 'text-brand')}>
                 {message.replyTo.user.name}
               </p>
-              <p className={clsx('truncate', isOwn ? 'text-white/75' : 'text-slate-400')}>
+              <p className={clsx('truncate', isOwn ? 'text-ink/75' : 'text-muted')}>
                 {message.replyTo.deletedAt
                   ? 'Message deleted'
                   : message.replyTo.kind === 'VOICE'
@@ -79,14 +79,14 @@ export default function MessageBubble({ message, isOwn, senderName, avatar, read
           )}
 
           {deleted ? (
-            <span className={clsx('italic flex items-center gap-1.5', isOwn ? 'text-white/70' : 'text-slate-500')}>
+            <span className={clsx('italic flex items-center gap-1.5', isOwn ? 'text-ink/70' : 'text-muted')}>
               <Ban size={12} /> This message was deleted
             </span>
           ) : message.kind === 'VOICE' ? (
             <span className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
               <audio controls preload="metadata" src={message.content} className="max-w-[200px] h-9" />
               {message.duration != null && (
-                <span className={clsx('text-[10px]', isOwn ? 'text-white/75' : 'text-slate-400')}>
+                <span className={clsx('text-[10px]', isOwn ? 'text-ink/75' : 'text-muted')}>
                   {Math.floor(message.duration / 60)}:{(message.duration % 60).toString().padStart(2, '0')}
                 </span>
               )}
@@ -107,7 +107,7 @@ export default function MessageBubble({ message, isOwn, senderName, avatar, read
                   'flex items-center gap-0.5 text-[11px] px-1.5 py-0.5 rounded-full border backdrop-blur transition-all',
                   info.mine
                     ? 'bg-brand-dim border-brand/40 text-brand font-semibold'
-                    : 'bg-white/10 border-white/15 text-slate-200'
+                    : 'bg-line/10 border-line/15 text-ink'
                 )}
               >
                 <span className="text-[13px] leading-none">{emoji}</span>
@@ -135,14 +135,14 @@ export default function MessageBubble({ message, isOwn, senderName, avatar, read
             <div className={clsx('flex gap-1', isOwn && 'justify-end')}>
               <button
                 onClick={() => { setShowActions(false); onReply(message); }}
-                className="flex items-center gap-1 text-[11px] px-2 py-1 rounded-lg bg-surface-2 text-slate-300 hover:text-brand transition-colors"
+                className="flex items-center gap-1 text-[11px] px-2 py-1 rounded-lg bg-surface-2 text-ink-soft hover:text-brand transition-colors"
               >
                 <Reply size={11} /> Reply
               </button>
               {isOwn && (
                 <button
                   onClick={() => { setShowActions(false); onDelete(message); }}
-                  className="flex items-center gap-1 text-[11px] px-2 py-1 rounded-lg bg-surface-2 text-slate-300 hover:text-red-400 transition-colors"
+                  className="flex items-center gap-1 text-[11px] px-2 py-1 rounded-lg bg-surface-2 text-ink-soft hover:text-red-400 transition-colors"
                 >
                   <Trash2 size={11} /> Delete
                 </button>
@@ -151,12 +151,12 @@ export default function MessageBubble({ message, isOwn, senderName, avatar, read
           </div>
         )}
 
-        <p className="text-[10px] text-slate-500 mt-0.5 mx-1 flex items-center gap-1">
+        <p className="text-[10px] text-muted mt-0.5 mx-1 flex items-center gap-1">
           {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
           {isOwn && !deleted && readState && (
             readState === 'read'
               ? <CheckCheck size={13} className="text-sky-400" />
-              : <Check size={13} className="text-slate-400" />
+              : <Check size={13} className="text-muted" />
           )}
         </p>
       </div>

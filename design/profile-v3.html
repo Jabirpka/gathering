@@ -1,0 +1,102 @@
+<!-- @dsCard group="Gathering — Screens (v3)" name="Profile" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gathering — Profile</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #08000c; padding: 28px; font-family: 'Space Grotesk', system-ui, sans-serif; }
+  .phone { width: 360px; height: 740px; border-radius: 36px; overflow: hidden; position: relative; background: #0d0010; border: 1px solid #330060; box-shadow: 0 24px 80px rgba(0,0,0,0.6); color: #fff; display: flex; flex-direction: column; }
+  .avatar { border-radius: 20px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .grad { background: linear-gradient(135deg, #e879f9, #a855f7); }
+  .sub { color: #9b7abd; }
+  .card { background: #1c0333; border: 1px solid #330060; border-radius: 16px; }
+  .lbl { font-size:10px;font-weight:700;letter-spacing:1.6px;color:#7c6690; }
+  .chip { padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;background:#220040;border:1px solid #330060;color:#cbb6e0; }
+  .acc { display:flex;align-items:center;padding:14px 16px; }
+  .priv { font-size:10px;color:#9b7abd;background:#220040;border:1px solid #330060;border-radius:8px;padding:3px 6px; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div style="flex:1;overflow-y:auto;min-height:0;">
+    <!-- Banner (full width) -->
+    <div style="height:120px;background:linear-gradient(135deg,rgba(232,121,249,0.5),#2a1030,rgba(168,85,247,0.4));position:relative;">
+      <div style="position:absolute;top:10px;right:12px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:14px;">📷</div>
+    </div>
+
+    <!-- Avatar overlapping -->
+    <div style="display:flex;flex-direction:column;align-items:center;margin-top:-44px;padding:0 16px;">
+      <div class="avatar grad" style="width:88px;height:88px;font-size:34px;border:3px solid #0d0010;position:relative;">J<span style="position:absolute;bottom:-2px;right:-2px;width:26px;height:26px;border-radius:50%;background:#a855f7;border:2px solid #0d0010;display:flex;align-items:center;justify-content:center;font-size:12px;">📷</span></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:10px;"><span style="font-size:19px;font-weight:800;">Jabir</span><span style="color:#a855f7;font-size:16px;">✔</span></div>
+      <div class="sub" style="font-size:13px;">@jabird7x2</div>
+      <span style="margin-top:6px;font-size:11px;font-weight:600;color:#34d399;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);border-radius:999px;padding:2px 10px;">Available for hire</span>
+      <div style="margin-top:10px;display:flex;align-items:center;gap:6px;background:rgba(245,158,11,0.15);border:1px solid rgba(251,191,36,.5);border-radius:999px;padding:5px 12px;"><span style="color:#fcd34d;font-size:12px;">⚡ 14 strike points</span></div>
+    </div>
+
+    <div style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+      <!-- completion -->
+      <div class="card" style="padding:14px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:13px;font-weight:700;">Profile 75% complete</span><span style="font-size:11px;color:#e879f9;">Fill in more below</span></div>
+        <div style="height:8px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden;"><div style="height:100%;width:75%;border-radius:999px;background:linear-gradient(90deg,#e879f9,#a855f7);"></div></div>
+      </div>
+
+      <!-- profile views -->
+      <div class="card" style="padding:14px;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;"><span style="color:#e879f9;">👁</span><span style="font-size:13px;font-weight:700;">32 profile views</span><span class="sub" style="font-size:11px;">· 30 days</span></div>
+        <div style="display:flex;gap:6px;"><div class="avatar" style="width:30px;height:30px;border-radius:9px;background:#7c3aed;font-size:11px;">A</div><div class="avatar" style="width:30px;height:30px;border-radius:9px;background:#f472b6;font-size:11px;">M</div><div class="avatar" style="width:30px;height:30px;border-radius:9px;background:#34d399;font-size:11px;">R</div><div class="avatar" style="width:30px;height:30px;border-radius:9px;background:#60a5fa;font-size:11px;">N</div><span class="sub" style="font-size:12px;align-self:center;">+28</span></div>
+      </div>
+
+      <!-- verification -->
+      <div class="card" style="padding:16px;">
+        <div class="lbl" style="margin-bottom:8px;">VERIFICATION</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:5px 0;"><span style="color:#34d399;">✔</span><span style="flex:1;font-size:13px;">Email</span><span style="font-size:11px;color:#34d399;">Verified</span></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:5px 0;"><span style="color:#34d399;">✔</span><span style="flex:1;font-size:13px;">Mobile</span><span style="font-size:11px;color:#34d399;">Verified</span></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:5px 0;"><span class="sub">⛨</span><span style="flex:1;font-size:13px;">Face verification</span><span class="sub" style="font-size:11px;">Coming soon</span></div>
+      </div>
+
+      <!-- basic info -->
+      <div class="card" style="padding:16px;">
+        <div class="lbl" style="margin-bottom:12px;">BASIC INFO</div>
+        <div style="margin-bottom:12px;"><div class="sub" style="font-size:11px;margin-bottom:4px;">Full name</div><div style="background:#220040;border:1px solid #330060;border-radius:12px;padding:10px 12px;font-size:13px;">Jabir Rahman</div></div>
+        <div style="margin-bottom:12px;"><div class="sub" style="font-size:11px;margin-bottom:4px;">Username <span style="color:#e879f9;">*</span> (permanent)</div><div style="background:#220040;border:1px solid #330060;border-radius:12px;padding:10px 12px;font-size:13px;display:flex;align-items:center;gap:6px;"><span class="sub">@</span>jabird7x2<span style="margin-left:auto;">🔒</span></div></div>
+        <div><div class="sub" style="font-size:11px;margin-bottom:4px;">Gender</div><div style="background:#220040;border:1px solid #330060;border-radius:12px;padding:10px 12px;font-size:13px;display:flex;justify-content:space-between;">Male <span class="sub">⌄</span></div></div>
+      </div>
+
+      <!-- interests (list style) -->
+      <div class="card" style="padding:16px;">
+        <div class="lbl" style="margin-bottom:10px;">INTERESTS (5/20)</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;background:rgba(232,121,249,0.1);"><span style="width:18px;height:18px;border-radius:6px;background:#e879f9;display:flex;align-items:center;justify-content:center;font-size:11px;">✓</span><span style="font-size:13px;">🤖 AI</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;background:rgba(232,121,249,0.1);"><span style="width:18px;height:18px;border-radius:6px;background:#e879f9;display:flex;align-items:center;justify-content:center;font-size:11px;">✓</span><span style="font-size:13px;">💻 Technology</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;"><span style="width:18px;height:18px;border-radius:6px;border:1px solid rgba(255,255,255,.25);"></span><span style="font-size:13px;color:#cbb6e0;">🎮 Gaming</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;"><span style="width:18px;height:18px;border-radius:6px;border:1px solid rgba(255,255,255,.25);"></span><span style="font-size:13px;color:#cbb6e0;">📸 Photography</span></div>
+        </div>
+      </div>
+
+      <!-- accordion sections -->
+      <div class="card" style="overflow:hidden;">
+        <div class="acc"><span style="flex:1;font-size:14px;font-weight:700;">Work</span><span class="priv">🌍 Everyone</span><span class="sub" style="margin-left:8px;">⌄</span></div>
+      </div>
+      <div class="card" style="overflow:hidden;">
+        <div class="acc"><span style="flex:1;font-size:14px;font-weight:700;">Education</span><span class="priv">👥 My groups</span><span class="sub" style="margin-left:8px;">⌄</span></div>
+      </div>
+      <div class="card" style="overflow:hidden;">
+        <div class="acc"><span style="flex:1;font-size:14px;font-weight:700;">Skills</span><span class="priv">🌍 Everyone</span><span class="sub" style="margin-left:8px;">⌄</span></div>
+      </div>
+      <div class="card" style="overflow:hidden;">
+        <div class="acc"><span style="flex:1;font-size:14px;font-weight:700;">Lifestyle</span><span class="priv">🔒 Only me</span><span class="sub" style="margin-left:8px;">⌄</span></div>
+      </div>
+      <div class="card" style="overflow:hidden;">
+        <div class="acc"><span style="flex:1;font-size:14px;font-weight:700;">Favorites</span><span class="priv">🌍 Everyone</span><span class="sub" style="margin-left:8px;">⌄</span></div>
+      </div>
+
+      <div style="text-align:center;padding:14px;border-radius:14px;background:linear-gradient(135deg,#e879f9,#a855f7);font-weight:700;font-size:14px;">💾 Save changes</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

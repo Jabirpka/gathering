@@ -88,9 +88,9 @@ export default function ImageAdjustModal({ src, aspect, outWidth, title, onCance
     <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onCancel} />
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="relative w-full max-w-sm glass-panel border border-white/10 rounded-2xl p-4 shadow-2xl">
+        className="relative w-full max-w-sm glass-panel border border-line/10 rounded-2xl p-4 shadow-2xl">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-bold text-white">{title}</h2>
+          <h2 className="text-sm font-bold text-ink">{title}</h2>
           <button onClick={onCancel} className="btn-ghost p-1.5"><X size={16} /></button>
         </div>
 
@@ -121,24 +121,24 @@ export default function ImageAdjustModal({ src, aspect, outWidth, title, onCance
             />
           )}
         </div>
-        <p className="text-[11px] text-slate-500 text-center mt-1.5">Drag to position · slide to zoom</p>
+        <p className="text-[11px] text-muted text-center mt-1.5">Drag to position · slide to zoom</p>
 
         {/* Zoom */}
         <div className="flex items-center gap-2.5 mt-2.5">
-          <ZoomIn size={15} className="text-slate-400 shrink-0" />
+          <ZoomIn size={15} className="text-muted shrink-0" />
           <input
             type="range" min={1} max={3} step={0.01} value={zoom}
             onChange={(e) => changeZoom(Number(e.target.value))}
-            className="flex-1 accent-[#a855f7]"
+            className="flex-1 accent-[#E0503F]"
           />
         </div>
 
         <div className="flex gap-2 mt-4">
-          <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl bg-surface-2 border border-white/10 text-sm font-semibold text-slate-300">
+          <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl bg-surface-2 border border-line/10 text-sm font-semibold text-ink-soft">
             Cancel
           </button>
           <button onClick={confirm}
-            className="flex-1 py-2.5 rounded-xl bg-gradient-to-br from-brand to-accent text-sm font-semibold text-white flex items-center justify-center gap-1.5">
+            className="flex-1 py-2.5 rounded-xl bg-gradient-to-br from-brand to-accent text-sm font-semibold text-ink flex items-center justify-center gap-1.5">
             <Check size={15} /> Use photo
           </button>
         </div>
