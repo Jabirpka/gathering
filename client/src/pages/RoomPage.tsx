@@ -68,28 +68,26 @@ export default function RoomPage() {
   }
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
-      {/* Header — back minimizes the call (keeps it running) */}
-      <div className="h-14 shrink-0 border-b border-line/10 glass-panel flex items-center px-3 gap-2">
-        <button onClick={() => popOrReplace(navigate, `/groups/${groupId}`)} className="btn-ghost p-1.5">
-          <ArrowLeft size={16} />
+    <div className="fixed inset-0 z-[60] overflow-hidden bg-call">
+      {/* The live call UI fills the whole screen (CallManager portals into this). */}
+      <div ref={setCallMount} className="absolute inset-0" />
+
+      {/* Immersive top overlay: back · title · invite */}
+      <div className="absolute top-0 inset-x-0 z-20 flex items-center gap-2 px-3 pb-8 pointer-events-none bg-gradient-to-b from-black/70 via-black/30 to-transparent"
+        style={{ paddingTop: 'max(env(safe-area-inset-top), 0.75rem)' }}>
+        <button onClick={() => popOrReplace(navigate, `/groups/${groupId}`)}
+          className="pointer-events-auto w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur flex items-center justify-center text-white shrink-0" aria-label="Back">
+          <ArrowLeft size={18} />
         </button>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold text-ink truncate">{activeGroup?.name ?? room.name}</div>
-          <div className="flex items-center gap-1.5 mt-0.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[11px] font-medium text-emerald-400">Live</span>
-            <span className="text-[11px] text-muted">· {room.type === 'AUDIO_CALL' ? 'Voice' : 'Video'} call</span>
-          </div>
+          <div className="text-sm font-bold text-white truncate drop-shadow">{activeGroup?.name ?? room.name}</div>
+          <div className="text-[11px] text-white/70">{room.type === 'AUDIO_CALL' ? 'Voice call' : 'Video call'}</div>
         </div>
         <button onClick={inviteToCall}
-          className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[11px] font-semibold text-brand bg-brand-dim border border-brand/30 active:scale-95 transition-transform">
-          <UserPlus size={13} /> Invite
+          className="pointer-events-auto flex items-center gap-1.5 rounded-full px-3.5 h-9 text-xs font-semibold text-white bg-white/12 hover:bg-white/20 backdrop-blur border border-white/15 active:scale-95 transition shrink-0">
+          <UserPlus size={14} /> Invite
         </button>
       </div>
-
-      {/* CallManager portals the live call UI into this div */}
-      <div ref={setCallMount} className="flex-1 relative bg-black" />
     </div>
   );
 }

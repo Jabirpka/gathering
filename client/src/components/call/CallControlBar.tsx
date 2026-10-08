@@ -90,8 +90,8 @@ export default function CallControlBar({ audioOnly = false, onMinimize, onLeave 
           </span>
         </div>
       )}
-      <div className="absolute bottom-0 inset-x-0 flex justify-center pb-[max(env(safe-area-inset-bottom),1rem)] pt-8 bg-gradient-to-t from-black/85 to-transparent pointer-events-none z-10">
-        <div className="flex items-end gap-3.5 sm:gap-4 pointer-events-auto">
+      <div className="absolute bottom-0 inset-x-0 flex justify-center pb-[max(env(safe-area-inset-bottom),1.25rem)] pt-10 bg-gradient-to-t from-black/85 to-transparent pointer-events-none z-10">
+        <div className="flex items-end gap-3 sm:gap-4 pointer-events-auto bg-black/35 backdrop-blur-xl border border-white/10 rounded-[28px] px-4 py-3 shadow-2xl">
           {/* Mute */}
           <div className="flex flex-col items-center gap-1.5">
             <button

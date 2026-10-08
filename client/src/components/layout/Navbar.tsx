@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Video, Bell, Plus, Sun, Moon } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useNotificationStore } from '../../store/notificationStore';
 import NotificationPanel from '../notifications/NotificationPanel';
 import { currentTheme, toggleTheme } from '../../lib/theme';
@@ -9,6 +9,10 @@ export default function Navbar() {
   const { unreadCount } = useNotificationStore();
   const [showNotifs, setShowNotifs] = useState(false);
   const [theme, setThemeState] = useState(currentTheme());
+  const { pathname } = useLocation();
+
+  // Calls are full-screen and immersive — no app bar on top of them.
+  if (/\/rooms\/|\/call$/.test(pathname)) return null;
 
   // The bottom-bar bell (if any) can open this panel via a window event.
   useEffect(() => {

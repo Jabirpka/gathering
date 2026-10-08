@@ -15,7 +15,7 @@ import {
 import type { TrackReferenceOrPlaceholder } from '@livekit/components-react';
 import '@livekit/components-styles';
 import { ConnectionState, Track } from 'livekit-client';
-import { Loader2, AlertCircle, Maximize2, Minimize2, PhoneOff } from 'lucide-react';
+import { Loader2, AlertCircle, Maximize2, Minimize2, PhoneOff, Users } from 'lucide-react';
 import { livekitApi } from '../../services/api';
 import { useCallStore } from '../../store/callStore';
 import CallControlBar from './CallControlBar';
@@ -159,6 +159,30 @@ function DmAutoLeave({ onEnd }: { onEnd: () => void }) {
   return null;
 }
 
+/** Live call chip: elapsed timer + participant count, under the page header. */
+function CallTopBar({ startedAt }: { startedAt?: number }) {
+  const participants = useParticipants();
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const secs = startedAt ? Math.max(0, Math.floor((now - startedAt) / 1000)) : 0;
+  const mm = String(Math.floor(secs / 60)).padStart(2, '0');
+  const ss = String(secs % 60).padStart(2, '0');
+  return (
+    <div className="absolute left-1/2 -translate-x-1/2 z-10 pointer-events-none"
+      style={{ top: 'calc(max(env(safe-area-inset-top), 0.75rem) + 3.1rem)' }}>
+      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur border border-white/10 text-white text-xs font-medium shadow-lg">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+        <span className="tabular-nums tracking-wide">{mm}:{ss}</span>
+        <span className="text-white/30">·</span>
+        <span className="flex items-center gap-1"><Users size={12} /> {participants.length}</span>
+      </div>
+    </div>
+  );
+}
+
 function CallLoader() {
   const state = useConnectionState();
   if (state === ConnectionState.Connecting || state === ConnectionState.Reconnecting) {
@@ -273,7 +297,7 @@ export default function CallManager() {
         video={!call.audioOnly}
         audio
         data-lk-theme="default"
-        style={{ height: '100%', width: '100%', background: '#0a0a0f', position: 'relative' }}
+        style={{ height: '100%', width: '100%', background: 'transparent', position: 'relative' }}
         onDisconnected={leaveCall}
       >
         <CallStage audioOnly={!!call.audioOnly} />
@@ -285,7 +309,10 @@ export default function CallManager() {
             <Maximize2 size={18} className="text-white drop-shadow" />
           </div>
         ) : (
-          <CallControlBar audioOnly={!!call.audioOnly} onMinimize={goToChat} onLeave={leaveCall} />
+          <>
+            <CallTopBar startedAt={call.startedAt} />
+            <CallControlBar audioOnly={!!call.audioOnly} onMinimize={goToChat} onLeave={leaveCall} />
+          </>
         )}
       </LiveKitRoom>
     );

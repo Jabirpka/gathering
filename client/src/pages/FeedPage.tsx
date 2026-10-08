@@ -108,13 +108,13 @@ export default function FeedPage() {
 
       {/* Compose FAB — sits above the bottom nav */}
       <button onClick={() => setShowCreate(true)}
-        className="fixed right-4 z-40 w-14 h-14 rounded-2xl flex items-center justify-center text-ink"
+        className="fixed right-4 z-40 w-14 h-14 rounded-2xl flex items-center justify-center text-white"
         style={{
           bottom: 'calc(max(env(safe-area-inset-bottom), 0.5rem) + 4.5rem)',
           background: 'linear-gradient(135deg,#FF6B5E,#E0503F)',
-          boxShadow: '0 8px 24px rgba(255,107,94,0.5)',
+          boxShadow: '0 10px 26px rgba(224,80,63,0.45)',
         }}
-        title="Create post">
+        aria-label="Create post">
         <Plus size={26} />
       </button>
 

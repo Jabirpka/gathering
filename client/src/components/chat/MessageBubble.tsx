@@ -55,7 +55,7 @@ export default function MessageBubble({ message, isOwn, senderName, avatar, read
             !deleted && 'cursor-pointer',
             isOwn
               // 1b own bubble: magenta→violet gradient, tail at the top-right, magenta glow.
-              ? 'bg-gradient-to-br from-accent to-brand text-ink rounded-tr-sm shadow-lg shadow-accent/40'
+              ? 'bg-gradient-to-br from-accent to-brand text-white rounded-tr-sm shadow-lg shadow-accent/40'
               // 1b received bubble: glassy magenta-tinted sheet with a neon edge, tail top-left.
               : 'bg-accent/[0.08] border border-accent/20 text-ink rounded-tl-sm backdrop-blur-sm'
           )}

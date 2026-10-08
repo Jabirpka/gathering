@@ -12,6 +12,8 @@ export interface ActiveCallInfo {
   displayName: string;
   /** Voice call — join with the camera off (WhatsApp-style audio call). */
   audioOnly?: boolean;
+  /** When the call was joined (ms epoch) — powers the live call timer. */
+  startedAt?: number;
 }
 
 interface CallStore {
@@ -33,7 +35,7 @@ export const useCallStore = create<CallStore>((set, get) => ({
     // Don't touch mountNode here — the call page's ref callback runs before this
     // effect and has already set it to the page's mount point (or left it null
     // if we're joining from elsewhere, which correctly starts minimized).
-    set({ call: info });
+    set({ call: { ...info, startedAt: Date.now() } });
 
     // Announce presence so the OTHER side rings. This is tied to the call's
     // lifetime, not to any page: navigating away only minimizes the call (the

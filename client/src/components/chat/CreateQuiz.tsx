@@ -92,7 +92,7 @@ export default function CreateQuiz({ groupId, onClose }: Props) {
 
       <div className="absolute bottom-6 right-5">
         <button onClick={submit} disabled={saving}
-          className="w-14 h-14 rounded-2xl flex items-center justify-center text-ink shadow-lg disabled:opacity-60"
+          className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg disabled:opacity-60"
           style={{ background: 'linear-gradient(135deg,#FF6B5E,#E0503F)', boxShadow: '0 8px 24px rgba(255,107,94,0.5)' }}>
           {saving ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
         </button>

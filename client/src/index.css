@@ -225,9 +225,19 @@
   animation: statusProgress linear forwards;
 }
 
+/* Vibrant full-screen call backdrop (shows behind audio-call avatars; video
+   tiles cover it). Always dark + colourful regardless of app theme. */
+.bg-call {
+  background:
+    radial-gradient(60rem 40rem at 18% -12%, rgba(255, 107, 94, 0.28), transparent 60%),
+    radial-gradient(52rem 42rem at 102% 112%, rgba(124, 58, 237, 0.24), transparent 60%),
+    radial-gradient(40rem 40rem at 50% 50%, rgba(78, 156, 131, 0.10), transparent 70%),
+    #0b0a12;
+}
+
 /* LiveKit overrides */
 .lk-room-container {
-  background: var(--call-bg) !important;
+  background: transparent !important;
 }
 
 /* Video grid responsive */
