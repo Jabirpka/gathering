@@ -195,7 +195,7 @@ export default function CreatePostModal({ onClose, onPosted }: Props) {
                 <div className="relative rounded-xl overflow-hidden border border-line/10">
                   <img src={image} className="w-full max-h-64 object-cover" alt="" />
                   <button onClick={() => setImage(null)}
-                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 hover:bg-red-500/80 flex items-center justify-center text-ink">
+                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 hover:bg-red-500/80 flex items-center justify-center text-white">
                     <X size={14} />
                   </button>
                 </div>

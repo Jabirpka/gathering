@@ -8,10 +8,11 @@ export default {
         // so the whole theme can be changed — or a light mode added — in one
         // place. Brand/accent use channel triplets so Tailwind opacity
         // modifiers (brand/30, to-accent/20, …) still resolve.
-        // Subtle elevated fills — theme-aware via --line (white-alpha in dark,
-        // black-alpha in light), so they read correctly on either background.
+        // surface = an OPAQUE, theme-aware base (used as full-screen modal/page
+        // backgrounds and avatar fills). surface-1/2/3 are subtle elevated
+        // tints via --line (white-alpha in dark, black-alpha in light).
         surface: {
-          DEFAULT: 'rgb(var(--line) / 0.06)',
+          DEFAULT: 'var(--bg)',
           1: 'rgb(var(--line) / 0.05)',
           2: 'rgb(var(--line) / 0.08)',
           3: 'rgb(var(--line) / 0.12)',
